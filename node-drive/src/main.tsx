@@ -4,17 +4,24 @@ import './index.css';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Index from './routes/Index';
 import ErrorPage from './routes/ErrorPage';
-import { UserAuthProvider } from './contexts/UserContext';
+import { UserAuthContext, UserAuthProvider } from './contexts/UserContext';
 import Login from './routes/Auth/Login';
 import Register from './routes/Auth/Register';
 import User from './routes/User/User';
 import ProtectedRoute from './routes/ProtectedRoute';
-import Logout from './routes/Auth/logout';
+import Logout from './routes/Auth/Logout';
 
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <Index />,
+		element: <ProtectedRoute />,
+		children: [
+			{
+				path: "/",
+				element: <Index />,
+				errorElement: <ErrorPage />
+			}
+		],
 		errorElement: <ErrorPage />
 	},
 	{
@@ -35,14 +42,14 @@ const router = createBrowserRouter([
 	{
 		path: "/user",
 		element: <ProtectedRoute />,
-		errorElement: <ErrorPage />,
 		children: [
 			{ 
 				path: "/user",
 				element: <User />,
 				errorElement: <ErrorPage />
 			}
-		]
+		],
+		errorElement: <ErrorPage />,
 	},
 ]);
 

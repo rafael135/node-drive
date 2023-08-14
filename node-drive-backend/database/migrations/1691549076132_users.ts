@@ -11,6 +11,7 @@ export default class extends BaseSchema {
       table.string("password", 250).notNullable();
       table.integer("storage_type_id").nullable();
       table.foreign("storage_type_id", "id").references("storage_types");
+      table.string("files_path", 100).nullable();
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL

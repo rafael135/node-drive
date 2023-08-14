@@ -3,6 +3,7 @@ export type User = {
     name: number;
     email: number;
     storageTypeId: number;
+    files_path: string;
 }
 
 export type AuthError = {

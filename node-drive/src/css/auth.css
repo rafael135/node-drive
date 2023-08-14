@@ -1,0 +1,26 @@
+@layer components {
+    .auth-screen {
+        @apply w-full h-screen flex justify-center items-center;
+    }
+
+    .input-form {
+        @apply w-80 bg-gray-100 rounded-lg shadow-xl shadow-black/40 flex flex-col;
+    }
+    .input-form h1 {
+        @apply bg-blue-600 text-white text-2xl font-bold text-center py-2 rounded-t-lg;
+    }
+
+    .input-form .inputs-container {
+        @apply p-4 w-full flex flex-col gap-4;
+    }
+    .inputs-container input {
+        @apply w-full text-slate-900 outline-none bg-white/70 border-t-0 border-l-0 border-r-0 border-b-2 border-solid border-b-gray-600/60 focus:border-b-gray-600/90 focus:bg-white/90 focus:ring-0;
+    }
+    .inputs-container input.error {
+        @apply placeholder:text-red-600/80 border-b-red-600/60;
+    }
+
+    .input-form button {
+        @apply px-6 py-2.5 mx-4 mb-4 bg-blue-600 text-white rounded-lg hover:bg-blue-600/95 active:bg-blue-700;
+    }
+}

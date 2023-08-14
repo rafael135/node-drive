@@ -1,0 +1,32 @@
+@layer components {
+    header {
+        @apply w-full h-16 px-4 flex items-center bg-gray-100 shadow-sm;
+    }
+
+    header .navbar-logo {
+        @apply text-2xl text-slate-600 font-semibold;
+    }
+
+    header .navbar-avatar {
+
+    }
+    header .navbar-avatar svg {
+        @apply fill-gray-600/90 relative -bottom-1.5 flex;
+    }
+
+    header .navbar-searchFiles {
+        @apply w-80 p-2 mx-auto flex items-center gap-2 bg-gray-200 rounded-3xl;
+    }
+    header .navbar-searchFiles.opened {
+        @apply bg-white/90;
+    }
+    .navbar-searchFiles input {
+        @apply flex-1 text-slate-900 p-0 py-1 text-lg border-transparent bg-transparent outline-none focus:ring-0 focus:shadow-none border-none;
+    }
+    .navbar-searchFiles span {
+        @apply p-2 aspect-square cursor-pointer rounded-full flex items-center justify-center;
+    }
+    .navbar-searchFiles span svg {
+        @apply w-4 h-4 fill-slate-700;
+    }
+}

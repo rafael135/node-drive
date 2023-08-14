@@ -19,14 +19,17 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route';
+import Auth from 'App/Middleware/Auth';
 
 Route.group(() => {
 	Route.group(() => {
 		Route.post("/login", "AuthController.login");
 		Route.post("/register", "AuthController.register");
 
-		Route.post("/checkToken", "AuthController.checkToken");
-	}).prefix("/user")
+		Route.post("/checkToken", "AuthController.checkToken").middleware(["auth"]);
+
+		Route.post("/files", "FilesController.getFoldersAndFilesFrom");
+	}).prefix("/user");
 	
 }).prefix("/api");
 

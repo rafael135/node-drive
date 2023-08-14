@@ -1,9 +1,9 @@
-import { ReactNode, createContext, useEffect, useState } from "react";
+import { ReactNode, createContext, useEffect, useMemo, useState } from "react";
 import { AuthError, User } from "../types/Auth"
 import AxiosInstance from "../helpers/AxiosInstance";
 
 const USER_STORAGE_KEY = "UserContextAuth";
-const TOKEN_STORAGE_KEY = "TokenContextAuth";
+export const TOKEN_STORAGE_KEY = "TokenContextAuth";
 
 export type UserContextType = {
     user: User | null;
@@ -36,7 +36,11 @@ export const UserAuthProvider = ({children}: {children: ReactNode}) => {
 
     useEffect(() => {
         if(tokenState != null) {
+            AxiosInstance.defaults.headers.common["Authorization"] = `Bearer ${tokenState}`;
             localStorage.setItem(TOKEN_STORAGE_KEY, tokenState);
+        } else {
+            delete AxiosInstance.defaults.headers.common["Authorization"];
+            localStorage.removeItem(TOKEN_STORAGE_KEY);
         }
     },
         [tokenState]
@@ -51,10 +55,17 @@ export const UserAuthProvider = ({children}: {children: ReactNode}) => {
         setUserState(user);
     }
     
-
+    const contextValue = useMemo(
+        () => ({
+            user: userState,
+            token: tokenState,
+            setToken: _setToken,
+            setUser: _setUser,
+        }),
+    [tokenState, userState]);
 
     return (
-        <UserAuthContext.Provider value={ { user: userState, token: tokenState, setToken: _setToken, setUser: _setUser } }>
+        <UserAuthContext.Provider value={contextValue}>
             { children }
         </UserAuthContext.Provider>
     );
@@ -78,15 +89,18 @@ type checkTokenResponse = {
 }
 
 export const checkToken = async (token: string) => {
-    let req = await AxiosInstance.post("/user/checkToken", {
-        token: token
+    let req = await AxiosInstance.post("http://127.0.0.1:3333/api/user/checkToken", {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        },
+        
     });
 
     let res: checkTokenResponse = req.data;
 
-    if(res.status >= 400 && res.status <= 406) {
-        return false;
-    } else {
+    if(res.status == 200) {
         return true;
     }
+
+    return false;
 }

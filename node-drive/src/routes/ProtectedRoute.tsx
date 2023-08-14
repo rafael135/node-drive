@@ -1,30 +1,33 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { UserAuthContext, checkToken } from "../contexts/UserContext";
 import { Navigate, Outlet } from "react-router-dom";
-
-
-
 
 const ProtectedRoute = () => {
     const authCtx = useContext(UserAuthContext);
 
     if(authCtx == null) {
-        return <Navigate to={"/login"} />
+        return <Navigate to={"/login"} />;
     }
 
-    if(authCtx.token == null || authCtx.user == null) {
-        return <Navigate to={"/login"} />
+    if(authCtx.token == null) {
+        return <Navigate to={"/login"} />;
     }
 
-    checkToken(authCtx.token).then((res) => {
+    const checkAuth = async () => {
+        let res = await checkToken(authCtx.token!);
+
         if(res == true) {
-            return <Outlet />;
-        } else {
-            return <Navigate to={"/login"} />
+            return;
         }
-    }).catch((err) => {
-        return <Navigate to={"/login"} />
-    });
+
+        return <Navigate to={"/login"} />;
+    }
+
+    useEffect(() => {
+        checkAuth();
+    }, []);
+
+    return <Outlet />;
 }
 
 export default ProtectedRoute;

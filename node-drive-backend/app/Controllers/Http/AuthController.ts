@@ -4,6 +4,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import User from 'App/Models/User';
 import Env from '@ioc:Adonis/Core/Env';
 import JWT from "jsonwebtoken";
+import Drive from '@ioc:Adonis/Core/Drive';
 
 export default class AuthController {
     async register({ request, response }: { request: Request, response: Response }) {
@@ -82,10 +83,17 @@ export default class AuthController {
                 name: name,
                 email: email,
                 password: passwordHash,
-                storage_type_id: null
+                storage_type_id: null,
+                files_path: null
             });
 
             let token = JWT.sign({ id: newUser.id, email: newUser.email }, Env.get("APP_KEY"), { algorithm: "HS256", expiresIn: "5 days" });
+
+            let userFilesPath = `/user/${newUser.id}/files`;
+            newUser.files_path = userFilesPath;
+            await newUser.save();
+
+            await Drive.put(`${userFilesPath}/ignore`, `${newUser.id}`);
 
             response.status(201);
             response.safeHeader("Authorization", token);
@@ -187,20 +195,10 @@ export default class AuthController {
 
 
     async checkToken({ request, response }: { request: Request, response: Response }) {
-        let token = request.input("token", null);
+        response.status(200);
 
-        if(token == null) {
-            response.status(400);
-            response.send({
-                response: {
-                    user: null
-                },
-                status: 400
-            });
-        }
-
-        let t = JWT.verify(token, Env.get("APP_KEY"));
-
-        console.log(t);
+        return response.send({
+            status: 200
+        });
     }
 }

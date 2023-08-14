@@ -1,11 +1,12 @@
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import AxiosInstance from "../../helpers/AxiosInstance";
 import style from "./Login.module.css";
 import { AuthResponseType, UserAuthContext } from "../../contexts/UserContext";
 import { Navigate, useNavigate } from "react-router-dom";
+import { AuthError } from "../../types/Auth";
 
 const Login = () => {
-    let navigate = useNavigate();
+    //let navigate = useNavigate();
     const authCtx = useContext(UserAuthContext);
 
     if(authCtx?.token != null && authCtx.user != null) {
@@ -17,14 +18,65 @@ const Login = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
+    
+    let emailInput = useRef<HTMLInputElement | null>(null);
+    let passwordInput = useRef<HTMLInputElement | null>(null);
+
+    let placeholders = ["E-mail", "Senha"];
+
+    const errorEvent = (e: FocusEvent) => {
+        let input = (e.target as HTMLInputElement);
+
+        switch(input.id) {
+            case "email":
+                emailInput.current!.classList.remove("error");
+                emailInput.current!.placeholder = placeholders[0];
+                break;
+
+            case "password":
+                passwordInput.current!.classList.remove("error");
+                passwordInput.current!.placeholder = placeholders[1];
+                break;
+        }
+
+        removeErrorEvent(input);
+    }
+
+    const removeErrorEvent = (input: HTMLInputElement) => {
+        input.removeEventListener("focus", errorEvent);
+    }
+
+    const showError = (error: AuthError) => {
+        switch(error.field) {
+            case "email":
+                emailInput.current!.classList.add("error");
+                setEmail("");
+                emailInput.current!.placeholder = error.msg;
+                emailInput.current!.addEventListener("focus", errorEvent);
+                break;
+            case "password":
+                passwordInput.current!.classList.add("error");
+                setPassword("");
+                passwordInput.current!.placeholder = error.msg;
+                passwordInput.current!.addEventListener("focus", errorEvent);
+                break;
+        }
+    }
 
     const handleLogin = async () => {
-        let req = await axios.post("/user/login", {
-            email: email,
-            password: password
+        let req = await fetch("http://127.0.0.1:3333/api/user/login", {
+            method: "POST",
+            body: JSON.stringify({
+                email: email,
+                password: password
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+            
         });
 
-        let res: AuthResponseType = req.data;
+        let res: AuthResponseType = await req.json();
 
         if(res.status == 406) {
             let errors = res.response.errors;
@@ -32,6 +84,10 @@ const Login = () => {
             if(errors == undefined) {
                 return;
             }
+
+            errors.forEach((err) => {
+                showError(err);
+            });
     
             return;
         }
@@ -48,18 +104,19 @@ const Login = () => {
     }
 
     return (
-        <div className="w-full h-screen flex justify-center items-center">
-            <form className="w-80 bg-gray-100 rounded-lg shadow-xl flex flex-col" onSubmit={(e) => { e.preventDefault(); }}>
-                <h1 className="bg-blue-600 text-white text-2xl font-bold text-center py-2 rounded-t-lg">Login</h1>
+        <div className="auth-screen">
+            <form className="input-form" onSubmit={(e) => { e.preventDefault(); }}>
+                <h1>Login</h1>
 
-                <div className="p-4 w-full flex flex-col gap-4">
+                <div className="inputs-container">
                     <input
                         type="email" 
                         autoComplete="email"
                         placeholder="E-mail"
                         value={email}
                         onChange={(e) => { setEmail(e.target.value); }}
-                        className="w-full text-slate-900 outline-none bg-white/70 border-t-0 border-l-0 border-r-0 border-b-2 border-solid border-b-gray-600/60 focus:border-b-gray-600/90 focus:bg-white/90 focus:ring-0"
+                        ref={emailInput}
+                        id="email"
                     />
 
                     <input
@@ -68,9 +125,16 @@ const Login = () => {
                         placeholder="Senha"
                         value={password}
                         onChange={(e) => { setPassword(e.target.value); }}
-                        className="w-full text-slate-900 outline-none bg-white/70 border-t-0 border-l-0 border-r-0 border-b-2 border-solid border-b-gray-600/60 focus:border-b-gray-600/90 focus:bg-white/90 focus:ring-0"
+                        ref={passwordInput}
+                        id="password"
                     />
                 </div>
+
+                <button
+                    onClick={handleLogin}
+                >
+                    Registrar-se
+                </button>
             </form>
         </div>
     );
