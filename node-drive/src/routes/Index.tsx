@@ -9,7 +9,7 @@ const Index = () => {
 
     return (
         <Layout activeTab="files">
-            <CurrentFolder path={userCtx!.user!.files_path!} />
+            <CurrentFolder userFilesPath={userCtx!.user!.files_path!} />
         </Layout>
     );
 }

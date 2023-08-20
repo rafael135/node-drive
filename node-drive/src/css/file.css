@@ -1,3 +1,13 @@
 @layer components {
-    
+    .folderToolBar {
+        @apply flex gap-2 w-full h-14 p-2 border-solid border-t border-t-gray-600/20 border-b border-b-gray-600/20 bg-gray-50;
+    }
+
+    .folderToolBar .btn-back {
+        @apply flex justify-center items-center bg-transparent p-2 border border-solid border-gray-300/80 rounded-full hover:bg-black/10 active:bg-black/20;
+    }
+
+    .folderToolBar .btn-action {
+        @apply py-1 px-2.5 flex justify-center items-center gap-1 bg-blue-500 text-white text-base rounded-md hover:bg-blue-600 active:bg-blue-700;
+    }
 }

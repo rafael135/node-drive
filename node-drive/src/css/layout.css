@@ -9,7 +9,7 @@
 
     .layout-sidebar {
         height: calc(100vh - 64px);
-        @apply fixed flex flex-col gap-1 py-4 px-4 w-80 bg-gray-100 shadow-sm;
+        @apply fixed flex flex-col gap-1 py-4 px-4 w-80 bg-gray-100 border-solid border-r border-r-gray-600/20 shadow-sm;
     }
     .layout-sidebar .layout-sidebar--item {
         @apply w-full py-1 flex justify-center items-center gap-2 text-base cursor-pointer font-semibold rounded-lg;

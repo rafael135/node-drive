@@ -28,7 +28,14 @@ Route.group(() => {
 
 		Route.post("/checkToken", "AuthController.checkToken").middleware(["auth"]);
 
-		Route.post("/files", "FilesController.getFoldersAndFilesFrom");
+		Route.post("/files", "FilesController.getFoldersAndFilesFrom").middleware(["auth"]);
+
+		Route.group(() => {
+			Route.post("/download", "FilesController.downloadFile").middleware(["auth"]);
+
+			Route.delete("/", "FilesController.deleteFile").middleware(["auth"]);
+		}).prefix("/files");
+
 	}).prefix("/user");
 	
 }).prefix("/api");

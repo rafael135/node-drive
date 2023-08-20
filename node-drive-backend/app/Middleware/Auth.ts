@@ -12,7 +12,6 @@ export default class Auth {
         	if(authType == "Bearer") {
             	try {
                 	const decoded = JWT.verify(token, Env.get("APP_KEY"));
-					console.log(decoded);
                 	success = true;
             	}catch(err) {
 					response.status(401);
