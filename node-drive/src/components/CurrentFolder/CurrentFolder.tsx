@@ -1,16 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FileType } from "../../types/File";
 import AxiosInstance from "../../helpers/AxiosInstance";
 import File from "../Files/File";
 
 import { BsPlus, BsArrow90DegLeft } from "react-icons/bs";
-import { Modal } from "flowbite-react";
+import { FileInput, Label, Modal } from "flowbite-react";
+import UploadLabel from "./UploadLabel";
 
 type props = {
     userFilesPath: string;
 };
 
 const CurrentFolder = ({userFilesPath}: props) => {
+
+    let fileUploadInput = useRef(null);
     
     const [path, setPath] = useState<string>(userFilesPath);
     const [files, setFiles] = useState<FileType[]>([]);
@@ -18,9 +21,8 @@ const CurrentFolder = ({userFilesPath}: props) => {
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
 
     type FileResponse = {
-        response: {
-            files: FileType[];
-        },
+        
+        files: FileType[];
         status: number;
     }
 
@@ -32,7 +34,7 @@ const CurrentFolder = ({userFilesPath}: props) => {
                 return;
             }
 
-            let files = response.response.files;
+            let files = response.files;
 
             setFiles(files);
         });
@@ -53,13 +55,48 @@ const CurrentFolder = ({userFilesPath}: props) => {
         setPath(splited.join('/'));
     }
 
+    const uploadFile = async (file: File) => {
+        let name = file.name;
+
+        const fileReader = new FileReader();
+
+        fileReader.readAsArrayBuffer(file);
+
+        fileReader.addEventListener("load", (e) => {
+            AxiosInstance.post("/user/files/upload", {
+                path: path,
+                file: e.target!.result,
+                fileName: name
+            }, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+        });
+
+        
+    }
+
+
+    const handleFileUpload = async () => {
+        if(fileUploadInput != null) {
+            let input = (fileUploadInput.current as unknown) as HTMLInputElement;
+
+            if(input.files!.length > 0 && input.files != null) {
+                for(let i = 0; i < input.files!.length; i++) {
+                    let file = input.files[i];
+                    
+                    uploadFile(file);
+                }
+            }
+        }
+    }
+
     useEffect(() => {
         getFiles();
     }, []);
 
     useEffect(() => {
-
-
         getFiles();
     }, [path]);
 
@@ -77,12 +114,11 @@ const CurrentFolder = ({userFilesPath}: props) => {
                     </Modal.Header>
 
                     <Modal.Body>
-
+                        <Label htmlFor="fileUpload">
+                            <UploadLabel />
+                        </Label>
+                        <FileInput ref={fileUploadInput} multiple={true} className="hidden" id="fileUpload" onChange={handleFileUpload} />
                     </Modal.Body>
-
-                    <Modal.Footer>
-
-                    </Modal.Footer>
                 </Modal>
             }
 

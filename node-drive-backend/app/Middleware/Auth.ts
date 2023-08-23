@@ -13,7 +13,7 @@ export default class Auth {
             	try {
                 	const decoded = JWT.verify(token, Env.get("APP_KEY"));
                 	success = true;
-            	}catch(err) {
+            	} catch(err) {
 					response.status(401);
 					return response.send({
 						status: 401

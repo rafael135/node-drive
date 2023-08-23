@@ -40,8 +40,8 @@ const File = ({info, folderPath}: props) => {
                 const anchorElement = document.createElement("a");
 
                 anchorElement.href = href;
-                console.log(info.extension);
-                anchorElement.download = `${info.name}${(info.extension == null) ? ".txt" : info.extension}`;
+                
+                anchorElement.download = `${info.name}${(info.extension == null) ? ".txt" : ""}`;
 
                 document.body.appendChild(anchorElement);
                 anchorElement.click();

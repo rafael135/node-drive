@@ -2,6 +2,8 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Drive from '@ioc:Adonis/Core/Drive';
 import Application from "@ioc:Adonis/Core/Application";
 
+import JWT from "jsonwebtoken";
+
 export default class FilesController {
     async getFoldersAndFilesFrom({ request, response }: HttpContextContract) {
         let path = request.input("path", null);
@@ -9,9 +11,7 @@ export default class FilesController {
         if(path == null) {
             response.status(400);
             return response.send({
-                response: {
-                    files: null
-                },
+                files: null,
                 status: 400
             });
         }
@@ -41,9 +41,7 @@ export default class FilesController {
 
         response.status(200);
         return response.send({
-            response: {
-                files: filesAndFolders
-            },
+            files: filesAndFolders,
             status: 200
         });
     }
@@ -55,7 +53,7 @@ export default class FilesController {
         if(filePath == null) {
             response.status(400);
             return response.send({
-                response: null,
+                success: false,
                 status: 400
             });
         }
@@ -80,7 +78,7 @@ export default class FilesController {
 
         response.status(400);
         return response.send({
-            response: null,
+            success: false,
             status: 400
         });
     }
@@ -91,11 +89,55 @@ export default class FilesController {
         if(fileName == null) {
             response.status(400);
             return response.send({
-                response: null,
+                success: false,
                 status: 400
             });
         }
 
+
+    }
+
+    async uploadFile({ request, response }: HttpContextContract) {
+
+        let file = request.file("file");
+        let fileName = request.input("fileName", null);
+        let path = request.input("path", null) as string;
+        let token = request.header("Authorization")!.split(' ');
         
+
+        if(file == null || fileName == null || path == null || token == undefined) {
+            response.status(400);
+            return response.send({
+                success: false,
+                status: 400
+            });
+        }
+
+        type decodedToken = {
+            id: number;
+            email: string;
+            iat: number;
+            exp: number;
+        }
+
+        let decoded = JWT.decode(token[1]) as decodedToken;
+
+        let pathSplit = path.split('/');
+
+        if(pathSplit[2] != decoded.id.toString()) {
+            response.status(401);
+            return response.send({
+                success: false,
+                status: 401
+            });
+        }
+
+        await file.moveToDisk(path, { name: fileName }, "local");
+
+        response.status(200);
+        return response.send({
+            success: true,
+            status: 200
+        });
     }
 }
