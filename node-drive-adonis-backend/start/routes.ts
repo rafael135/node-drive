@@ -35,6 +35,8 @@ Route.group(() => {
 
 			Route.post("/upload", "FilesController.uploadFile").middleware(["auth"]);
 
+			Route.get("/view", "FilesController.viewFile").middleware(["auth"]);
+
 			Route.delete("/", "FilesController.deleteFile").middleware(["auth"]);
 		}).prefix("/files");
 

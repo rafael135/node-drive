@@ -10,4 +10,29 @@
     .folderToolBar .btn-action {
         @apply py-1 px-2.5 flex justify-center items-center gap-1 bg-blue-500 text-white text-base rounded-md hover:bg-blue-600 active:bg-blue-700;
     }
+
+
+
+    .file-card {
+        @apply w-32 h-32 max-w-[8rem] flex flex-col border border-solid border-gray-300 cursor-pointer transition-all ease-in-out duration-100 hover:bg-gray-400/50;
+    }
+    .file-card .fileName {
+        @apply text-slate-800 font-medium py-1.5 text-center truncate;
+    }
+
+
+
+    .selectedFileModal {
+
+    }
+    .selectedFileModal .selectedFileModal-header {
+
+    }
+    .selectedFileModal .selectedFileModal-body {
+        @apply flex flex-col gap-2;
+    }
+
+    .selectedFileModal .selectedFileModal-footer .btn-action {
+        @apply px-4 py-1 flex gap-1.5 items-center text-lg text-white bg-blue-500 transition-all ease-in-out duration-150 rounded-lg hover:bg-blue-600;
+    }
 }

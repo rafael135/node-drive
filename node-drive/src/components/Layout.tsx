@@ -19,6 +19,9 @@ const Layout = ({ children, activeTab }: props) => {
                         <BsHddFill className="fill-gray-500" />
                         Meus arquivos
                     </div>
+                    <div className={`layout-sidebar--item ${(activeTab == "user") ? "active" : ""}`}>
+
+                    </div>
                 </div>
 
                 <main>

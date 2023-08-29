@@ -10,6 +10,8 @@ const ProtectedRoute = () => {
     }
 
     if(authCtx.token == null) {
+        authCtx.setUser(null);
+
         return <Navigate to={"/login"} />;
     }
 
@@ -19,7 +21,9 @@ const ProtectedRoute = () => {
         if(res == true) {
             return;
         }
-
+        
+        authCtx.setToken(null);
+        authCtx.setUser(null);
         return <Navigate to={"/login"} />;
     }
 

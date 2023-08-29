@@ -26,6 +26,9 @@ export default class FilesController {
         let filesAndFolders = await Drive.list(path).map((file) => {
             let loc = file.location.split("/");
 
+            
+
+
             let name  = loc[loc.length - 1];
             let ext = name.split('.');
             let extension: string | null = ext[ext.length - 1];
@@ -81,6 +84,48 @@ export default class FilesController {
             success: false,
             status: 400
         });
+    }
+
+    async viewFile({ request, response }: HttpContextContract) {
+        let token = request.header("Authorization")!.split(" ");
+        let { filePath } = request.qs();
+
+        if(token[1] == null || filePath == null) {
+            response.status(400);
+            return response.send({
+                data: null,
+                status: 400
+            });
+        }
+
+        type decodedToken = {
+            id: number;
+            email: string;
+            iat: number;
+            exp: number;
+        }
+
+        let decoded = JWT.decode(token[1]) as decodedToken;
+
+        let path = `user/${decoded.id}/files/${filePath}`;
+
+        let data: string | null = null;
+
+        try {
+            //let reader = await Drive.getStream(path);
+            data = (await Drive.get(path)).toString();
+        } catch(e) {
+            
+        }
+        
+
+        response.status(200);
+        return response.send({
+            data: data,
+            status: 200
+        });
+
+
     }
 
     async deleteFile({ request, response }: HttpContextContract) {

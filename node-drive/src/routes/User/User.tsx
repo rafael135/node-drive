@@ -5,7 +5,7 @@ const User = () => {
     return (
         <Layout activeTab="user">
             <div>
-                dddd
+                
             </div>
         </Layout>
     );

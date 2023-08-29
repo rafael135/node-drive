@@ -25,6 +25,11 @@ const CurrentFolder = ({userFilesPath}: props) => {
         files: FileType[];
         status: number;
     }
+    
+    type UploadResponse = {
+        success: boolean;
+        status: number;
+    }
 
     const getFiles = () => {
         AxiosInstance.post("/user/files", { path: path }).then((res) => {
@@ -62,8 +67,8 @@ const CurrentFolder = ({userFilesPath}: props) => {
 
         fileReader.readAsArrayBuffer(file);
 
-        fileReader.addEventListener("load", (e) => {
-            AxiosInstance.post("/user/files/upload", {
+        fileReader.addEventListener("load", async (e) => {
+            let req = await AxiosInstance.post("/user/files/upload", {
                 path: path,
                 file: e.target!.result,
                 fileName: name
@@ -72,6 +77,17 @@ const CurrentFolder = ({userFilesPath}: props) => {
                     "Content-Type": "multipart/form-data"
                 }
             });
+
+            let res: UploadResponse = req.data;
+
+            if(res.success == true) {
+                
+
+                setShowAddModal(false);
+                getFiles();
+            }
+
+            
         });
 
         
