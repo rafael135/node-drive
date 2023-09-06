@@ -1,0 +1,6 @@
+seedar database:
+npx prisma db seed
+
+
+criar migration:
+npx prisma migrate dev --name (nome)

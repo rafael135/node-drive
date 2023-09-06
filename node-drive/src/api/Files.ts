@@ -18,3 +18,23 @@ export const getFileData = async (filePath: string) => {
 
     return res.data;
 }
+
+
+type NewFolderResponse = {
+    status: number;
+}
+
+export const createNewFolder = async (path: string, folderName: string) => {
+    let req = await AxiosInstance.post("/user/files/new/folder", {
+        path: path,
+        folderName: folderName
+    });
+
+    let res: NewFolderResponse = req.data;
+
+    if(res.status >= 400 && res.status <= 404) {
+        return false;
+    }
+
+    return true;
+}

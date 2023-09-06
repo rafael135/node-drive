@@ -1,14 +1,20 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FileType } from "../../types/File";
 import AxiosInstance from "../../helpers/AxiosInstance";
-import File from "../Files/File";
 
 import { BsPlus, BsArrow90DegLeft } from "react-icons/bs";
 import { FileInput, Label, Modal } from "flowbite-react";
 import UploadLabel from "./UploadLabel";
+import FilesContainer from "./FilesContainer";
+import FileUploadToast from "./FileUploadToast";
 
 type props = {
     userFilesPath: string;
+};
+
+export type FolderPath = {
+    path: string,
+    setFolderPath: React.Dispatch<React.SetStateAction<string>>
 };
 
 const CurrentFolder = ({userFilesPath}: props) => {
@@ -19,6 +25,11 @@ const CurrentFolder = ({userFilesPath}: props) => {
     const [files, setFiles] = useState<FileType[]>([]);
 
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
+    const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
+
+    const [showToast, setShowToast] = useState<boolean>(false);
+    const [toastMsg, setToastMsg] = useState<string>("");
+    
 
     type FileResponse = {
         
@@ -85,6 +96,10 @@ const CurrentFolder = ({userFilesPath}: props) => {
 
                 setShowAddModal(false);
                 getFiles();
+
+                setToastMsg("Upload feito com sucesso!");
+                setShowToast(true);
+                
             }
 
             
@@ -116,13 +131,17 @@ const CurrentFolder = ({userFilesPath}: props) => {
         getFiles();
     }, [path]);
 
-    let _folderPath = {
-        path: path,
+    let _folderPath: FolderPath = {
+        path: path.toString(),
         setFolderPath: setPath
     }
 
     return (
         <>
+            { (showToast == true) &&
+                <FileUploadToast msg={toastMsg} />
+            }
+
             {(showAddModal == true) &&
                 <Modal show={showAddModal === true} dismissible={true} onClose={() => { setShowAddModal(false); }}>
                     <Modal.Header>
@@ -157,13 +176,16 @@ const CurrentFolder = ({userFilesPath}: props) => {
                 </button>
             </div>
 
-            <div className="w-full max-h-full h-auto flex justify-center gap-2 flex-wrap p-2">
-                { (files.length > 0) && 
-                    files.map((file, idx) => {
-                        return <File key={idx} info={file} folderPath={_folderPath} />
-                    })
-                }
-            </div>
+            <FilesContainer 
+                files={files}
+                pathInfo={_folderPath}
+                setShowAddModal={setShowAddModal}
+                activeFile={selectedFile}
+                setActiveFile={setSelectedFile}
+                setToastMsg={setToastMsg}
+                setShowToast={setShowToast}
+                getFiles={getFiles}
+            />
         </>
     );
 }

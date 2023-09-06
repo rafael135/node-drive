@@ -1,9 +1,9 @@
-import { ReactNode, createContext, useEffect, useMemo, useState } from "react";
+import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { AuthError, User } from "../types/Auth"
 import AxiosInstance from "../helpers/AxiosInstance";
 
-const USER_STORAGE_KEY = "UserContextAuth";
-export const TOKEN_STORAGE_KEY = "TokenContextAuth";
+let USER_STORAGE_KEY = "UserContextAuth";
+export let TOKEN_STORAGE_KEY = "TokenContextAuth";
 
 export type UserContextType = {
     user: User | null;
@@ -81,26 +81,7 @@ export type AuthResponseType = {
 }
 
 
-type checkTokenResponse = {
-    response: {
-        user: User | null;
-    },
-    status: number;
-}
-
-export const checkToken = async (token: string) => {
-    let req = await AxiosInstance.post("http://127.0.0.1:3333/api/user/checkToken", {
-        headers: {
-            "Authorization": `Bearer ${token}`
-        },
-        
-    });
-
-    let res: checkTokenResponse = req.data;
-
-    if(res.status == 200) {
-        return true;
-    }
-
-    return false;
+export const resetToken = () => {
+    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
 }

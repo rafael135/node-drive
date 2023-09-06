@@ -80,9 +80,15 @@ const Navbar = () => {
                     </Dropdown.Header>
                     
                     {(authCtx?.user != null) && 
-                        <Dropdown.Item href="/user/files">
-                            Meus Arquivos
-                        </Dropdown.Item>
+                        <>
+                            <Dropdown.Item href="/user/config">
+                                Configurações
+                            </Dropdown.Item>
+
+                            <Dropdown.Item href="/logout">
+                                Sair
+                            </Dropdown.Item>
+                        </>
                     }
 
                     {(authCtx?.user == null) &&

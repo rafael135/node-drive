@@ -38,6 +38,8 @@ Route.group(() => {
 			Route.get("/view", "FilesController.viewFile").middleware(["auth"]);
 
 			Route.delete("/", "FilesController.deleteFile").middleware(["auth"]);
+
+			Route.post("/new/folder", "FilesController.newFolder").middleware(["auth"]);
 		}).prefix("/files");
 
 	}).prefix("/user");

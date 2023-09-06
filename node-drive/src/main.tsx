@@ -11,6 +11,8 @@ import User from './routes/User/User';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Logout from './routes/Auth/Logout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import UserConfig from './routes/User/UserConfig';
+import SharedFiles from './routes/Files/SharedFiles';
 
 const client = new QueryClient();
 
@@ -54,6 +56,30 @@ const router = createBrowserRouter([
 		],
 		errorElement: <ErrorPage />,
 	},
+	{
+		path: "/user/config",
+		element: <ProtectedRoute />,
+		children: [
+			{
+				path: "/user/config",
+				element: <UserConfig />,
+				errorElement: <ErrorPage />
+			}
+		],
+		errorElement: <ErrorPage />
+	},
+	{
+		path: "/files/shared",
+		element: <ProtectedRoute />,
+		children: [
+			{
+				path: "/files/shared",
+				element: <SharedFiles />,
+				errorElement: <ErrorPage />
+			}
+		],
+		errorElement: <ErrorPage />
+	}
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

@@ -1,6 +1,7 @@
 import { useContext, useEffect } from "react";
-import { UserAuthContext, checkToken } from "../contexts/UserContext";
+import { UserAuthContext } from "../contexts/UserContext";
 import { Navigate, Outlet } from "react-router-dom";
+import { checkToken } from "../api/Auth";
 
 const ProtectedRoute = () => {
     const authCtx = useContext(UserAuthContext);
@@ -22,8 +23,6 @@ const ProtectedRoute = () => {
             return;
         }
         
-        authCtx.setToken(null);
-        authCtx.setUser(null);
         return <Navigate to={"/login"} />;
     }
 

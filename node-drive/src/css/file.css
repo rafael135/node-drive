@@ -1,4 +1,9 @@
 @layer components {
+    .filesMainContainer {
+        height: calc(100% - 64px);
+        @apply w-full overflow-x-hidden overflow-y-scroll;
+    }
+
     .folderToolBar {
         @apply flex gap-2 w-full h-14 p-2 border-solid border-t border-t-gray-600/20 border-b border-b-gray-600/20 bg-gray-50;
     }
@@ -34,5 +39,17 @@
 
     .selectedFileModal .selectedFileModal-footer .btn-action {
         @apply px-4 py-1 flex gap-1.5 items-center text-lg text-white bg-blue-500 transition-all ease-in-out duration-150 rounded-lg hover:bg-blue-600;
+    }
+
+
+
+    .newFolderModal {
+
+    }
+    .newFolderModal form {
+        @apply flex flex-row gap-2 items-center;
+    }
+    .newFolderModal label {
+        @apply text-lg;
     }
 }

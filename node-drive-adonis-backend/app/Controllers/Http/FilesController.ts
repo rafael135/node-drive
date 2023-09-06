@@ -1,6 +1,7 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Drive from '@ioc:Adonis/Core/Drive';
 import Application from "@ioc:Adonis/Core/Application";
+import fs from "node:fs/promises";
 
 import JWT from "jsonwebtoken";
 
@@ -19,25 +20,41 @@ export default class FilesController {
         type newFileType = {
             name: string;
             extension: string | null;
+            size: string;
             location: string;
             isFile: boolean;
         }
 
-        let filesAndFolders = await Drive.list(path).map((file) => {
+        let filesAndFolders = await Drive.list(path).map( async(file) => {
             let loc = file.location.split("/");
 
             
+
+            let fileInfo = await Drive.getStats(file.location);
+            //let fileInfo = await fs.stat(file.location);
 
 
             let name  = loc[loc.length - 1];
             let ext = name.split('.');
             let extension: string | null = ext[ext.length - 1];
 
+
+
             if(extension == name) {
                 extension = null;
             }
 
-            let newFile: newFileType = { location: file.location, isFile: file.isFile, name: name, extension: extension };
+            let fileSize: string;
+
+            if(fileInfo.size > 1000000) {
+                fileSize = `${fileInfo.size / 1000000} Mb`;
+            } else if(fileInfo.size > 1000) {
+                fileSize = `${fileInfo.size / 1000} Kb`;
+            } else {
+                fileSize = `${fileInfo.size} Bytes`;
+            }
+
+            let newFile: newFileType = { location: file.location, isFile: file.isFile, name: name, extension: extension, size: fileSize };
 
             return newFile;
         }).toArray();
@@ -89,6 +106,8 @@ export default class FilesController {
     async viewFile({ request, response }: HttpContextContract) {
         let token = request.header("Authorization")!.split(" ");
         let { filePath } = request.qs();
+
+        //console.log(filePath);
 
         if(token[1] == null || filePath == null) {
             response.status(400);
@@ -166,7 +185,7 @@ export default class FilesController {
         }
 
         let decoded = JWT.decode(token[1]) as decodedToken;
-
+        
         let pathSplit = path.split('/');
 
         if(pathSplit[2] != decoded.id.toString()) {
@@ -183,6 +202,52 @@ export default class FilesController {
         return response.send({
             success: true,
             status: 200
+        });
+    }
+
+
+    async newFolder({ request, response }: HttpContextContract) {
+        let path: string | null = request.input("path", null);
+        let folderName: string | null = request.input("folderName", null);
+        let token = request.header("Authorization")!.split(' ');
+        
+        if(path == null || folderName == null) {
+            response.status(400);
+            return response.send({
+                success: false,
+                status: 400
+            });
+        }
+
+        type decodedToken = {
+            id: number;
+            email: string;
+            iat: number;
+            exp: number;
+        }
+
+        let decoded = JWT.decode(token[1]) as decodedToken;
+        
+        let pathSplit = path.split('/');
+
+        if(pathSplit[2] != decoded.id.toString()) {
+            response.status(401);
+            return response.send({
+                success: false,
+                status: 401
+            });
+        }
+        
+        // Obtenho o caminho ate a pasta
+        let drivePath = Drive.use("local").makePath(`${path}`);
+        
+        // Crio o pasta no diretorio do usuario
+        await fs.mkdir(`${drivePath}/${folderName}`);
+
+        response.status(201);
+        return response.send({
+            success: true,
+            status: 201
         });
     }
 }

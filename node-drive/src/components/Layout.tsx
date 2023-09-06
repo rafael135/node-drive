@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Navbar from "./Navbar/Navbar";
-import { BsHddFill } from "react-icons/bs";
+import { BsHddFill, BsShareFill } from "react-icons/bs";
+import { Link } from "react-router-dom";
 
 type props = {
     children: ReactNode;
@@ -15,13 +16,14 @@ const Layout = ({ children, activeTab }: props) => {
 
             <div className="layout-container">
                 <div className="layout-sidebar">
-                    <div className={`layout-sidebar--item ${(activeTab == "files") ? "active" : ""}` }>
+                    <Link className={`layout-sidebar--item ${(activeTab == "files") ? "active" : ""}`} to={"/"}>
                         <BsHddFill className="fill-gray-500" />
-                        Meus arquivos
-                    </div>
-                    <div className={`layout-sidebar--item ${(activeTab == "user") ? "active" : ""}`}>
-
-                    </div>
+                        <p className="flex-1">Meus arquivos</p>
+                    </Link>
+                    <Link className={`layout-sidebar--item ${(activeTab == "sharedFiles") ? "active" : ""}`} to={"/files/shared"}>
+                        <BsShareFill className="fill-gray-500" />
+                        <p className="flex-1">Arquivos compartilhados</p>
+                    </Link>
                 </div>
 
                 <main>
