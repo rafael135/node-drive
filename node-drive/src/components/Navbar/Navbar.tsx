@@ -63,10 +63,10 @@ const Navbar = () => {
                         {(authCtx?.user != null) &&
                             <>
                                 <span className="block text-sm">
-                                    Rafael
+                                    { authCtx.user.name }
                                 </span>
                                 <span className="block truncate text-sm font-medium">
-                                    rafael@gmail.com
+                                    { authCtx.user.email }
                                 </span>
                             </>
                         }

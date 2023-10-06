@@ -133,7 +133,7 @@ const Login = () => {
                 <button
                     onClick={handleLogin}
                 >
-                    Registrar-se
+                    Login
                 </button>
             </form>
         </div>

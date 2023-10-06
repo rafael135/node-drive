@@ -1,13 +1,16 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class extends BaseSchema {
-	protected tableName = 'storage_types'
+	protected tableName = 'public_files'
 
 	public async up () {
 		this.schema.createTable(this.tableName, (table) => {
 			table.increments('id');
 
-			table.integer("storage_size");
+			table.integer("user_id").unsigned();
+			table.foreign("user_id", "id").references("users");
+
+			table.string("folder_path", 255);
 
 			/**
 			 * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
@@ -18,6 +21,10 @@ export default class extends BaseSchema {
 	}
 
 	public async down () {
+		this.schema.table(this.tableName, (table) => {
+			table.dropForeign("user_id");
+		});
+
 		this.schema.dropTable(this.tableName)
 	}
 }

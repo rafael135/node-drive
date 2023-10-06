@@ -1,4 +1,4 @@
-import { BsFolderPlus, BsTicketDetailedFill, BsUpload } from "react-icons/bs";
+import { BsFolderPlus, BsShareFill, BsTicketDetailedFill, BsUpload, BsWrenchAdjustableCircleFill } from "react-icons/bs";
 import { FileType } from "../../types/File";
 
 type props = {
@@ -10,33 +10,57 @@ type props = {
 
 const ContextMenu = ({ x, y, selectFn, activeFile }: props) => {
     return (
-        <div className={`absolute w-48 px-0 py-2 h-auto bg-white border border-solid border-gray-500/70 rounded-[4px]`} style={{ top: `${x}px`, left: `${y}px` }}>
-            <ul className="flex flex-col">
+        <div className={`fileContextMenu`} style={{ top: `${x}px`, left: `${y}px` }}>
+            <ul>
                 { (activeFile != null) &&
                     <li onClick={() => { selectFn(2); }}
-                        className="flex items-center gap-1 px-1 py-1 text-slate-800 cursor-pointer hover:bg-black/20 hover:text-slate-900 active:text-slate-950 group"
+                        className="contextMenu-item group"
                     >
-                        <BsTicketDetailedFill className="fill-slate-800 group-hover:text-blue-700" />
+                        <BsTicketDetailedFill className="contextMenu-item--img" />
                         Detalhes
                     </li>
                 }
 
                 <li 
                     onClick={() => { selectFn(1); }}
-                    className="flex items-center gap-1 px-1 py-1 text-slate-800 cursor-pointer hover:bg-black/20 hover:text-slate-900 active:text-slate-950 group"
+                    className="contextMenu-item group"
                 >
-                    <BsUpload className="fill-slate-800 group-hover:text-blue-700" />
+                    <BsUpload className="contextMenu-item--img" />
                     Adicionar arquivo
                 </li>
 
                 { (activeFile == null) &&
                     <li
                         onClick={() => { selectFn(3); }}
-                        className="flex items-center gap-1 px-1 py-1 text-slate-800 cursor-pointer hover:bg-black/20 hover:text-slate-900 active:text-slate-950 group"
+                        className="contextMenu-item group"
                     >
-                        <BsFolderPlus className="fill-slate-800 group-hover:text-blue-700" />
+                        <BsFolderPlus className="contextMenu-item--img" />
                         Nova Pasta
                     </li>
+                }
+
+                { (activeFile?.isFile == false) &&
+                    <>
+                        <li
+                            onClick={() => { selectFn(9); }}
+                            className="contextMenu-item group"
+                        >
+                            <BsWrenchAdjustableCircleFill className="contextMenu-item--img" />
+                            Propriedades
+                        </li>
+                    </>
+                }
+
+                {(activeFile?.isFile == true) &&
+                    <>
+                        <li
+                            onClick={() => { selectFn(4); }}
+                            className="contextMenu-item group"
+                        >
+                            <BsShareFill className="contextMenu-item--img" />
+                            Tornar Público
+                        </li>
+                    </>
                 }
             </ul>
         </div>

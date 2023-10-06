@@ -4,4 +4,5 @@ export type FileType = {
     size: string;
     location: string;
     isFile: boolean;
+    selected?: boolean;
 }

@@ -1,15 +1,12 @@
-import Layout from "../../components/Layout"
+import Config from "../../components/User/Config/Config";
+import UserLayout from "../../components/User/UserLayout";
 
 
 const UserConfig = () => {
-
-
     return (
-        <Layout activeTab="">
-            <div>
-                Teste
-            </div>
-        </Layout>
+        <UserLayout>
+            <Config />
+        </UserLayout>
     );
 }
 

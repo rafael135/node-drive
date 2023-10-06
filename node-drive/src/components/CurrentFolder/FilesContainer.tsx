@@ -4,24 +4,26 @@ import File from "../Files/File";
 import { FolderPath } from "./CurrentFolder";
 import ContextMenu from "./ContextMenu";
 import { Button, Label, Modal, TextInput } from "flowbite-react";
-import { BsDownload, BsViewList } from "react-icons/bs";
-import AxiosInstance from "../../helpers/AxiosInstance";
-import { createNewFolder, getFileData } from "../../api/Files";
+import { BsDownload, BsTrashFill, BsViewList } from "react-icons/bs";
+import { createNewFolder, deleteFile, downloadFile, getFileData, makeFilePublic } from "../../api/Files";
+import { getRealPath } from "../../helpers/PathOps";
 
 
 type props = {
     files: FileType[];
+    setFiles: React.Dispatch<React.SetStateAction<FileType[]>>;
     pathInfo: FolderPath;
     setShowAddModal: React.Dispatch<React.SetStateAction<boolean>>;
     activeFile: FileType | null;
     setActiveFile: React.Dispatch<React.SetStateAction<FileType | null>>;
     //showToast: boolean;
+    setToastMsgType: React.Dispatch<React.SetStateAction<"error" | "info" | "warning" | "success">>;
     setToastMsg: React.Dispatch<React.SetStateAction<string>>;
     setShowToast: React.Dispatch<React.SetStateAction<boolean>>;
     getFiles: () => void;
 }
 
-const FilesContainer = ({ files, pathInfo, setShowAddModal, activeFile, setActiveFile, setToastMsg, setShowToast, getFiles }: props) => {
+const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile, setActiveFile, setToastMsgType, setToastMsg, setShowToast, getFiles }: props) => {
 
     const [showContextMenu, setShowContextMenu] = useState<boolean>(false);
     const [mousePoint, setMousePoint] = useState({ x: 0, y: 0 });
@@ -46,64 +48,26 @@ const FilesContainer = ({ files, pathInfo, setShowAddModal, activeFile, setActiv
         setShowContextMenu(true);
     }
 
-    const handleDownload = async () => {
-        if(activeFile != null) {
-            AxiosInstance.post("/user/files/download", {
-                path: activeFile.location
-            }, {
-                responseType: "blob"
-            })
-            .then((res) => {
-                const href = window.URL.createObjectURL(res.data);
-
-                const anchorElement = document.createElement("a");
-                anchorElement.href = href;
-                anchorElement.download = `${activeFile.name}${(activeFile.extension == null) ? ".txt" : ""}`;
-
-                document.body.appendChild(anchorElement);
-                anchorElement.click();
-
-                document.body.removeChild(anchorElement);
-                window.URL.revokeObjectURL(href);
-            })
-            .catch(() => {
-                
-            });
-        }
-    }
-
-    const getRealPath = () => {
-        let splitedPath = pathInfo.path.split('/');
-
-        //console.log(splitedPath);
-
-        let path = "";
-        
-        // Caso o caminho para o armazenamento não seja a pasta principal, pega as proximas pastas
-        if(splitedPath[3] == "files" && splitedPath.length > 4) {
-            path = `${splitedPath.filter((item, idx) => {
-                return idx > 3;
-            }).join('/')}/`;
-        }
-
-        return path;
-    }
+    
 
     const handleVisualize = async () => {
         setShowActions(false);
         setShowFileData(true);
 
-        
-
         //console.log(path);
 
-        let data = await getFileData(`${getRealPath()}${activeFile!.name}`);
+        let data = await getFileData(`${getRealPath(pathInfo)}${activeFile!.name}`);
 
         if(data != false) {
             setFileData(data);
         } else {
             setFileData("Não há nenhum texto para ser exibido")
         }
+    }
+
+    const handleMakePublicFile = async () => {
+        await makeFilePublic(pathInfo, activeFile!.name);
+        setActiveFile(null);
     }
 
     const contextMenuSelected = (fnNumber: number) => {
@@ -113,6 +77,10 @@ const FilesContainer = ({ files, pathInfo, setShowAddModal, activeFile, setActiv
             setShowActions(true);
         } else if(fnNumber == 3) {
             SetShowNewFolderModal(true);
+        } else if(fnNumber == 4) {
+            handleMakePublicFile();
+        } else if(fnNumber == 9) {
+            
         }
     }
 
@@ -120,6 +88,7 @@ const FilesContainer = ({ files, pathInfo, setShowAddModal, activeFile, setActiv
         let result = await createNewFolder(pathInfo.path, newFolderName);
 
         if(result == true) {
+            setToastMsgType("success");
             setToastMsg(`Pasta ${newFolderName} criada com sucesso!`);
             setShowToast(true);
 
@@ -128,8 +97,54 @@ const FilesContainer = ({ files, pathInfo, setShowAddModal, activeFile, setActiv
 
             getFiles();
         } else {
+            setToastMsgType("error");
+            setToastMsg(`Não foi possível criar a pasta "${newFolderName}"!`);
+            setShowToast(true);
 
+            SetShowNewFolderModal(false);
+            setNewFolderName("");
+
+            getFiles();
         }
+    }
+
+    const handleDownload = () => {
+        if(activeFile != null) {
+            downloadFile(pathInfo, activeFile);
+        }
+    }
+
+    const handleDelete = async () => {
+        if(activeFile == null) {
+            return;
+        }
+
+        //let realPath = getRealPath(pathInfo);
+        //let fileName = activeFile.name;
+
+        let res = await deleteFile(activeFile.location);
+
+        if(res == true) {
+            setToastMsgType("success");
+            setToastMsg(`Arquivo "${activeFile.name}" deletado com sucesso!`);
+        } else {
+            setToastMsgType("error");
+            setToastMsg(`Não foi possível deletar "${activeFile.name}"!`);
+        }
+
+        setShowActions(false);
+        getFiles();
+        setShowToast(true);
+    }
+
+    const handleFileCheckBtn = (idx: number, currentValue: boolean) => {
+        let filesCopy = files;
+
+        filesCopy[idx].selected = !currentValue;
+
+        setFiles([...filesCopy]);
+
+        //console.log(idx, files);
     }
 
 
@@ -172,6 +187,11 @@ const FilesContainer = ({ files, pathInfo, setShowAddModal, activeFile, setActiv
                             <BsViewList className="fill-white group-hover:scale-105" />
                             Visualizar
                         </button>
+
+                        <button onClick={handleDelete} className="btn-action group">
+                            <BsTrashFill className="fill-white group-hover:scale-105" />
+                            Deletar
+                        </button>
                     </Modal.Footer>
                 </Modal>
             }
@@ -180,7 +200,7 @@ const FilesContainer = ({ files, pathInfo, setShowAddModal, activeFile, setActiv
             {(showNewFolderModal == true) &&
                 <Modal show={showNewFolderModal == true} className="newFolderModal" dismissible={true} onClose={() => { SetShowNewFolderModal(false); }}>
                     <Modal.Body className="newFolderModal-body">
-                        <form ref={newFolderFormRef}>
+                        <form ref={newFolderFormRef} onSubmit={(e) => { e.preventDefault(); handleNewFolder(); }}>
                             <Label 
                                 htmlFor="folderName"
                                 value="Nome da pasta:"
@@ -227,9 +247,12 @@ const FilesContainer = ({ files, pathInfo, setShowAddModal, activeFile, setActiv
                 <div className="w-full max-h-full h-auto overflow-hidden flex justify-center gap-2 flex-wrap p-2">
                     { (files.length > 0) && 
                         files.map((file, idx) => {
+
                             return <File
                                 key={idx}
                                 info={file}
+                                fileIndex={idx}
+                                setFileChecked={handleFileCheckBtn}
                                 folderPath={pathInfo}
                                 infoToShow={setActiveFile}
                                 activeFile={activeFile}

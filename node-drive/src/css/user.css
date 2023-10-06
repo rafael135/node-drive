@@ -1,0 +1,5 @@
+@layer components {
+    .userInfoContainer {
+        @apply w-full h-auto p-2;
+    }
+}

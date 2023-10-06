@@ -31,9 +31,11 @@ Route.group(() => {
 		Route.post("/files", "FilesController.getFoldersAndFilesFrom").middleware(["auth"]);
 
 		Route.group(() => {
-			Route.post("/download", "FilesController.downloadFile").middleware(["auth"]);
+			Route.get("/download/:filePath", "FilesController.downloadFile").middleware(["auth"]).where("filePath", { cast: (path) => String(path) });
 
 			Route.post("/upload", "FilesController.uploadFile").middleware(["auth"]);
+
+			Route.put("/make/public", "FilesController.makeFilePublic").middleware(["auth"]);
 
 			Route.get("/view", "FilesController.viewFile").middleware(["auth"]);
 

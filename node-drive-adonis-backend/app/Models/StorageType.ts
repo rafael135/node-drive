@@ -5,6 +5,9 @@ export default class StorageType extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
+  @column()
+  public storage_size: number
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
