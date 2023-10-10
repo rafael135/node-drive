@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FileType } from "../../types/File";
 import { BsFileEarmarkFill, BsDownload, BsFolderFill, BsFilePdfFill, BsFiletypeDocx, BsFileImageFill, BsFileTextFill, BsFileCodeFill, BsViewList, BsFileZipFill } from "react-icons/bs";
 import { Modal } from "flowbite-react";
@@ -7,6 +7,10 @@ import { getFileData } from "../../api/Files";
 
 type props = {
     info: FileType;
+    renamingFileIdx: number | null;
+    setRenamingFilesIdx: React.Dispatch<React.SetStateAction<number | null>>;
+    renameFile: (idx: number, newTxt: string) => void;
+    doneRenamingFile: (idx: number) => void;
     fileIndex: number;
     setFileChecked: (idx: number, currentValue: boolean) => void;
     folderPath: {
@@ -19,10 +23,10 @@ type props = {
     showActions: boolean;
 }
 
-const File = ({info, fileIndex, setFileChecked, folderPath, infoToShow, setShowActions, showActions}: props) => {
+const File = ({info, renamingFileIdx, setRenamingFilesIdx, renameFile, doneRenamingFile, fileIndex, setFileChecked, folderPath, infoToShow, setShowActions, showActions}: props) => {
     const [activeFile, setActiveFile] = useState<string | null>(null);
     
-
+    const fileNameRef = useRef<HTMLSpanElement | null>(null);
 
 
     const handleOpenFolder = () => {
@@ -39,6 +43,9 @@ const File = ({info, fileIndex, setFileChecked, folderPath, infoToShow, setShowA
     }
 
     const handleOpenFile = (e: React.MouseEvent) => {
+        if(renamingFileIdx != null) {
+            return;
+        }
         infoToShow(info);
         handleFile(info.name);
     }
@@ -47,7 +54,35 @@ const File = ({info, fileIndex, setFileChecked, folderPath, infoToShow, setShowA
         setFileChecked(fileIndex, info.selected!);
     }
 
-    
+    const handleRenamingFile = (e: React.FormEvent) => {
+        renameFile(fileIndex, (e.target as HTMLSpanElement).textContent!);
+    }
+
+    const handleDoneRenaming = (e: React.KeyboardEvent) => {
+        if(e.key == "ArrowDown" || e.key == "ArrowLeft" || e.key == "ArrowRight" || e.key == "ArrowUp" || e.key == "End" || e.key == "Home" || e.key == "PageDown" || e.key == "PageUp") {
+            return;
+        }
+
+        if(e.key == "Enter") {
+            e.preventDefault();
+            doneRenamingFile(fileIndex);
+            setRenamingFilesIdx(null);
+            return;
+        }
+
+        renameFile(fileIndex, (e.target as HTMLSpanElement).innerText!);
+    }
+
+    useEffect(() => {
+        if(renamingFileIdx != null) {
+            //const doneRenaming = () => { setRenamingFilesIdx(null); }
+            if(renamingFileIdx == fileIndex) {
+                fileNameRef.current!.focus();
+                fileNameRef.current!.inputMode = "text";
+            }
+            
+        }
+    }, [renamingFileIdx]);
 
     return (
         <>  
@@ -95,7 +130,16 @@ const File = ({info, fileIndex, setFileChecked, folderPath, infoToShow, setShowA
                     }
 
                     
-                    <span className="fileName">{info.name}</span>
+                    <span
+                        className="fileName"
+                        ref={fileNameRef}
+                        contentEditable={(renamingFileIdx != null) ? true : false}
+                        onChange={(e) => { handleRenamingFile(e); }}
+                        onKeyDown={(e) => { handleDoneRenaming(e); }}
+                        suppressContentEditableWarning={true}
+                    >
+                        {info.name}
+                    </span>
                 </div>
                 
                 

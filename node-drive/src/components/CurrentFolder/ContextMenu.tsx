@@ -1,14 +1,15 @@
-import { BsFolderPlus, BsShareFill, BsTicketDetailedFill, BsUpload, BsWrenchAdjustableCircleFill } from "react-icons/bs";
+import { BsFileText, BsFolderPlus, BsShareFill, BsTicketDetailedFill, BsUpload, BsWrenchAdjustableCircleFill } from "react-icons/bs";
 import { FileType } from "../../types/File";
 
 type props = {
     x: number;
     y: number;
-    selectFn: (fnNumber: number) => void;
+    selectFn: (fnNumber: number, fileIdx?: number) => void;
     activeFile: FileType | null;
+    fileIndex: number;
 }
 
-const ContextMenu = ({ x, y, selectFn, activeFile }: props) => {
+const ContextMenu = ({ x, y, selectFn, activeFile, fileIndex }: props) => {
     return (
         <div className={`fileContextMenu`} style={{ top: `${x}px`, left: `${y}px` }}>
             <ul>
@@ -36,6 +37,16 @@ const ContextMenu = ({ x, y, selectFn, activeFile }: props) => {
                     >
                         <BsFolderPlus className="contextMenu-item--img" />
                         Nova Pasta
+                    </li>
+                }
+
+                {(activeFile?.isFile == true) &&
+                    <li
+                        onClick={() => { selectFn(5, fileIndex); }}
+                        className="contextMenu-item group"
+                    >
+                        <BsFileText className="contextMenu-item--img" />
+                        Renomear
                     </li>
                 }
 

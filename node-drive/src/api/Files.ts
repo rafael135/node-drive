@@ -112,3 +112,25 @@ export const makeFilePublic = async (path: FolderPath, fileName: string) => {
 
     return true;
 }
+
+
+type renameFileResponse = {
+    success: boolean;
+    status: number;
+}
+
+export const renameFile = async (path: FolderPath, fileName: string, { newName, isFile }: { newName: string; isFile: boolean }) => {
+    let req = await AxiosInstance.put("/user/files/rename", {
+        filePath: `${getRealPath(path)}/${fileName}`,
+        newName: newName,
+        isFile: isFile
+    });
+
+    let res: renameFileResponse = req.data;
+
+    if(res.status == 200) {
+        return true;
+    }
+
+    return false;
+}

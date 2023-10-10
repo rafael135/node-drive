@@ -4,6 +4,7 @@ export type User = {
     email: number;
     storageTypeId: number;
     files_path: string;
+    public_files_path: string;
 }
 
 export type AuthError = {

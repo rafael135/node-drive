@@ -5,7 +5,7 @@ import { FolderPath } from "./CurrentFolder";
 import ContextMenu from "./ContextMenu";
 import { Button, Label, Modal, TextInput } from "flowbite-react";
 import { BsDownload, BsTrashFill, BsViewList } from "react-icons/bs";
-import { createNewFolder, deleteFile, downloadFile, getFileData, makeFilePublic } from "../../api/Files";
+import { createNewFolder, deleteFile, downloadFile, getFileData, makeFilePublic, renameFile } from "../../api/Files";
 import { getRealPath } from "../../helpers/PathOps";
 
 
@@ -37,6 +37,15 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
     const [newFolderName, setNewFolderName] = useState<string>("");
     const newFolderFormRef = useRef(null);
 
+    const [renamingFileIdx, setRenamingFilesIdx] = useState<number | null>(null);
+    const [fileDefaultName, setFileDefaultName] = useState<string>("");
+    const [newFileName, setNewFileName] = useState<string>("");
+
+
+    const [showMakePublicModal, setShowMakePublicModal] = useState<boolean>(false);
+
+    const filesMainContainerRef = useRef<HTMLDivElement | null>(null);
+
 
     const openContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -51,6 +60,10 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
     
 
     const handleVisualize = async () => {
+        if(renamingFileIdx != null) {
+            return;
+        }
+
         setShowActions(false);
         setShowFileData(true);
 
@@ -70,7 +83,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         setActiveFile(null);
     }
 
-    const contextMenuSelected = (fnNumber: number) => {
+    const contextMenuSelected = (fnNumber: number, fileIdx?: number) => {
         if(fnNumber == 1) {
             setShowAddModal(true);
         } else if(fnNumber == 2) {
@@ -79,6 +92,10 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             SetShowNewFolderModal(true);
         } else if(fnNumber == 4) {
             handleMakePublicFile();
+        } else if(fnNumber == 5) {
+            //console.log(files[fileIdx!].name!);
+            setRenamingFilesIdx(fileIdx!);
+            setFileDefaultName(files[fileIdx!].name);
         } else if(fnNumber == 9) {
             
         }
@@ -147,6 +164,49 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         //console.log(idx, files);
     }
 
+    // Função para alterar nome do arquivo enquanto está renomeando
+    const changeFileName = (idx: number, newTxt: string) => {
+        let renamedFile = files[idx];
+        
+        renamedFile.name = newTxt;
+
+        //console.log(renamedFile);
+
+        let allFiles = files;
+
+        allFiles[idx] = renamedFile;
+
+        setNewFileName(newTxt);
+
+        setFiles([...allFiles]);
+    }
+
+    // Função para salvar alterações
+    const doneRenamingFile = async (idx: number) => {
+        let file = files[idx];
+
+        //console.log(file);
+
+        let res = await renameFile(pathInfo, fileDefaultName, {
+            newName: newFileName,
+            isFile: file.isFile
+        });
+
+        if(res == true) {
+            setToastMsgType("success");
+            setToastMsg("Arquivo renomeado!");
+            setShowToast(true);
+        } else {
+            setToastMsgType("error");
+            setToastMsg("Não foi possível renomear o arquivo!");
+            setShowToast(true);
+        }
+
+        getFiles();
+        setNewFileName("");
+        setFileDefaultName("");
+    }
+
 
     useEffect(() => {
         const handleClick = () => { setShowContextMenu(false); };
@@ -160,13 +220,21 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         return () => { window.removeEventListener("click", handleClick); };
     }, [showContextMenu]);
 
+    
+
     return (
         <>
             { (showContextMenu == true) && 
-                <ContextMenu x={mousePoint.x} y={mousePoint.y} selectFn={contextMenuSelected} activeFile={activeFile} />
+                <ContextMenu x={mousePoint.x} y={mousePoint.y} selectFn={contextMenuSelected} fileIndex={files.findIndex((f) => { if(f == activeFile) { return true; } return false; })} activeFile={activeFile} />
             }
 
-
+            {(showMakePublicModal == true) &&
+                <Modal dismissible={true} show={showMakePublicModal == true} onClose={() => { setShowMakePublicModal(false); }} className="makeFilePublicModal">
+                    <Modal.Body className="makeFilePublicModal-body">
+                        
+                    </Modal.Body>
+                </Modal>
+            }
 
             { /* Modal para exibir ações para interagir com o arquivo */ }
             {(activeFile != null) &&
@@ -231,6 +299,10 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                     </Modal.Header>
     
                     <Modal.Body className="selectedFileViewModal-body">
+                        {/*(fileData != null && activeFile.extension == "pdf") &&
+                            
+                        */}
+
                         {(fileData != null) &&
                             (fileData.split('\n').includes('\n') ? fileData.split('\n').map((d) => {
                                 return <p>{d}</p>
@@ -243,7 +315,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                     </Modal.Body>
                 </Modal>
             }
-            <div className="filesMainContainer" onContextMenu={(e) => { openContextMenu(e); }}>
+            <div className="filesMainContainer" ref={filesMainContainerRef} onContextMenu={(e) => { openContextMenu(e); }}>
                 <div className="w-full max-h-full h-auto overflow-hidden flex justify-center gap-2 flex-wrap p-2">
                     { (files.length > 0) && 
                         files.map((file, idx) => {
@@ -251,6 +323,10 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                             return <File
                                 key={idx}
                                 info={file}
+                                renamingFileIdx={renamingFileIdx}
+                                setRenamingFilesIdx={setRenamingFilesIdx}
+                                renameFile={changeFileName}
+                                doneRenamingFile={doneRenamingFile}
                                 fileIndex={idx}
                                 setFileChecked={handleFileCheckBtn}
                                 folderPath={pathInfo}

@@ -1,14 +1,15 @@
 import Layout from "../../components/Layout"
+import { useContext } from "react";
+import { UserAuthContext } from "../../contexts/UserContext";
+import PublicFilesFolder from "./PublicFilesFolder";
 
 
 const SharedFiles = () => {
-
+    const userCtx = useContext(UserAuthContext);
 
     return (
         <Layout activeTab={"sharedFiles"}>
-            <div>
-
-            </div>
+            <PublicFilesFolder publicPath={userCtx!.user!.public_files_path}/>
         </Layout>
     );
 }

@@ -5,11 +5,11 @@ import { UserAuthContext } from "../contexts/UserContext";
 
 
 const Index = () => {
-    const userCtx = useContext(UserAuthContext);
+    const userCtx = useContext(UserAuthContext)!;
 
     return (
         <Layout activeTab="files">
-            <CurrentFolder userFilesPath={userCtx!.user!.files_path!} />
+            <CurrentFolder userFilesPath={userCtx.user!.files_path!} userCtx={userCtx} />
         </Layout>
     );
 }

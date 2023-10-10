@@ -10,7 +10,7 @@ export default class extends BaseSchema {
 			table.integer("user_id").unsigned();
 			table.foreign("user_id", "id").references("users");
 
-			table.string("folder_path", 255);
+			table.string("file_path", 255);
 
 			/**
 			 * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL

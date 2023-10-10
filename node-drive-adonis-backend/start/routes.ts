@@ -28,7 +28,7 @@ Route.group(() => {
 
 		Route.post("/checkToken", "AuthController.checkToken").middleware(["auth"]);
 
-		Route.post("/files", "FilesController.getFoldersAndFilesFrom").middleware(["auth"]);
+		Route.get("/files", "FilesController.getFoldersAndFilesFrom").middleware(["auth"]);
 
 		Route.group(() => {
 			Route.get("/download/:filePath", "FilesController.downloadFile").middleware(["auth"]).where("filePath", { cast: (path) => String(path) });
@@ -42,6 +42,8 @@ Route.group(() => {
 			Route.delete("/", "FilesController.deleteFile").middleware(["auth"]);
 
 			Route.post("/new/folder", "FilesController.newFolder").middleware(["auth"]);
+
+			Route.put("/rename", "FilesController.renameFileOrFolder").middleware(["auth"]);
 		}).prefix("/files");
 
 	}).prefix("/user");

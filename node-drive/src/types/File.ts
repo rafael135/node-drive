@@ -4,5 +4,7 @@ export type FileType = {
     size: string;
     location: string;
     isFile: boolean;
+    isPublic: boolean;
+    shareLink?: string;
     selected?: boolean;
 }

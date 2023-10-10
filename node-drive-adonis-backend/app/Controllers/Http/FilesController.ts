@@ -6,27 +6,52 @@ import fs from "node:fs/promises";
 import JWT from "jsonwebtoken";
 import PublicFile from 'App/Models/PublicFile';
 
+type decodedToken = {
+    id: number;
+    email: string;
+    iat: number;
+    exp: number;
+}
+
+type newFileType = {
+    name: string;
+    extension: string | null;
+    size: string;
+    location: string;
+    isFile: boolean;
+    isPublic: boolean;
+    shareLink?: string;
+}
+
 export default class FilesController {
     async getFoldersAndFilesFrom({ request, response }: HttpContextContract) {
-        let path = request.input("path", null);
+        //let path = request.input("path", null);
+        let { userId } = request.qs();
+        let token = request.header("Authorization")!.split(' ')[1];
 
-        if(path == null) {
-            response.status(400);
+        //if(path == null) {
+        //    response.status(400);
+        //    return response.send({
+        //        files: null,
+        //        status: 400
+        //    });
+        //}
+
+        let decoded = JWT.decode(token) as decodedToken;
+
+        if(decoded.id != userId || userId == null) {
+            response.status(403);
             return response.send({
                 files: null,
-                status: 400
+                status: 403
             });
         }
 
-        type newFileType = {
-            name: string;
-            extension: string | null;
-            size: string;
-            location: string;
-            isFile: boolean;
-        }
-
         let totalFilesSize = 0.0;
+
+        let publicFiles = await PublicFile.query().select("file_path").where("user_id", "=", decoded.id);
+        
+        let path = `user/${decoded.id}/files`;
 
         let filesAndFolders = await Drive.list(path).map( async(file) => {
             let loc = file.location.split("/");
@@ -59,9 +84,9 @@ export default class FilesController {
 
             totalFilesSize += fileInfo.size;
 
-            let newFile: newFileType = { location: file.location, isFile: file.isFile, name: name, extension: extension, size: fileSize };
+            let newFile: newFileType = { location: file.location, isFile: file.isFile, name: name, extension: extension, size: fileSize, isPublic: false };
 
-
+            //console.log(newFile);
 
             return newFile;
         }).toArray();
@@ -88,13 +113,6 @@ export default class FilesController {
         }
 
         filePath = decodeURI(filePath);
-
-        type decodedToken = {
-            id: number;
-            email: string;
-            iat: number;
-            exp: number;
-        }
 
         let decoded = JWT.decode(token[1]) as decodedToken;
 
@@ -137,13 +155,6 @@ export default class FilesController {
             });
         }
 
-        type decodedToken = {
-            id: number;
-            email: string;
-            iat: number;
-            exp: number;
-        }
-
         let decoded = JWT.decode(token[1]) as decodedToken;
 
         let path = `user/${decoded.id}/files/${filePath}`;
@@ -177,13 +188,6 @@ export default class FilesController {
                 success: false,
                 status: 400
             });
-        }
-
-        type decodedToken = {
-            id: number;
-            email: string;
-            iat: number;
-            exp: number;
         }
 
         let decoded = JWT.decode(token[1]) as decodedToken;
@@ -232,13 +236,6 @@ export default class FilesController {
             });
         }
 
-        type decodedToken = {
-            id: number;
-            email: string;
-            iat: number;
-            exp: number;
-        }
-
         let decoded = JWT.decode(token[1]) as decodedToken;
         
         let pathSplit = path.split('/');
@@ -274,13 +271,6 @@ export default class FilesController {
             });
         }
 
-        type decodedToken = {
-            id: number;
-            email: string;
-            iat: number;
-            exp: number;
-        }
-
         let decoded = JWT.decode(token[1]) as decodedToken;
         
         let pathSplit = path.split('/');
@@ -310,9 +300,10 @@ export default class FilesController {
     async renameFileOrFolder({ request, response }: HttpContextContract) {
         let filePath: string | null = request.input("filePath", null);
         let newName: string | null = request.input("newName", null);
+        let isFile: boolean | null = request.input("isFile", null);
         let token = request.header("Authorization")!.split(' ');
         
-        if(filePath == null || newName == null) {
+        if(filePath == null || newName == null || isFile == null) {
             response.status(400);
             return response.send({
                 success: false,
@@ -320,22 +311,37 @@ export default class FilesController {
             });
         }
 
-        type decodedToken = {
-            id: number;
-            email: string;
-            iat: number;
-            exp: number;
-        }
+        
 
         let decoded = JWT.decode(token[1]) as decodedToken;
         
-        let path = `user/${decoded.id}/files/${filePath}`;
-        let newPath = `user/${decoded.id}/files/${path.split('/')
-            .filter((item, idx) => idx < (path.length - 1))
-        .join("/")}`;
+        let path = `user/${decoded.id}/files${filePath}`;
+        //let newPath = `user/${decoded.id}/files/${path.split('/')
+        //    .filter((item, idx) => idx < (path.length - 1))
+        //.join("/")}`;
+
+        //console.log(path);
+        //console.log(await Drive.use("local").exists(path))
+
+        
+
+        
+        let newPath: string | string[] = path.split('/');
+        newPath.pop();
+
+        newPath = newPath.join('/');
+
+        newPath = `${newPath}/${newName}`;
+        //console.log(newPath);
+
+        //response.status(200);
+        //return response.send({
+        //    success: true,
+        //    status: 200
+        //});
 
         if(await Drive.use("local").exists(path) == true) {
-            await fs.rename(path, `${newPath}/${newName}`);
+            await fs.rename(`${Drive.application.appRoot}/storage/${path}`, `${Drive.application.appRoot}/storage/${newPath}`);
         } else {
             response.status(401);
             return response.send({
@@ -363,13 +369,6 @@ export default class FilesController {
                 success: false,
                 status: 400
             });
-        }
-
-        type decodedToken = {
-            id: number;
-            email: string;
-            iat: number;
-            exp: number;
         }
 
         let decoded = JWT.decode(token) as decodedToken;
@@ -413,12 +412,5 @@ export default class FilesController {
         return response.send({
             status: 403
         });
-    }
-
-
-    async getPublicFiles({request, response}: HttpContextContract) {
-        let token = request.header("Authorization")!.split(' ')[1];
-
-        
     }
 }

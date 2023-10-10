@@ -10,9 +10,11 @@ import FileUploadToast from "./FileUploadToast";
 import UploadStatus from "../FileUpload/UploadStatus";
 import { sleep } from "../../helpers/PathOps";
 import { downloadFile } from "../../api/Files";
+import { UserContextType } from "../../contexts/UserContext";
 
 type props = {
     userFilesPath: string;
+    userCtx: UserContextType;
 };
 
 /*
@@ -25,13 +27,13 @@ export const FileUploadStatusContext = createContext<FileUploadStatusContextType
 */
 
 export type FolderPath = {
-    path: string,
-    setFolderPath: React.Dispatch<React.SetStateAction<string>>
+    path: string;
+    setFolderPath: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const CurrentFolder = ({userFilesPath}: props) => {
+const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
-    console.log(userFilesPath);
+    //console.log(userFilesPath);
     let fileUploadInput = useRef<HTMLInputElement | null>(null);
 
     let selectFilterInput = useRef(null);
@@ -74,7 +76,7 @@ const CurrentFolder = ({userFilesPath}: props) => {
     }
 
     const getFiles = () => {
-        AxiosInstance.post("/user/files", { path: path }).then((res) => {
+        AxiosInstance.get("/user/files", { params: { userId: userCtx.user!.id } }).then((res) => {
             let response: FileResponse = res.data;
 
             if(response.status != 200) {
@@ -369,6 +371,10 @@ const CurrentFolder = ({userFilesPath}: props) => {
                     <option value={2}>Tipo</option>
                     <option value={3}>Tamanho</option>
                 </select>
+
+                <div className="h-full w-[1px] bg-gray-400/70">
+
+                </div>
 
                 {(isFileChecked == true) && 
                     <>
