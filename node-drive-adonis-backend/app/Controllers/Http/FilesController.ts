@@ -53,20 +53,16 @@ export default class FilesController {
         
         let path = `user/${decoded.id}/files`;
 
+        // Percorro todos os arquivos do diretorio do usuario
         let filesAndFolders = await Drive.list(path).map( async(file) => {
             let loc = file.location.split("/");
-
             
-
             let fileInfo = await Drive.getStats(file.location);
             //let fileInfo = await fs.stat(file.location);
-
 
             let name  = loc[loc.length - 1];
             let ext = name.split('.');
             let extension: string | null = ext[ext.length - 1];
-
-
 
             if(extension == name) {
                 extension = null;
@@ -84,12 +80,27 @@ export default class FilesController {
 
             totalFilesSize += fileInfo.size;
 
+            //console.log(file.location);
+
             let newFile: newFileType = { location: file.location, isFile: file.isFile, name: name, extension: extension, size: fileSize, isPublic: false };
 
             //console.log(newFile);
 
             return newFile;
         }).toArray();
+
+        // Mapeio cada arquivo e pasta para marcar os que são públicos
+        filesAndFolders.map((file) => {
+            if(file.isFile == true) {
+                publicFiles.forEach((pbFile) => {
+                    if(pbFile.filePath == file.location) {
+                        file.isPublic = true;
+                    }
+                });
+            }
+
+            return file;
+        })
 
         response.status(200);
         return response.send({
@@ -297,12 +308,15 @@ export default class FilesController {
     }
 
 
+    // Metodo para renomear arquivo ou pasta
     async renameFileOrFolder({ request, response }: HttpContextContract) {
         let filePath: string | null = request.input("filePath", null);
         let newName: string | null = request.input("newName", null);
         let isFile: boolean | null = request.input("isFile", null);
         let token = request.header("Authorization")!.split(' ');
         
+        //console.log(newName);
+
         if(filePath == null || newName == null || isFile == null) {
             response.status(400);
             return response.send({
@@ -341,7 +355,7 @@ export default class FilesController {
         //});
 
         if(await Drive.use("local").exists(path) == true) {
-            await fs.rename(`${Drive.application.appRoot}/storage/${path}`, `${Drive.application.appRoot}/storage/${newPath}`);
+            await fs.rename(`${Drive.application.appRoot}/storage/${path}`, `${Drive.application.appRoot}/storage/${newPath}`)
         } else {
             response.status(401);
             return response.send({
@@ -386,6 +400,7 @@ export default class FilesController {
             if(existentFile != null) {
                 response.status(400);
                 return response.send({
+                    success: false,
                     status: 400
                 });
             }

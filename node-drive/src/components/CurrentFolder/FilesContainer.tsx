@@ -6,7 +6,7 @@ import ContextMenu from "./ContextMenu";
 import { Button, Label, Modal, TextInput } from "flowbite-react";
 import { BsDownload, BsTrashFill, BsViewList } from "react-icons/bs";
 import { createNewFolder, deleteFile, downloadFile, getFileData, makeFilePublic, renameFile } from "../../api/Files";
-import { getRealPath } from "../../helpers/PathOps";
+import { getRealPath, sleep } from "../../helpers/PathOps";
 
 
 type props = {
@@ -20,7 +20,7 @@ type props = {
     setToastMsgType: React.Dispatch<React.SetStateAction<"error" | "info" | "warning" | "success">>;
     setToastMsg: React.Dispatch<React.SetStateAction<string>>;
     setShowToast: React.Dispatch<React.SetStateAction<boolean>>;
-    getFiles: () => void;
+    getFiles: () => Promise<void>;
 }
 
 const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile, setActiveFile, setToastMsgType, setToastMsg, setShowToast, getFiles }: props) => {
@@ -39,7 +39,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
 
     const [renamingFileIdx, setRenamingFilesIdx] = useState<number | null>(null);
     const [fileDefaultName, setFileDefaultName] = useState<string>("");
-    const [newFileName, setNewFileName] = useState<string>("");
+    const [isRenaming, setIsRenaming] = useState<boolean>(false);
 
 
     const [showMakePublicModal, setShowMakePublicModal] = useState<boolean>(false);
@@ -114,14 +114,14 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
 
             getFiles();
         } else {
+            await getFiles();
+
             setToastMsgType("error");
             setToastMsg(`Não foi possível criar a pasta "${newFolderName}"!`);
             setShowToast(true);
 
             SetShowNewFolderModal(false);
             setNewFolderName("");
-
-            getFiles();
         }
     }
 
@@ -135,9 +135,6 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         if(activeFile == null) {
             return;
         }
-
-        //let realPath = getRealPath(pathInfo);
-        //let fileName = activeFile.name;
 
         let res = await deleteFile(activeFile.location);
 
@@ -160,35 +157,14 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         filesCopy[idx].selected = !currentValue;
 
         setFiles([...filesCopy]);
-
-        //console.log(idx, files);
     }
 
-    // Função para alterar nome do arquivo enquanto está renomeando
-    const changeFileName = (idx: number, newTxt: string) => {
-        let renamedFile = files[idx];
-        
-        renamedFile.name = newTxt;
-
-        //console.log(renamedFile);
-
-        let allFiles = files;
-
-        allFiles[idx] = renamedFile;
-
-        setNewFileName(newTxt);
-
-        setFiles([...allFiles]);
-    }
-
-    // Função para salvar alterações
-    const doneRenamingFile = async (idx: number) => {
-        let file = files[idx];
-
-        //console.log(file);
+    // Função para salvar alterações do novo nome do arquivo
+    const doneRenamingFile = async (newTxt: string) => {
+        let file = files[renamingFileIdx!];
 
         let res = await renameFile(pathInfo, fileDefaultName, {
-            newName: newFileName,
+            newName: newTxt,
             isFile: file.isFile
         });
 
@@ -202,9 +178,11 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             setShowToast(true);
         }
 
-        getFiles();
-        setNewFileName("");
+        await getFiles();
+
         setFileDefaultName("");
+        setRenamingFilesIdx(null);
+        setIsRenaming(false);
     }
 
 
@@ -323,9 +301,9 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                             return <File
                                 key={idx}
                                 info={file}
+                                isRenaming={isRenaming}
                                 renamingFileIdx={renamingFileIdx}
                                 setRenamingFilesIdx={setRenamingFilesIdx}
-                                renameFile={changeFileName}
                                 doneRenamingFile={doneRenamingFile}
                                 fileIndex={idx}
                                 setFileChecked={handleFileCheckBtn}
