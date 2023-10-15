@@ -10,6 +10,7 @@ export default class extends BaseSchema {
 			table.integer("user_id").unsigned();
 			table.foreign("user_id", "id").references("users");
 
+			table.string("file_url", 255).unique();
 			table.string("file_path", 255);
 
 			/**

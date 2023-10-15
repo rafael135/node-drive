@@ -3,6 +3,8 @@ import Drive from '@ioc:Adonis/Core/Drive';
 import Application from "@ioc:Adonis/Core/Application";
 import fs from "node:fs/promises";
 
+import Hash from '@ioc:Adonis/Core/Hash';
+
 import JWT from "jsonwebtoken";
 import PublicFile from 'App/Models/PublicFile';
 
@@ -25,9 +27,10 @@ type newFileType = {
 
 export default class FilesController {
     async getFoldersAndFilesFrom({ request, response }: HttpContextContract) {
-        //let path = request.input("path", null);
-        let { userId } = request.qs();
+        let { userId, path } = request.qs();
         let token = request.header("Authorization")!.split(' ')[1];
+
+        //console.log(path);
 
         //if(path == null) {
         //    response.status(400);
@@ -51,7 +54,7 @@ export default class FilesController {
 
         let publicFiles = await PublicFile.query().select("file_path").where("user_id", "=", decoded.id);
         
-        let path = `user/${decoded.id}/files`;
+        //let path = `user/${decoded.id}/files`;
 
         // Percorro todos os arquivos do diretorio do usuario
         let filesAndFolders = await Drive.list(path).map( async(file) => {
@@ -405,8 +408,11 @@ export default class FilesController {
                 });
             }
 
+            let fileName = newPath[newPath.length - 1];
+
             let newPublicFile = await PublicFile.create({
                 userId: decoded.id,
+                fileUrl: Buffer.from(`${fileName}${99999 * Math.random()}`).toString("base64url"),
                 filePath: newPath
             });
 

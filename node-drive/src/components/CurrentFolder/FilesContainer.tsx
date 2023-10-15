@@ -79,7 +79,12 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
     }
 
     const handleMakePublicFile = async () => {
-        await makeFilePublic(pathInfo, activeFile!.name);
+        let res = await makeFilePublic(pathInfo, activeFile!.name);
+
+        if(res == true) {
+            getFiles();
+        }
+
         setActiveFile(null);
     }
 

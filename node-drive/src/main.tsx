@@ -13,6 +13,7 @@ import Logout from './routes/Auth/Logout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UserConfig from './routes/User/UserConfig';
 import SharedFiles from './routes/Files/SharedFiles';
+import DownloadFile from './routes/Files/DownloadFile';
 
 const client = new QueryClient();
 
@@ -78,6 +79,11 @@ const router = createBrowserRouter([
 				errorElement: <ErrorPage />
 			}
 		],
+		errorElement: <ErrorPage />
+	},
+	{
+		path: "/file/:userId/:fileUrl",
+		element: <DownloadFile />,
 		errorElement: <ErrorPage />
 	}
 ]);

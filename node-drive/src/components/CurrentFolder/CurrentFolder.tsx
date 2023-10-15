@@ -76,9 +76,9 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     }
 
     const getFiles = async () => {
-        setFiles([]);
+        //setFiles([]);
 
-        AxiosInstance.get("/user/files", { params: { userId: userCtx.user!.id } }).then((res) => {
+        AxiosInstance.get("/user/files", { params: { userId: userCtx.user!.id, path: path } }).then((res) => {
             let response: FileResponse = res.data;
 
             if(response.status != 200) {

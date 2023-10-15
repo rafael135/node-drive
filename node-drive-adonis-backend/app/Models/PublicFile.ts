@@ -13,6 +13,9 @@ export default class PublicFile extends BaseModel {
   public user: BelongsTo<typeof User>
 
   @column()
+  public fileUrl: string
+
+  @column()
   public filePath: string
   
   @column.dateTime({ autoCreate: true })

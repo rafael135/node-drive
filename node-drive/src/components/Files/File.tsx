@@ -33,6 +33,7 @@ const File = ({info, isRenaming, renamingFileIdx, setRenamingFilesIdx, doneRenam
 
     const handleOpenFolder = () => {
         if(info.isFile == false) {
+            console.log(`${folderPath.path}/${info.name}`);
             folderPath.setFolderPath(`${folderPath.path}/${info.name}`);
         }
     }
