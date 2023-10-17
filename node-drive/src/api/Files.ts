@@ -96,21 +96,26 @@ export const createNewFolder = async (path: string, folderName: string) => {
 }
 
 type makeFilePublicResponse = {
+    isPublic?: boolean;
     status: number;
 }
 
 export const makeFilePublic = async (path: FolderPath, fileName: string) => {
-    let req = await AxiosInstance.put("/user/files/make/public", {
+    let req = await AxiosInstance.put("/user/files/public", {
         filePath: `${getRealPath(path)}${fileName}`
     });
 
     let res: makeFilePublicResponse = req.data;
 
     if(res.status >= 400 && res.status <= 404) {
-        return false;
+        return null;
     }
 
-    return true;
+    if(res.status == 201) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 
@@ -133,4 +138,32 @@ export const renameFile = async (path: FolderPath, fileName: string, { newName, 
     }
 
     return false;
+}
+
+type getPublicDownloadLinkResponse = {
+    url: string | null;
+    status: number;
+}
+
+export const getPublicDownloadLink = async (path: FolderPath, fileName: string, userId: number) => {
+    let req = await AxiosInstance.get("/user/files/public", {
+        params: {
+            filePath: `${getRealPath(path)}/${fileName}`,
+            userId: userId
+        }
+    });
+
+    let res: getPublicDownloadLinkResponse = req.data;
+
+    if(res.status >= 400 && res.status <= 404) {
+        return null;
+    }
+
+    if(res.status == 204) {
+        return null;
+    }
+
+    if(res.status == 200) {
+        return res.url;
+    }
 }

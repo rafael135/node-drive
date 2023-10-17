@@ -35,7 +35,9 @@ Route.group(() => {
 
 			Route.post("/upload", "FilesController.uploadFile").middleware(["auth"]);
 
-			Route.put("/make/public", "FilesController.makeFilePublic").middleware(["auth"]);
+			Route.put("/public", "FilesController.makeFilePublic").middleware(["auth"]);
+
+			Route.get("/public", "FilesController.getPublicFileUrl");
 
 			Route.get("/view", "FilesController.viewFile").middleware(["auth"]);
 

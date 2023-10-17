@@ -45,9 +45,25 @@
     .selectedFileModal .selectedFileModal-body {
         @apply flex flex-col gap-2;
     }
+    .selectedFileModal-body .file-visibility {
+        @apply flex flex-row gap-2 text-slate-800 text-lg;
+    }
 
     .selectedFileModal .selectedFileModal-footer .btn-action {
         @apply px-4 py-1 flex gap-1.5 items-center text-lg text-white bg-blue-500 transition-all ease-in-out duration-150 rounded-lg hover:bg-blue-600;
+    }
+
+    .fileVisibilityModal {
+
+    }
+    .fileVisibilityModal .fileVisibilityModal-body {
+
+    }
+    .fileVisibilityModal-body .file-visibility {
+
+    }
+    .fileVisibilityModal-body .file-visibility span {
+
     }
 
 

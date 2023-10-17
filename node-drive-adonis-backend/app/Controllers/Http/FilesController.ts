@@ -7,6 +7,7 @@ import Hash from '@ioc:Adonis/Core/Hash';
 
 import JWT from "jsonwebtoken";
 import PublicFile from 'App/Models/PublicFile';
+import User from 'App/Models/User';
 
 type decodedToken = {
     id: number;
@@ -383,7 +384,6 @@ export default class FilesController {
         if(filePath == null) {
             response.status(400);
             return response.send({
-                success: false,
                 status: 400
             });
         }
@@ -401,10 +401,12 @@ export default class FilesController {
             .first();
 
             if(existentFile != null) {
-                response.status(400);
+                await existentFile.delete();
+
+                response.status(200);
                 return response.send({
-                    success: false,
-                    status: 400
+                    isPublic: false,
+                    status: 200
                 });
             }
 
@@ -419,6 +421,7 @@ export default class FilesController {
             if(newPublicFile != null) {
                 response.status(201);
                 return response.send({
+                    isPublic: true,
                     status: 201
                 });
             } else {
@@ -433,5 +436,70 @@ export default class FilesController {
         return response.send({
             status: 403
         });
+    }
+
+    async getPublicFileUrl({ request, response }: HttpContextContract) {
+        let { filePath, userId } = request.qs();
+        //let token = request.header("Authorization")!.split(' ')[1];
+
+        console.log(filePath, userId);
+
+        if(filePath == null || userId == null) {
+            response.status(400);
+            return response.send({
+                url: null,
+                status: 400
+            });
+        }
+
+        let existentUser = await User.find(userId);
+
+        if(existentUser == null) {
+            response.status(400);
+            return response.send({
+                url: null,
+                status: 400
+            });
+        }
+
+        let path = `user/${userId}/files${filePath}`;
+
+        
+
+        let existentFIle = await Drive.use("local").exists(path);
+
+        console.log(path, existentFIle);
+
+        if(existentFIle == false) {
+            response.status(400);
+            return response.send({
+                url: null,
+                status: 400
+            });
+        }
+
+        let publicFile = await PublicFile.findBy("file_path", path);
+
+        console.log(publicFile);
+
+        if(publicFile == null) {
+            response.status(200);
+            return response.send({
+                url: "",
+                status: 200
+            });
+        }
+
+        let url = `localhost:5173/file/${userId}/${publicFile.fileUrl}`;
+
+        response.status(200);
+        return response.send({
+            url: url,
+            status: 200
+        });
+
+        //let decoded = JWT.decode(token) as decodedToken;
+
+
     }
 }

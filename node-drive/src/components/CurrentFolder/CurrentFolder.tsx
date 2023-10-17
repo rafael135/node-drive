@@ -48,14 +48,12 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     const [toastMsg, setToastMsg] = useState<string>("");
     const [toastMsgType, setToastMsgType] = useState<"error" | "info" | "warning" | "success">("error");
 
-
     const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
     const [filesToUploadCompleted, setFilesToUploadCompleted] = useState<number>(0);
     const [qteFilesToUpload, setQteFilesToUpload] = useState<number>(0);
 
     const [showUploadStatus, setShowUploadStatus] = useState<boolean>(false);
 
-    
     const [isFileChecked, setIsFileChecked] = useState<boolean>(false);
 
     
@@ -369,6 +367,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                     className="select-filter"
                     ref={selectFilterInput}
                     onChange={handleFilter}
+                    title="Filtrar por Tipo"
                 >
                     <option defaultChecked={true} value={0}>Ordenar por</option>
                     <option value={1}>Nome</option>

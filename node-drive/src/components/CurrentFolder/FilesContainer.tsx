@@ -1,12 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { FileType } from "../../types/File";
 import File from "../Files/File";
 import { FolderPath } from "./CurrentFolder";
 import ContextMenu from "./ContextMenu";
 import { Button, Label, Modal, TextInput } from "flowbite-react";
-import { BsDownload, BsTrashFill, BsViewList } from "react-icons/bs";
-import { createNewFolder, deleteFile, downloadFile, getFileData, makeFilePublic, renameFile } from "../../api/Files";
+import { BsDownload, BsFileLockFill, BsShareFill, BsTrashFill, BsUnlockFill, BsViewList } from "react-icons/bs";
+import { createNewFolder, deleteFile, downloadFile, getFileData, getPublicDownloadLink, makeFilePublic, renameFile } from "../../api/Files";
 import { getRealPath, sleep } from "../../helpers/PathOps";
+
+import ShareFileModal from "./Modals/ShareFileModal";
+import { UserAuthContext } from "../../contexts/UserContext";
 
 
 type props = {
@@ -24,6 +27,7 @@ type props = {
 }
 
 const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile, setActiveFile, setToastMsgType, setToastMsg, setShowToast, getFiles }: props) => {
+    const userCtx = useContext(UserAuthContext)!;
 
     const [showContextMenu, setShowContextMenu] = useState<boolean>(false);
     const [mousePoint, setMousePoint] = useState({ x: 0, y: 0 });
@@ -45,6 +49,10 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
     const [showMakePublicModal, setShowMakePublicModal] = useState<boolean>(false);
 
     const filesMainContainerRef = useRef<HTMLDivElement | null>(null);
+
+    const [showFileVisibility, setShowFileVisibility] = useState<boolean>(false);
+    const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
+    const [fileDownloadLink, setFileDownloadLink] = useState<string>("");
 
 
     const openContextMenu = (e: React.MouseEvent) => {
@@ -96,7 +104,9 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         } else if(fnNumber == 3) {
             SetShowNewFolderModal(true);
         } else if(fnNumber == 4) {
-            handleMakePublicFile();
+            setSelectedFile(activeFile);
+            setShowFileVisibility(true);
+            //handleMakePublicFile();
         } else if(fnNumber == 5) {
             //console.log(files[fileIdx!].name!);
             setRenamingFilesIdx(fileIdx!);
@@ -190,6 +200,43 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         setIsRenaming(false);
     }
 
+    const btnChangeFileVisibility = async () => {
+        let idx = files.indexOf(activeFile!);
+
+        let res = await makeFilePublic(pathInfo, activeFile!.name);
+
+        let filesCopy = files;
+
+        if(res == null) {
+            setActiveFile(null);
+            return;
+        }
+
+        let activeFileCopy = activeFile;
+
+        filesCopy[idx].isPublic = res; // false => Privado | true => Publico
+        activeFileCopy!.isPublic = res;
+
+        setFiles([...filesCopy]);
+        setActiveFile(activeFileCopy);
+
+        if(res == true) {
+            handleFileUrl();
+        } else {
+            setFileDownloadLink("");
+        }
+    }
+
+    const handleFileUrl = async () => {
+        let url = getPublicDownloadLink(pathInfo, activeFile!.name, userCtx.user!.id);
+
+        url.then((res) => {
+            if(res != null) {
+                setFileDownloadLink(res);
+            }
+        });
+    }
+
 
     useEffect(() => {
         const handleClick = () => { setShowContextMenu(false); };
@@ -203,6 +250,12 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         return () => { window.removeEventListener("click", handleClick); };
     }, [showContextMenu]);
 
+    useEffect(() => {
+        if(activeFile != null) {
+            handleFileUrl();
+        }
+    }, [activeFile])
+
     
 
     return (
@@ -211,21 +264,41 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                 <ContextMenu x={mousePoint.x} y={mousePoint.y} selectFn={contextMenuSelected} fileIndex={files.findIndex((f) => { if(f == activeFile) { return true; } return false; })} activeFile={activeFile} />
             }
 
-            {(showMakePublicModal == true) &&
-                <Modal dismissible={true} show={showMakePublicModal == true} onClose={() => { setShowMakePublicModal(false); }} className="makeFilePublicModal">
-                    <Modal.Body className="makeFilePublicModal-body">
-                        
-                    </Modal.Body>
-                </Modal>
+            {(showFileVisibility == true && selectedFile != null) &&
+                <ShareFileModal activeFile={selectedFile} showFileVisibility={showFileVisibility} setShowFileVisibility={setShowFileVisibility} />
             }
 
             { /* Modal para exibir ações para interagir com o arquivo */ }
             {(activeFile != null) &&
-                <Modal dismissible={true} show={showActions === true} onClose={() => { setShowActions(false); }} className="selectedFileModal" >
+                <Modal dismissible={true} show={showActions === true} onClose={() => { setShowActions(false); setFileDownloadLink(""); }} className="selectedFileModal" >
                     <Modal.Body className="selectedFileModal-body">
-                        <span className="text-slate-800"><strong>Nome:</strong> {activeFile.name}</span>
-                        <span className="text-slate-800"><strong>Extensão:</strong> {(activeFile.extension != null) ? `.${activeFile.extension}` : "N/t"}</span>
-                        <span className="text-slate-800"><strong>Tamanho:</strong> {activeFile.size}</span>
+                        <div className="flex flex-row gap-2 items-center">
+                            <label htmlFor="fileName" className="text-slate-800 text-lg"><strong>Nome do arquivo:</strong></label>
+                            <input id="fileName" type="text" className="flex-1 text-slate-900" value={activeFile.name} />
+                        </div>
+                        
+                        <div className="flex flex-row gap-2 py-2 border-solid border-t border-b border-t-gray-500/40 border-b-gray-500/40">
+                            <span className="flex-1 text-slate-800 text-lg"><strong>Extensão:</strong> {(activeFile.extension != null) ? `.${activeFile.extension}` : "N/t"}</span>
+                            <span className="flex-1 text-slate-800 text-lg"><strong>Tamanho:</strong> {activeFile.size}</span>
+                        </div>
+
+                        <div className="flex flex-row gap-1 items-center">
+                            <strong>Visibilidade:</strong> 
+                            {(activeFile.isPublic == true) ? <BsUnlockFill className="w-5 h-5 text-blue-600" /> : <BsFileLockFill className="w-5 h-5 text-red-600" />}
+                            {(activeFile.isPublic == true) ? "Público" : "Privado"}
+                        </div>
+
+                        <div className="flex flex-row gap-1">
+                            <input className="flex-1" type="text" value={fileDownloadLink} readOnly={true} disabled={(activeFile.isPublic == false)} />
+                            <button
+                                className={`text-white px-4 py-2 rounded-md ${(activeFile.isPublic == true) ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"}`}
+                                onClick={btnChangeFileVisibility}
+                                
+                            >
+                                {(activeFile.isPublic == true) ? "Privar" : "Compartilhar"}
+                            </button>
+                        </div>
+                        
                     </Modal.Body>
 
                     <Modal.Footer className="selectedFileModal-footer">
