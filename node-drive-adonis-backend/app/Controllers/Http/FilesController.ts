@@ -26,7 +26,29 @@ type newFileType = {
     shareLink?: string;
 }
 
+type PublicFileInfo = {
+    name: string;
+    extension: string | null;
+    size: string;
+    filePath: string;
+}
+
 export default class FilesController {
+
+    private convertBytesToMb(bytes: number) {
+        let fileSize: string;
+
+        if(bytes > 1000000) {
+            fileSize = `${(bytes / 1000000).toFixed(2)} Mb`;
+        } else if(bytes > 1000) {
+            fileSize = `${(bytes / 1000).toFixed(2)} Kb`;
+        } else {
+            fileSize = `${bytes} Bytes`;
+        }
+
+        return fileSize;
+    }
+
     async getFoldersAndFilesFrom({ request, response }: HttpContextContract) {
         let { userId, path } = request.qs();
         let token = request.header("Authorization")!.split(' ')[1];
@@ -72,15 +94,7 @@ export default class FilesController {
                 extension = null;
             }
 
-            let fileSize: string;
-
-            if(fileInfo.size > 1000000) {
-                fileSize = `${fileInfo.size / 1000000} Mb`;
-            } else if(fileInfo.size > 1000) {
-                fileSize = `${fileInfo.size / 1000} Kb`;
-            } else {
-                fileSize = `${fileInfo.size} Bytes`;
-            }
+            let fileSize: string = this.convertBytesToMb(fileInfo.size);
 
             totalFilesSize += fileInfo.size;
 
@@ -442,7 +456,7 @@ export default class FilesController {
         let { filePath, userId } = request.qs();
         //let token = request.header("Authorization")!.split(' ')[1];
 
-        console.log(filePath, userId);
+        //console.log(filePath, userId);
 
         if(filePath == null || userId == null) {
             response.status(400);
@@ -468,7 +482,7 @@ export default class FilesController {
 
         let existentFIle = await Drive.use("local").exists(path);
 
-        console.log(path, existentFIle);
+        //console.log(path, existentFIle);
 
         if(existentFIle == false) {
             response.status(400);
@@ -480,7 +494,7 @@ export default class FilesController {
 
         let publicFile = await PublicFile.findBy("file_path", path);
 
-        console.log(publicFile);
+        //console.log(publicFile);
 
         if(publicFile == null) {
             response.status(200);
@@ -501,5 +515,101 @@ export default class FilesController {
         //let decoded = JWT.decode(token) as decodedToken;
 
 
+    }
+
+    
+
+    async getPublicFileInfo({ request, response }: HttpContextContract) {
+        let { userId, fileUrl } = request.qs() as { userId: string | null, fileUrl: string | null };
+
+        if(userId == null || fileUrl == null) {
+            response.status(400);
+            return response.send({
+                status: 400
+            });
+        }
+
+        let publicFile = await PublicFile.query().where("user_id", "=", userId).andWhere("file_url", "=", fileUrl).first();
+
+        if(publicFile == null) {
+            response.status(404);
+            return response.send({
+                status: 404
+            });
+        }
+
+
+        //let filePath = `${Drive.application.appRoot}/${publicFile.filePath}`;
+
+        let fileStats = await Drive.use("local").getStats(publicFile.filePath);
+
+        let name: string[] | string = publicFile.filePath.split('/');
+        name = name[name.length - 1];
+
+        let extension: string[] | string | null = name.split('.');
+        extension = extension[extension.length - 1];
+
+        if(extension == name) {
+            extension = null;
+        }
+
+        let fileInfo: PublicFileInfo = {
+            name: name,
+            extension: extension,
+            size: this.convertBytesToMb(fileStats.size),
+            filePath: publicFile.filePath
+        }
+
+        response.status(200);
+        return response.send({
+            fileInfo: fileInfo,
+            status: 200
+        });
+    }
+
+
+    async downloadPublicFile({ request, response, params }: HttpContextContract) {
+        let { filePath } = request.qs() as { filePath: string | null };
+        let userId: number | null = params.userId;
+
+        if(filePath == null || userId == null) {
+            response.status(400);
+            return response.send({
+                status: 400
+            });
+        }
+
+        let exists = await PublicFile.query().where("user_id", "=", userId).andWhere("file_path", "=", filePath).first();
+
+        if(exists == null) {
+            response.status(403);
+            return response.send({
+                status: 403
+            });
+        }
+
+        if((await Drive.use("local").exists(exists.filePath)) == false) {
+            response.status(204);
+            return response.send({
+                status: 204
+            });
+        }
+
+        let url = await Drive.use("local").getUrl(exists.filePath);
+
+        try{
+            await response.download(`${Application.appRoot}/${url}`);
+        } catch(e) {
+            response.status(500);
+            return response.send({
+                status: 500
+            });
+        }
+
+        response.status(200);
+        return response.send({
+            status: 200
+        });
+        
     }
 }

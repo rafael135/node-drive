@@ -1,17 +1,21 @@
 import { useNavigate, useParams } from "react-router-dom";
+import PublicFile from "../../components/PublicFile/PublicFile";
 
 const DownloadFile = () => {
     const navigate = useNavigate();
     const params = useParams();
 
-    if(params.userId == null || params.fileUrl == null) {
+    let userId = params.userId;
+    let fileUrl = params.fileUrl;
+
+    if(userId == undefined || fileUrl == undefined) {
         navigate("/");
     }
 
-    return (
-        <div>
+    
 
-        </div>
+    return (
+        <PublicFile userId={Number.parseInt(userId!)} fileUrl={fileUrl!} />
     );
 }
 

@@ -8,3 +8,21 @@ export type FileType = {
     shareLink?: string;
     selected?: boolean;
 }
+
+export type FileDataType = {
+    type: "txt" | "png" | "jpg" | "pdf" | "other";
+    data: string;
+}
+
+export type PublicFileInfo = {
+    name: string;
+    extension: string | null;
+    size: string;
+    filePath: string;
+}
+
+export type getPublicFileInfoResponse = {
+    fileInfo: PublicFileInfo;
+    status: number;
+}
+

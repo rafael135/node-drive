@@ -55,4 +55,20 @@
     .userLayout-container main {
         @apply flex-1;
     }
+
+
+
+
+
+    .mainPublicLayout-container {
+        min-height: calc(100vh - 64px);
+    }
+
+    .mainPublicFileLayout-container {
+        min-height: calc(100vh - 64px);
+        @apply bg-stone-800;
+    }
+    .mainPublicFileLayout-container .publicFileLayout-sidebar {
+        
+    }
 }

@@ -92,4 +92,13 @@
     .fileContextMenu ul .contextMenu-item .contextMenu-item--img {
         @apply fill-slate-800 group-hover:text-blue-700;
     }
+
+
+
+    .customPbLinkTooltip {
+        
+    }
+    .customPbLinkTooltip div:first-child {
+        @apply w-full;
+    }
 }

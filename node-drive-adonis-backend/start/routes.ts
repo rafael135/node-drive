@@ -37,7 +37,9 @@ Route.group(() => {
 
 			Route.put("/public", "FilesController.makeFilePublic").middleware(["auth"]);
 
-			Route.get("/public", "FilesController.getPublicFileUrl");
+			Route.get("/public/url", "FilesController.getPublicFileUrl");
+
+			Route.get("/public/info", "FilesController.getPublicFileInfo");
 
 			Route.get("/view", "FilesController.viewFile").middleware(["auth"]);
 
@@ -47,6 +49,8 @@ Route.group(() => {
 
 			Route.put("/rename", "FilesController.renameFileOrFolder").middleware(["auth"]);
 		}).prefix("/files");
+
+		Route.get("/:userId/files/public/download", "FilesController.downloadPublicFile");
 
 	}).prefix("/user");
 	

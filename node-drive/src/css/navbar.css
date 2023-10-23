@@ -8,7 +8,7 @@
     }
 
     header .navbar-avatar {
-
+        
     }
     header .navbar-avatar svg {
         @apply fill-gray-600/90 relative -bottom-1.5 flex;
@@ -28,5 +28,16 @@
     }
     .navbar-searchFiles span svg {
         @apply w-4 h-4 fill-slate-700;
+    }
+
+
+
+
+
+    .headerFileNavbar {
+        @apply bg-stone-800/95 gap-2 border-b border-solid border-b-gray-400/25 shadow-xl;
+    }
+    .headerFileNavbar .navbar-logo {
+        @apply text-slate-200;
     }
 }

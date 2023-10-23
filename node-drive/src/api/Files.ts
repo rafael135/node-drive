@@ -1,6 +1,6 @@
 //import { useQueryClient } from "@tanstack/react-query";
 import AxiosInstance from "../helpers/AxiosInstance"
-import { FileType } from "../types/File";
+import { FileType, PublicFileInfo, getPublicFileInfoResponse } from "../types/File";
 import { FolderPath } from "../components/CurrentFolder/CurrentFolder";
 import { getRealPath } from "../helpers/PathOps";
 
@@ -146,7 +146,7 @@ type getPublicDownloadLinkResponse = {
 }
 
 export const getPublicDownloadLink = async (path: FolderPath, fileName: string, userId: number) => {
-    let req = await AxiosInstance.get("/user/files/public", {
+    let req = await AxiosInstance.get("/user/files/public/url", {
         params: {
             filePath: `${getRealPath(path)}/${fileName}`,
             userId: userId
@@ -166,4 +166,46 @@ export const getPublicDownloadLink = async (path: FolderPath, fileName: string, 
     if(res.status == 200) {
         return res.url;
     }
+}
+
+export const getPublicFileInfo = async (userId: number, fileUrl: string) => {
+    let req = await AxiosInstance.get("/user/files/public/info", {
+        params: {
+            userId: userId,
+            fileUrl: fileUrl
+        }
+    });
+
+    let res: getPublicFileInfoResponse = req.data;
+    
+    if(res.status == 200) {
+        return res.fileInfo;
+    }
+
+    return null;
+}
+
+export const downloadPublicFile = async (userId: number, fileInfo: PublicFileInfo) => {
+    let req = AxiosInstance.get(`/user/${userId}/files/public/download`, {
+        params: {
+            filePath: fileInfo.filePath
+        },
+        responseType: "blob"
+    });
+
+    req.then((res) => {
+        const href = window.URL.createObjectURL(res.data);
+
+        const anchorElement = document.createElement("a");
+        anchorElement.href = href;
+        anchorElement.download = `${fileInfo.name}${(fileInfo.extension == null) ? ".txt" : ""}`;
+
+        document.body.appendChild(anchorElement);
+        anchorElement.click();
+
+        document.body.removeChild(anchorElement);
+        window.URL.revokeObjectURL(href);
+    }, (res) => {
+
+    });
 }

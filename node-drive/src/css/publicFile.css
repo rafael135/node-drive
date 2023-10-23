@@ -1,0 +1,6 @@
+@layer components {
+    .publicDownload-container {
+        min-height: calc(100vh - 64px);
+        @apply flex justify-center items-center;
+    }
+}
