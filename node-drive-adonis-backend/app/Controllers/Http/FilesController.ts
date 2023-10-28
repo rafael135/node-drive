@@ -8,6 +8,8 @@ import Hash from '@ioc:Adonis/Core/Hash';
 import JWT from "jsonwebtoken";
 import PublicFile from 'App/Models/PublicFile';
 import User from 'App/Models/User';
+import mime from "mime";
+//import { fileTypeFromFile, FileTypeResult } from 'file-type';
 
 type decodedToken = {
     id: number;
@@ -31,6 +33,8 @@ type PublicFileInfo = {
     extension: string | null;
     size: string;
     filePath: string;
+    created_at: string;
+    updated_at: string;
 }
 
 export default class FilesController {
@@ -55,13 +59,13 @@ export default class FilesController {
 
         //console.log(path);
 
-        //if(path == null) {
-        //    response.status(400);
-        //    return response.send({
-        //        files: null,
-        //        status: 400
-        //    });
-        //}
+        if(path == null || userId == null) {
+            response.status(400);
+            return response.send({
+                files: null,
+                status: 400
+            });
+        }
 
         let decoded = JWT.decode(token) as decodedToken;
 
@@ -188,18 +192,80 @@ export default class FilesController {
 
         let path = `user/${decoded.id}/files/${filePath}`;
 
-        let data: string | null = null;
+        //let fileInfo = await fs.stat(`${Application.appRoot}/storage/${path}`);
+        let fileType: string | null = mime.getType(`${Application.appRoot}/storage/${path}`);
 
-        try {
-            //let reader = await Drive.getStream(path);
-            data = (await Drive.get(path)).toString();
-        } catch(e) {
-            
+        //let fileType: FileTypeResult | string | undefined = await fileTypeFromFile(`${Application.appRoot}/storage/${path}`);
+
+        let extension: string[] | string = path[path.length - 1].split('.');
+        extension = extension[extension.length - 1];
+
+        if(fileType == undefined) {
+            fileType = "file/other";
+        }
+
+        console.log(fileType);
+
+        let isVideo = false;
+        let isImage = false;
+        let isPdf = false;
+        let isCode = false;
+
+        if(fileType != null) {
+            if(fileType.includes("video") == true) {
+                fileType = "video";
+                isVideo = true;
+            } else if(fileType.includes("image") == true) {
+                fileType = "image";
+                isImage = true;
+            } else if(fileType.includes("pdf") == true) {
+                fileType = "pdf";
+                isPdf = true;
+            } else if(fileType.includes("javascript") == true) {
+                isCode = true;
+            }
+
+        }
+
+        let data: string | undefined = undefined;
+
+        if(isVideo == false && isImage == false && isPdf == false && isCode == false) {
+            try {
+                //let reader = await Drive.getStream(path);
+                data = (await Drive.get(path)).toString();
+                fileType = "text";
+            } catch(e) {
+                console.error(e);
+            }
+        } else if(isCode == true) {
+            try {
+                data = (await Drive.get(path)).toString();
+                fileType = "code";
+            } catch(e) {
+                console.error(e);
+            }
+        } else {
+            try {
+                data = (await Drive.get(path)).toString("base64");
+            } catch(e) {
+                console.error(e);
+            }
         }
         
-
         response.status(200);
+
+        if(isImage == true || isPdf == true || isVideo == true) {
+            return response.send({
+                type: fileType,
+                extension: extension,
+                data: data,
+                url: `localhost:3333${await Drive.use("local").getSignedUrl(path)}`,
+                status: 200
+            });
+        }
+
         return response.send({
+            type: fileType,
             data: data,
             status: 200
         });
@@ -543,6 +609,10 @@ export default class FilesController {
 
         let fileStats = await Drive.use("local").getStats(publicFile.filePath);
 
+        let stats = await fs.stat(`${Application.appRoot}/storage/${publicFile.filePath}`);
+
+        
+
         let name: string[] | string = publicFile.filePath.split('/');
         name = name[name.length - 1];
 
@@ -557,7 +627,9 @@ export default class FilesController {
             name: name,
             extension: extension,
             size: this.convertBytesToMb(fileStats.size),
-            filePath: publicFile.filePath
+            filePath: publicFile.filePath,
+            created_at: `${stats.ctime.getHours()}:${(stats.ctime.getMinutes() < 10) ? `0${stats.ctime.getMinutes()}` : `${stats.ctime.getMinutes()}`} ${stats.ctime.getFullYear()}/${stats.ctime.getMonth()}/${stats.ctime.getDay()}`,
+            updated_at: `${stats.mtime.getHours()}:${(stats.mtime.getMinutes() < 10) ? `0${stats.mtime.getMinutes()}` : `${stats.mtime.getMinutes()}`} ${stats.mtime.getFullYear()}/${stats.mtime.getMonth()}/${stats.mtime.getDay()}`
         }
 
         response.status(200);
@@ -612,4 +684,6 @@ export default class FilesController {
         });
         
     }
+
+
 }

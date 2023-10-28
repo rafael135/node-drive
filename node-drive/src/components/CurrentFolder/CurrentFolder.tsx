@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useContext, createContext } from "react";
+import React, { useState, useEffect, useRef, useMemo, useContext, createContext, useLayoutEffect } from "react";
 import { FileType } from "../../types/File";
 import AxiosInstance from "../../helpers/AxiosInstance";
 
@@ -11,6 +11,7 @@ import UploadStatus from "../FileUpload/UploadStatus";
 import { sleep } from "../../helpers/PathOps";
 import { downloadFile } from "../../api/Files";
 import { UserContextType } from "../../contexts/UserContext";
+import { UsedSpaceContext } from "../../contexts/UsedSpaceContext";
 
 type props = {
     userFilesPath: string;
@@ -32,6 +33,7 @@ export type FolderPath = {
 };
 
 const CurrentFolder = ({userFilesPath, userCtx}: props) => {
+    const usedSpaceCtx = useContext(UsedSpaceContext)!;
 
     //console.log(userFilesPath);
     let fileUploadInput = useRef<HTMLInputElement | null>(null);
@@ -65,6 +67,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     type FileResponse = {
         
         files: FileType[];
+        occupiedSpace: number;
         status: number;
     }
     
@@ -84,6 +87,8 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
             }
 
             let files = response.files;
+
+            usedSpaceCtx.setUsedSize(response.occupiedSpace);
 
             files = files.filter((f) => {
                 if(f.name != "ignore") {
@@ -190,15 +195,16 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
             for(let i = 0; i < input.files.length; i++) {
                 let file = input.files.item(i)!;
 
-                console.log(file);
-                await sleep(300);
+                //console.log(file);
+                //await sleep(300);
                 await uploadFile(file);
-                console.log(i);
+                //console.log(i);
                 setFilesToUploadCompleted(filesToUploadCompleted + 1);
                 
             }
-
-            getFiles();
+            
+            setShowAddModal(false);
+            await getFiles();
         }
     }
     
@@ -284,11 +290,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
         }
     }
 
-    useEffect(() => {
-        getFiles();
-    }, []);
-
-    useEffect(() => {
+    useLayoutEffect(() => {
         getFiles();
     }, [path]);
 
@@ -316,7 +318,11 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
         } else {
             setIsFileChecked(false);
         }
-    }, [files])
+    }, [files]);
+
+    useEffect(() => {
+        //console.log(usedSpaceCtx.usedSize, userCtx.user);
+    }, [usedSpaceCtx.usedSize, userCtx.user?.maxStorage]);
 
     
 

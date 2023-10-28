@@ -17,7 +17,7 @@ export default class User extends BaseModel {
   @column()
   public storage_type_id: number | null;
 
-  @column()
+  @column({ serializeAs: null })
   public files_path: string | null;
 
   @column.dateTime({ autoCreate: true })

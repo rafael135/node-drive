@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import PublicFile from "../../components/PublicFile/PublicFile";
+import { PublicFileContextProvider } from "../../contexts/PublicFileInteractionContext";
 
 const DownloadFile = () => {
     const navigate = useNavigate();
@@ -15,7 +16,9 @@ const DownloadFile = () => {
     
 
     return (
-        <PublicFile userId={Number.parseInt(userId!)} fileUrl={fileUrl!} />
+        <PublicFileContextProvider>
+            <PublicFile userId={Number.parseInt(userId!)} fileUrl={fileUrl!} />
+        </PublicFileContextProvider>
     );
 }
 

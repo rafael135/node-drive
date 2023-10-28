@@ -10,8 +10,10 @@ export type FileType = {
 }
 
 export type FileDataType = {
-    type: "txt" | "png" | "jpg" | "pdf" | "other";
-    data: string;
+    type: "text" | "code" | "image" | "pdf" | "video" | "file/other";
+    url?: string;
+    data?: string;
+    extension?: string;
 }
 
 export type PublicFileInfo = {
@@ -19,6 +21,8 @@ export type PublicFileInfo = {
     extension: string | null;
     size: string;
     filePath: string;
+    created_at: string;
+    updated_at: string;
 }
 
 export type getPublicFileInfoResponse = {

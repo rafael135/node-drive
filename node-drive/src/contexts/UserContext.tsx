@@ -74,8 +74,9 @@ export const UserAuthProvider = ({children}: {children: ReactNode}) => {
 export type AuthResponseType = {
     response: {
         user: User | null;
+        maxSpace: number;
         token: string | null;
-        errors?: AuthError[]
+        errors?: AuthError[];
     },
     status: number;
 }

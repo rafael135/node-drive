@@ -77,8 +77,8 @@ const FileActionsModal = ({ showActions, setShowActions, activeFile, setActiveFi
             return;
         }
 
-        pbLinkInputRef.current!.select();
-        pbLinkInputRef.current!.setSelectionRange(0, 9999);
+        //pbLinkInputRef.current!.select();
+        //pbLinkInputRef.current!.setSelectionRange(0, 9999);
 
         navigator.clipboard.writeText(pbLinkInputRef.current!.value);
 

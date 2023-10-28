@@ -2,15 +2,15 @@ import { AuthResponseType, UserAuthContext } from "../../contexts/UserContext";
 import AxiosInstance from "../../helpers/AxiosInstance";
 import { useState, useContext, useRef, MutableRefObject } from "react";
 import { AuthError } from "../../types/Auth";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 const Register = () => {
-    //let navigate = useNavigate();
+    let navigate = useNavigate();
     const authCtx = useContext(UserAuthContext);
 
     if(authCtx?.token != null && authCtx.user != null) {
-        return <Navigate to={"/"} />
+        return navigate("/");
     }
 
     const axios = AxiosInstance;
@@ -126,8 +126,10 @@ const Register = () => {
             }
         
             if(res.status == 201) {
+                let usr = {...res.response.user, maxStorage: res.response.maxSpace };
+
                 authCtx!.setToken(res.response.token);
-                authCtx!.setUser(res.response.user);
+                authCtx!.setUser(usr);
                 return;
             }
         }

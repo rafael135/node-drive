@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { FileType } from "../../types/File";
+import { FileDataType, FileType } from "../../types/File";
 import File from "../Files/File";
 import { FolderPath } from "./CurrentFolder";
 import ContextMenu from "./ContextMenu";
@@ -32,7 +32,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
 
     const [showActions, setShowActions] = useState<boolean>(false);
 
-    const [fileData, setFileData] = useState<string | null>(null);
+    const [fileData, setFileData] = useState<FileDataType | null>(null);
     const [showFileData, setShowFileData] = useState<boolean>(false);
 
     const [showNewFolderModal, setShowNewFolderModal] = useState<boolean>(false);
@@ -73,11 +73,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
 
         let data = await getFileData(`${getRealPath(pathInfo)}${activeFile!.name}`);
 
-        if(data != false) {
-            setFileData(data);
-        } else {
-            setFileData("Não há nenhum texto para ser exibido")
-        }
+        setFileData(data);
     }
 
     const handleMakePublicFile = async () => {

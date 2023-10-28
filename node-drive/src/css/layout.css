@@ -44,6 +44,9 @@
     .layout-sidebar .layout-sidebar--item.sidebar--btn:hover svg {
         @apply fill-gray-100;
     }
+    .layout-sidebar .layout-sidebar--spaceBar div {
+        @apply bg-blue-500;
+    }
 
 
 

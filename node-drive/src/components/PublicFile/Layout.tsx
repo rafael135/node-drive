@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
 import FileNavbar from "./FileNavbar";
 import { PublicFileInfo } from "../../types/File";
+import { PublicFileContextProvider, PublicFileInterationContext } from "../../contexts/PublicFileInteractionContext";
 
 type props = {
     children: ReactNode;

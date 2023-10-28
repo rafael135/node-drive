@@ -5,6 +5,8 @@ export type User = {
     storageTypeId: number;
     files_path: string;
     public_files_path: string;
+
+    maxStorage: number;
 }
 
 export type AuthError = {

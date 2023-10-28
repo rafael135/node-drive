@@ -1,6 +1,6 @@
 //import { useQueryClient } from "@tanstack/react-query";
 import AxiosInstance from "../helpers/AxiosInstance"
-import { FileType, PublicFileInfo, getPublicFileInfoResponse } from "../types/File";
+import { FileDataType, FileType, PublicFileInfo, getPublicFileInfoResponse } from "../types/File";
 import { FolderPath } from "../components/CurrentFolder/CurrentFolder";
 import { getRealPath } from "../helpers/PathOps";
 
@@ -56,23 +56,25 @@ export const deleteFile = async (filePath: string) => {
     return false;
 }
 
-
-type FileDataResponse = {
-    data: string | null;
+interface FileDataTypeResponse extends FileDataType {
     status: number;
 }
 
-export const getFileData = async (filePath: string) => {
+export const getFileData = async (filePath: string): Promise<FileDataType | null> => {
     //const queryClient = useQueryClient();
 
     let req = await AxiosInstance.get(`/user/files/view?filePath=${filePath}`);
-    let res: FileDataResponse = req.data;
+    let res: FileDataTypeResponse = req.data;
 
     if(res.status == 400 || res.data == null) {
-        return false;
+        return null;
     }
 
-    return res.data;
+    return {
+        type: res.type,
+        url: res.url,
+        data: res.data
+    };
 }
 
 

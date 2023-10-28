@@ -1,9 +1,10 @@
 import { Modal } from "flowbite-react";
-import { FileType } from "../../../types/File";
+import { FileDataType, FileType } from "../../../types/File";
+import { useEffect } from "react";
 
 type props = {
     activeFile: FileType;
-    fileData: string | null;
+    fileData: FileDataType | null;
     showFileData: boolean;
     setShowFileData: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -11,21 +12,46 @@ type props = {
 const ShowFileDataModal = ({ activeFile, fileData, showFileData, setShowFileData }: props) => {
 
 
+    /*
+    useEffect(() => {
+        console.log(fileData);
+    }, [fileData]);
+    */
+
     return (
-        <Modal show={showFileData === true} className="selectedFileViewModal" dismissible={true} onClose={ () => { setShowFileData(false); } }>
-            <Modal.Header className="selectedFileViewModal-header">
+        <Modal show={showFileData === true} className="selectedFileViewDataModal absolute top-0 bottom-0 left-0 right-0 flex justify-center items-center" dismissible={true} onClose={ () => { setShowFileData(false); } }>
+            <Modal.Header className="selectedFileViewDataModal-header">
                 Visualizando <span className="font-thin">{activeFile.name}</span>
             </Modal.Header>
     
-            <Modal.Body className="selectedFileViewModal-body">
-                {/*(fileData != null && activeFile.extension == "pdf") &&
-                            
-                */}
+            <Modal.Body className="selectedFileViewDataModal-body">
+                
 
-                {(fileData != null) &&
-                    (fileData.split('\n').includes('\n') ? fileData.split('\n').map((d) => {
+                {(fileData != null && fileData.data != undefined && (fileData.type == "text" || fileData.type == "file/other")) &&
+                    (fileData.data.includes('\n') ? fileData.data.split('\n').map((d) => {
                         return <p>{d}</p>
-                    }) : fileData)
+                    }) : fileData.data)
+                }
+
+                {(fileData != null && fileData.type == "image") &&
+                    <img
+                        className=""
+                        src={`data:image/${fileData.extension};base64,${fileData.data}`}
+                    />
+                }
+
+                {(fileData != null && fileData.type == "code") &&
+                    <code>
+                        {(fileData.data != undefined && fileData.data!.includes('\n')) &&
+                            fileData.data.split('\n').map((line, idx) => {
+                                return <p key={idx}>{line}</p>
+                            })
+                        }
+                    </code>
+                }
+
+                {(fileData != null && fileData.type == "pdf") &&
+                    "Não há suporte para a exibição de arquivos PDF"
                 }
         
                 {(fileData == null) &&

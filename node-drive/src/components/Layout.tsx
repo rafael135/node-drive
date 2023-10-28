@@ -1,8 +1,10 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useContext, useState } from "react";
 import Navbar from "./Navbar/Navbar";
 import { BsFiles, BsHddFill, BsHddStackFill, BsShareFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { Progress } from "flowbite-react";
+import { UsedSpaceContext } from "../contexts/UsedSpaceContext";
+import { UserAuthContext } from "../contexts/UserContext";
 
 type props = {
     children: ReactNode;
@@ -10,6 +12,17 @@ type props = {
 }
 
 const Layout = ({ children, activeTab }: props) => {
+    const usedSpaceCtx = useContext(UsedSpaceContext)!;
+    const userCtx = useContext(UserAuthContext)!;
+
+    const [usePct, setUsePct] = useState<number>(0.0);
+
+    const GbValue = 1000000000;
+
+    useEffect(() => {
+        setUsePct((usedSpaceCtx.usedSize / (userCtx.user!.maxStorage * GbValue)) * 100);
+    }, [usedSpaceCtx.usedSize]);
+
     return (
         <>
             <Navbar />
@@ -29,15 +42,17 @@ const Layout = ({ children, activeTab }: props) => {
                     </div>
                     
 
-                    <Link className={`layout-sidebar--item storageType mt-auto ${(activeTab == "storageTypes") ? "active" : ""}`} to={"/user/config"}>
+                    <Link
+                        className={`layout-sidebar--item storageType mt-auto ${(activeTab == "storageTypes") ? "active" : ""}`}
+                        to={"/user/config"}
+                        title={`Espaço usado: ${usePct.toFixed(2)}%`}
+                    >
                         <div className="flex flex-row gap-2">
                             <BsHddStackFill className="fill-gray-500" />
                             <p className="flex-1">Espaço total usado</p>
                         </div>
-
                         
-                            <Progress progress={20} className="flex flex-1 text-blue-500" />
-                        
+                        <Progress progress={usePct} className="layout-sidebar--spaceBar" />
                     </Link>
                 </div>
 

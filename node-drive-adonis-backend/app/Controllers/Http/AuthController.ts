@@ -5,8 +5,10 @@ import User from 'App/Models/User';
 import Env from '@ioc:Adonis/Core/Env';
 import JWT from "jsonwebtoken";
 import Drive from '@ioc:Adonis/Core/Drive';
+import StorageType from 'App/Models/StorageType';
 
 export default class AuthController {
+
     async register({ request, response }: { request: Request, response: Response }) {
         let name: string | null = request.input("name", null);
         let email: string | null = request.input("email", null);
@@ -93,6 +95,8 @@ export default class AuthController {
             newUser.files_path = userFilesPath;
             await newUser.save();
 
+            let userStorageType = await StorageType.find(newUser.storage_type_id);
+
             await Drive.put(`${userFilesPath}/ignore`, `${newUser.id}`);
 
             response.status(201);
@@ -100,6 +104,7 @@ export default class AuthController {
             return response.send({
                 response: {
                     user: newUser,
+                    maxSpace: (userStorageType == null) ? 5 : userStorageType.storage_size,
                     token: token
                 },
                 status: 201
@@ -172,10 +177,13 @@ export default class AuthController {
             if(verifyPassword == true) {
                 let token = JWT.sign({ id: usr.id, email: usr.email }, Env.get("APP_KEY"), { algorithm: "HS256", expiresIn: "5 days" });
 
+                let userStorageType = await StorageType.find(usr.storage_type_id);
+
                 response.status(200);
                 return response.send({
                     response: {
                         user: usr,
+                        maxSpace: (userStorageType == null) ? 5 : userStorageType.storage_size,
                         token: token
                     },
                     status: 200
