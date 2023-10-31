@@ -1,6 +1,7 @@
 export type FileType = {
     name: string;
     extension: string | null;
+    fileType: string;
     size: string;
     location: string;
     isFile: boolean;
@@ -11,6 +12,7 @@ export type FileType = {
 
 export type FileDataType = {
     type: "text" | "code" | "image" | "pdf" | "video" | "file/other";
+    mimeType?: string;
     url?: string;
     data?: string;
     extension?: string;

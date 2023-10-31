@@ -1,6 +1,7 @@
 import { Modal } from "flowbite-react";
 import { FileDataType, FileType } from "../../../types/File";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import AxiosInstance, { baseUrl } from "../../../helpers/AxiosInstance";
 
 type props = {
     activeFile: FileType;
@@ -11,11 +12,21 @@ type props = {
 
 const ShowFileDataModal = ({ activeFile, fileData, showFileData, setShowFileData }: props) => {
 
+    const videoRef = useRef<HTMLVideoElement | null>(null);
 
     /*
     useEffect(() => {
         console.log(fileData);
     }, [fileData]);
+    */
+
+    /*
+    useEffect(() => {
+        if(videoRef != null) {
+            videoRef.current?.pause();
+            videoRef.current?.load();
+        }
+    }, [videoRef]);
     */
 
     return (
@@ -52,6 +63,15 @@ const ShowFileDataModal = ({ activeFile, fileData, showFileData, setShowFileData
 
                 {(fileData != null && fileData.type == "pdf") &&
                     "Não há suporte para a exibição de arquivos PDF"
+                }
+
+                {(fileData != null && fileData.type == "video") &&
+                    <video
+                        controls={true}
+                        className="w-full h-auto"
+                    >
+                        <source src={fileData.url} type={fileData.mimeType}></source>
+                    </video>
                 }
         
                 {(fileData == null) &&

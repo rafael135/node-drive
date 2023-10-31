@@ -68,12 +68,12 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             return;
         }
 
-        setShowActions(false);
-        setShowFileData(true);
-
         let data = await getFileData(`${getRealPath(pathInfo)}${activeFile!.name}`);
 
         setFileData(data);
+
+        setShowActions(false);
+        setShowFileData(true);
     }
 
     const handleMakePublicFile = async () => {

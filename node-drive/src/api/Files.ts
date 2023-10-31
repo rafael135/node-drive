@@ -66,7 +66,7 @@ export const getFileData = async (filePath: string): Promise<FileDataType | null
     let req = await AxiosInstance.get(`/user/files/view?filePath=${filePath}`);
     let res: FileDataTypeResponse = req.data;
 
-    if(res.status == 400 || res.data == null) {
+    if(res.status == 400) {
         return null;
     }
 

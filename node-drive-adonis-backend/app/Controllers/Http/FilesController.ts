@@ -21,6 +21,7 @@ type decodedToken = {
 type newFileType = {
     name: string;
     extension: string | null;
+    fileType: string;
     size: string;
     location: string;
     isFile: boolean;
@@ -102,9 +103,23 @@ export default class FilesController {
 
             totalFilesSize += fileInfo.size;
 
+            let fileType = mime.getType(`${Application.appRoot}/storage/${file.location}`);
+
+            if(fileType == null) {
+                fileType = "other";
+            }
+
             //console.log(file.location);
 
-            let newFile: newFileType = { location: file.location, isFile: file.isFile, name: name, extension: extension, size: fileSize, isPublic: false };
+            let newFile: newFileType = {
+                location: file.location,
+                isFile: file.isFile,
+                name: name,
+                extension: extension,
+                fileType: fileType,
+                size: fileSize,
+                isPublic: false
+            };
 
             //console.log(newFile);
 
@@ -204,7 +219,7 @@ export default class FilesController {
             fileType = "file/other";
         }
 
-        console.log(fileType);
+        //console.log(fileType);
 
         let isVideo = false;
         let isImage = false;
@@ -254,13 +269,22 @@ export default class FilesController {
         
         response.status(200);
 
-        if(isImage == true || isPdf == true || isVideo == true) {
+        if(isImage == true || isPdf == true) {
             return response.send({
                 type: fileType,
                 extension: extension,
                 data: data,
                 url: `localhost:3333${await Drive.use("local").getSignedUrl(path)}`,
                 status: 200
+            });
+        } else if(isVideo == true) {
+            return response.send({
+                type: fileType,
+                mimeType: mime.getType(`${Application.appRoot}/storage/${path}`)!,
+                extension: extension,
+                url: `http://localhost:3333/api/user/${decoded.id}/video/${filePath}`,
+                status: 200
+
             });
         }
 

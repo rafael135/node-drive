@@ -4,6 +4,7 @@ import { BsFileEarmarkFill, BsDownload, BsFolderFill, BsFilePdfFill, BsFiletypeD
 import { Modal } from "flowbite-react";
 import AxiosInstance from "../../helpers/AxiosInstance";
 import { getFileData } from "../../api/Files";
+import { FcVideoFile } from "react-icons/fc";
 
 type props = {
     info: FileType;
@@ -106,7 +107,7 @@ const File = ({info, isRenaming, renamingFileIdx, setRenamingFilesIdx, doneRenam
                         <BsFolderFill className="flex-1 p-1 w-auto fill-yellow-300" />
                     }
 
-                    {(info.isFile && info.extension == null) == true &&
+                    {(info.isFile == true && info.extension == null) &&
                         <BsFileEarmarkFill className="flex-1 p-1 w-auto" />
                     }
 
@@ -132,6 +133,10 @@ const File = ({info, isRenaming, renamingFileIdx, setRenamingFilesIdx, doneRenam
 
                     {(info.isFile == true && (info.extension == "rar" || info.extension == "zip" || info.extension == "7z")) &&
                         <BsFileZipFill className="flex-1 p-1 w-auto fill-blue-300" />
+                    }
+
+                    {(info.isFile == true && info.fileType.includes("video")) &&
+                        <FcVideoFile className="flex-1 p-1 w-auto fill-blue-200" />
                     }
 
                     

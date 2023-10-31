@@ -52,6 +52,8 @@ Route.group(() => {
 
 		Route.get("/:userId/files/public/download", "FilesController.downloadPublicFile");
 
+		Route.get("/:userId/video/:filePath", "VideosController.streamVideo");
+
 	}).prefix("/user");
 	
 }).prefix("/api");
