@@ -2,8 +2,8 @@ import { ReactNode, createContext, useContext, useEffect, useMemo, useState } fr
 import { AuthError, User } from "../types/Auth"
 import AxiosInstance from "../helpers/AxiosInstance";
 
-let USER_STORAGE_KEY = "UserContextAuth";
-export let TOKEN_STORAGE_KEY = "TokenContextAuth";
+const USER_STORAGE_KEY = "UserContextAuth";
+export const TOKEN_STORAGE_KEY = "TokenContextAuth";
 
 export type UserContextType = {
     user: User | null;

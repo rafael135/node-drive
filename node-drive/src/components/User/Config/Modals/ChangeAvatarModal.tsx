@@ -44,7 +44,7 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
             usr.avatar = res.base64Avatar;
             console.log(usr);
 
-            authCtx.setUser(usr);
+            authCtx.setUser({ ...usr, avatar: usr.avatar });
             console.log(authCtx.user);
         });
     }

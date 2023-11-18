@@ -1,6 +1,6 @@
 @layer components {
     .userInfoContainer {
-        @apply w-full h-auto p-2 border border-gray-500/40;
+        @apply w-full h-auto p-2 border bg-gray-100 border-gray-600/20 rounded-lg;
     }
 
     .userInfoContainer .storagePlans {
