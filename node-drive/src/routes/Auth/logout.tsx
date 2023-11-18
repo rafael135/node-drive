@@ -1,6 +1,6 @@
-import { useContext } from "react"
+import { useContext, useEffect, useLayoutEffect } from "react"
 import { UserAuthContext } from "../../contexts/UserContext"
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 
 const Logout = () => {
@@ -11,11 +11,10 @@ const Logout = () => {
         authCtx.setToken(null);
         authCtx.setUser(null);
 
-        return navigate("/login");
+        return <Navigate to={"/login"} />;
     } else {
-        return navigate("/login");
+        return <Navigate to={"/login"} />;
     }
-
 }
 
 export default Logout;

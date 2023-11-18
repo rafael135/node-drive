@@ -9,6 +9,7 @@ export default class extends BaseSchema {
 			table.string("name", 200).notNullable();
 			table.string("email", 200).notNullable();
 			table.string("password", 250).notNullable();
+			table.string("avatar", 80).nullable();
 			table.integer("storage_type_id").unsigned().defaultTo(1);
 			table.foreign("storage_type_id", "id").references("storage_types");
 			table.string("files_path", 120).nullable();

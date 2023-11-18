@@ -43,7 +43,7 @@ export const UserAuthProvider = ({children}: {children: ReactNode}) => {
             localStorage.removeItem(TOKEN_STORAGE_KEY);
         }
     },
-        [tokenState]
+        [tokenState, userState]
     );
 
 

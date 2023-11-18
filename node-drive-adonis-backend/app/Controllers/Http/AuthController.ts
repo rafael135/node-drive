@@ -1,4 +1,3 @@
-import { Request, Response } from '@adonisjs/core/build/standalone';
 import Hash from '@ioc:Adonis/Core/Hash';
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import User from 'App/Models/User';
@@ -6,10 +5,11 @@ import Env from '@ioc:Adonis/Core/Env';
 import JWT from "jsonwebtoken";
 import Drive from '@ioc:Adonis/Core/Drive';
 import StorageType from 'App/Models/StorageType';
+import fs from "node:fs/promises";
 
 export default class AuthController {
 
-    async register({ request, response }: { request: Request, response: Response }) {
+    async register({ request, response }: HttpContextContract) {
         let name: string | null = request.input("name", null);
         let email: string | null = request.input("email", null);
         let password: string | null = request.input("password", null);
@@ -86,18 +86,26 @@ export default class AuthController {
                 email: email,
                 password: passwordHash,
                 storage_type_id: null,
-                files_path: null
+                files_path: null,
+                avatar: null
             });
 
             let token = JWT.sign({ id: newUser.id, email: newUser.email }, Env.get("APP_KEY"), { algorithm: "HS256", expiresIn: "5 days" });
 
             let userFilesPath = `/user/${newUser.id}/files`;
+            let userAvatarPath = `/user/${newUser.id}/profile`;
+
+            //await fs.mkdir(`${Drive.application.appRoot}/publicUser/${newUser.id}`);
+            //await Drive.use("publicUser").put(`${Drive.application.appRoot}/publicUser/${newUser.id}`, "")
+            
+
             newUser.files_path = userFilesPath;
             await newUser.save();
 
             let userStorageType = await StorageType.find(newUser.storage_type_id);
 
             await Drive.put(`${userFilesPath}/ignore`, `${newUser.id}`);
+            await Drive.put(`${userAvatarPath}/ignore`, `${newUser.id}`);
 
             response.status(201);
             response.safeHeader("Authorization", token);
@@ -123,7 +131,7 @@ export default class AuthController {
 
     }
 
-    async login({ request, response }: { request: Request, response: Response }) {
+    async login({ request, response }: HttpContextContract) {
         let email: string | null = request.input("email", null);
         let password: string | null = request.input("password", null);
 
@@ -153,8 +161,19 @@ export default class AuthController {
             });
         }
 
+        if(password != null) {
+            if(password.length < 8) {
+                errors.push({
+                    field: "password",
+                    msg: "Senha menor que 8 caracteres!"
+                });
+            }
+        }
+
+        let usr: User | null;
+
         if(errors.length == 0) {
-            let usr = await User.findBy("email", email);
+            usr = await User.findBy("email", email);
 
             if(usr == null) {
                 errors.push({
@@ -179,6 +198,21 @@ export default class AuthController {
 
                 let userStorageType = await StorageType.find(usr.storage_type_id);
 
+                if(usr.avatar != null) {
+                    let ext = usr.avatar.split('.')[1];
+                    let fileName = usr.avatar;
+
+                    let path = `user/${usr.id}/profile/${fileName}`;
+                    let base64Img = `data:image/${ext};base64,${(await Drive.use("local").get(path)).toString("base64")}`;
+
+                    usr.avatar = base64Img;
+                } 
+
+                
+
+
+                
+
                 response.status(200);
                 return response.send({
                     response: {
@@ -202,7 +236,7 @@ export default class AuthController {
     }
 
 
-    async checkToken({ request, response }: { request: Request, response: Response }) {
+    async checkToken({ request, response }: HttpContextContract) {
         response.status(200);
 
         return response.send({

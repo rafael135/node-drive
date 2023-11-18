@@ -100,7 +100,7 @@ const FileActionsModal = ({ showActions, setShowActions, activeFile, setActiveFi
                     <Modal.Body className="selectedFileModal-body">
                         <div className="flex flex-row gap-2 items-center">
                             <label htmlFor="fileName" className="text-slate-800 text-lg"><strong>Nome do arquivo:</strong></label>
-                            <input id="fileName" type="text" className="flex-1 text-slate-900" value={activeFile!.name} />
+                            <input id="fileName" type="text" className="flex-1 text-slate-900" readOnly={true} defaultValue={activeFile!.name} />
                         </div>
                         
                         <div className="flex flex-row gap-2 py-2 border-solid border-t border-b border-t-gray-500/40 border-b-gray-500/40">
@@ -119,6 +119,7 @@ const FileActionsModal = ({ showActions, setShowActions, activeFile, setActiveFi
                                 placement="top"
                                 style="light"
                                 content={pbLinkTooltipContent}
+                                onMouseOver={(e) => { if(activeFile!.isPublic == false) { e.preventDefault(); } }}
                                 className="w-auto"
                                 hidden={(fileDownloadLink == "") ? true : false}
                             >
@@ -130,6 +131,7 @@ const FileActionsModal = ({ showActions, setShowActions, activeFile, setActiveFi
                                     disabled={(activeFile!.isPublic == false)}
                                     ref={pbLinkInputRef}
                                     onClick={handleCopyUrl}
+                                    hidden={(fileDownloadLink == "") ? true : false}
                                 />
                             </Tooltip>
                             <button

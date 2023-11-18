@@ -97,7 +97,7 @@ const Login = () => {
 
         if(res.status == 200) {
             let usr = {...res.response.user, maxStorage: res.response.maxSpace };
-            
+
             authCtx!.setToken(res.response.token);
             authCtx!.setUser(usr);
             return;

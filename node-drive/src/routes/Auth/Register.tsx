@@ -1,17 +1,13 @@
 import { AuthResponseType, UserAuthContext } from "../../contexts/UserContext";
 import AxiosInstance from "../../helpers/AxiosInstance";
-import { useState, useContext, useRef, MutableRefObject } from "react";
+import { useState, useContext, useRef, MutableRefObject, useEffect } from "react";
 import { AuthError } from "../../types/Auth";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 
 const Register = () => {
-    let navigate = useNavigate();
+    const navigate = useNavigate();
     const authCtx = useContext(UserAuthContext);
-
-    if(authCtx?.token != null && authCtx.user != null) {
-        return navigate("/");
-    }
 
     const axios = AxiosInstance;
 
@@ -134,6 +130,13 @@ const Register = () => {
             }
         }
     }
+
+    useEffect(() => {
+        if(authCtx?.token != null && authCtx.user != null) {
+            navigate("/");
+            //return <Navigate to={"/"} />;
+        }
+    }, [authCtx]);
 
     return (
         <div className="auth-screen">

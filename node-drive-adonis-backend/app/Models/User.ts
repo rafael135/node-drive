@@ -15,9 +15,12 @@ export default class User extends BaseModel {
   public password: string;
 
   @column()
+  public avatar: string | null;
+
+  @column()
   public storage_type_id: number | null;
 
-  @column({ serializeAs: null })
+  @column()
   public files_path: string | null;
 
   @column.dateTime({ autoCreate: true })

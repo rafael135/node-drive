@@ -32,11 +32,24 @@ type newFileType = {
 type PublicFileInfo = {
     name: string;
     extension: string | null;
+    type: string;
+    url?: string;
+    mimeType?: string;
     size: string;
     filePath: string;
+    data?: string | undefined;
     created_at: string;
     updated_at: string;
 }
+
+type getFileTypeReturn = {
+    fileType: string | "other";
+    mimeType: string;
+    isVideo: boolean;
+    isImage: boolean;
+    isPdf: boolean;
+    isCode: boolean;
+};
 
 export default class FilesController {
 
@@ -54,9 +67,68 @@ export default class FilesController {
         return fileSize;
     }
 
+
+    
+    private getFileType(filePath: string): getFileTypeReturn {
+        let mimeType = mime.getType(filePath);
+
+        if(mimeType == null) {
+            return {
+                fileType: "other",
+                mimeType: "file/other",
+                isVideo: false,
+                isImage: false,
+                isCode: false,
+                isPdf: false
+            };
+        }
+
+        let type = mimeType;
+
+        //console.log(mimeType);
+
+        let isVideo = false;
+        let isImage = false;
+        let isPdf = false;
+        let isCode = false;
+
+        
+        if(mimeType.includes("video") == true) {
+            type = "video";
+            isVideo = true;
+        } else if(mimeType.includes("image") == true) {
+            type = "image";
+            isImage = true;
+        } else if(mimeType.includes("pdf") == true) {
+            type = "pdf";
+            isPdf = true;
+        } else if(mimeType.includes("javascript") == true) {
+            isCode = true;
+        }
+
+        return {
+            fileType: type,
+            mimeType: mimeType,
+            isVideo: isVideo,
+            isImage: isImage,
+            isPdf: isPdf,
+            isCode: isCode
+        };        
+    }
+
+    /*
+    private getFileData(fileTypeResponse: getFileTypeReturn) {
+        if(fileTypeResponse.)
+    }
+    */
+
     async getFoldersAndFilesFrom({ request, response }: HttpContextContract) {
         let { userId, path } = request.qs();
         let token = request.header("Authorization")!.split(' ')[1];
+
+        //console.log(userId);
+        //console.log(path);
+        //console.log(token);
 
         //console.log(path);
 
@@ -206,45 +278,20 @@ export default class FilesController {
         let decoded = JWT.decode(token[1]) as decodedToken;
 
         let path = `user/${decoded.id}/files/${filePath}`;
+        let realFilePath = `${Application.appRoot}/storage/${path}`;
 
         //let fileInfo = await fs.stat(`${Application.appRoot}/storage/${path}`);
-        let fileType: string | null = mime.getType(`${Application.appRoot}/storage/${path}`);
+        let resType = this.getFileType(realFilePath);
+        let fileType = resType.fileType;
 
         //let fileType: FileTypeResult | string | undefined = await fileTypeFromFile(`${Application.appRoot}/storage/${path}`);
 
         let extension: string[] | string = path[path.length - 1].split('.');
         extension = extension[extension.length - 1];
 
-        if(fileType == undefined) {
-            fileType = "file/other";
-        }
-
-        //console.log(fileType);
-
-        let isVideo = false;
-        let isImage = false;
-        let isPdf = false;
-        let isCode = false;
-
-        if(fileType != null) {
-            if(fileType.includes("video") == true) {
-                fileType = "video";
-                isVideo = true;
-            } else if(fileType.includes("image") == true) {
-                fileType = "image";
-                isImage = true;
-            } else if(fileType.includes("pdf") == true) {
-                fileType = "pdf";
-                isPdf = true;
-            } else if(fileType.includes("javascript") == true) {
-                isCode = true;
-            }
-
-        }
-
         let data: string | undefined = undefined;
 
-        if(isVideo == false && isImage == false && isPdf == false && isCode == false) {
+        if(!resType.isVideo && !resType.isImage && !resType.isPdf && !resType.isCode) {
             try {
                 //let reader = await Drive.getStream(path);
                 data = (await Drive.get(path)).toString();
@@ -252,7 +299,7 @@ export default class FilesController {
             } catch(e) {
                 console.error(e);
             }
-        } else if(isCode == true) {
+        } else if(resType.isCode) {
             try {
                 data = (await Drive.get(path)).toString();
                 fileType = "code";
@@ -269,7 +316,7 @@ export default class FilesController {
         
         response.status(200);
 
-        if(isImage == true || isPdf == true) {
+        if(resType.isImage || resType.isPdf) {
             return response.send({
                 type: fileType,
                 extension: extension,
@@ -277,7 +324,7 @@ export default class FilesController {
                 url: `localhost:3333${await Drive.use("local").getSignedUrl(path)}`,
                 status: 200
             });
-        } else if(isVideo == true) {
+        } else if(resType.isVideo) {
             return response.send({
                 type: fileType,
                 mimeType: mime.getType(`${Application.appRoot}/storage/${path}`)!,
@@ -633,7 +680,9 @@ export default class FilesController {
 
         let fileStats = await Drive.use("local").getStats(publicFile.filePath);
 
-        let stats = await fs.stat(`${Application.appRoot}/storage/${publicFile.filePath}`);
+        let filePath = `${Application.appRoot}/storage/${publicFile.filePath}`;
+
+        let stats = await fs.stat(filePath);
 
         
 
@@ -647,14 +696,65 @@ export default class FilesController {
             extension = null;
         }
 
+        let resType = this.getFileType(filePath);
+
+        if(resType == null) {
+            response.status(404);
+            return response.send({
+                status: 404
+            });
+        }
+
+        let fileType = resType.fileType;
+
+        let path = `user/${userId}/files/${filePath}`;
+
+        let data: string | undefined = undefined;
+
+        if(!resType.isVideo && !resType.isImage && !resType.isPdf && !resType.isCode) {
+            try {
+                //let reader = await Drive.getStream(path);
+                data = (await Drive.get(publicFile.filePath)).toString();
+                fileType = "text";
+            } catch(e) {
+                console.error(e);
+            }
+        } else if(resType.isCode) {
+            try {
+                data = (await Drive.get(publicFile.filePath)).toString();
+                fileType = "code";
+            } catch(e) {
+                console.error(e);
+            }
+        } else if(!resType.isVideo) {
+            try {
+                data = (await Drive.get(publicFile.filePath)).toString("base64");
+            } catch(e) {
+                console.error(e);
+            }
+        } else {
+            
+        }
+
+        let realPath: string | string[] = publicFile.filePath;
+        realPath = realPath.split('/');
+        realPath.shift();
+        realPath.shift();
+        realPath.shift();
+        
+
         let fileInfo: PublicFileInfo = {
             name: name,
             extension: extension,
+            type: resType.fileType,
+            mimeType: resType.mimeType,
+            url: (resType.isVideo) ? `http://localhost:3333/api/user/${userId}/video/${realPath.join('/')}` : undefined,
             size: this.convertBytesToMb(fileStats.size),
+            data: data,
             filePath: publicFile.filePath,
             created_at: `${stats.ctime.getHours()}:${(stats.ctime.getMinutes() < 10) ? `0${stats.ctime.getMinutes()}` : `${stats.ctime.getMinutes()}`} ${stats.ctime.getFullYear()}/${stats.ctime.getMonth()}/${stats.ctime.getDay()}`,
             updated_at: `${stats.mtime.getHours()}:${(stats.mtime.getMinutes() < 10) ? `0${stats.mtime.getMinutes()}` : `${stats.mtime.getMinutes()}`} ${stats.mtime.getFullYear()}/${stats.mtime.getMonth()}/${stats.mtime.getDay()}`
-        }
+        };
 
         response.status(200);
         return response.send({

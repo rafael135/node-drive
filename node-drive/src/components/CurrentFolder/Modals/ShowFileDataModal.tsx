@@ -1,11 +1,12 @@
 import { Modal } from "flowbite-react";
 import { FileDataType, FileType } from "../../../types/File";
-import { useEffect, useRef } from "react";
+import { SetStateAction, useEffect, useRef } from "react";
 import AxiosInstance, { baseUrl } from "../../../helpers/AxiosInstance";
 
 type props = {
     activeFile: FileType;
     fileData: FileDataType | null;
+    setFileData: React.Dispatch<SetStateAction<FileDataType | null>>;
     showFileData: boolean;
     setShowFileData: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -30,7 +31,7 @@ const ShowFileDataModal = ({ activeFile, fileData, showFileData, setShowFileData
     */
 
     return (
-        <Modal show={showFileData === true} className="selectedFileViewDataModal absolute top-0 bottom-0 left-0 right-0 flex justify-center items-center" dismissible={true} onClose={ () => { setShowFileData(false); } }>
+        <Modal show={showFileData === true} className="selectedFileViewDataModal absolute top-0 bottom-0 left-0 right-0 flex justify-center items-center" dismissible={true} onClose={ () => { setShowFileData(false);  } }>
             <Modal.Header className="selectedFileViewDataModal-header">
                 Visualizando <span className="font-thin">{activeFile.name}</span>
             </Modal.Header>
@@ -38,9 +39,9 @@ const ShowFileDataModal = ({ activeFile, fileData, showFileData, setShowFileData
             <Modal.Body className="selectedFileViewDataModal-body">
                 
 
-                {(fileData != null && fileData.data != undefined && (fileData.type == "text" || fileData.type == "file/other")) &&
-                    (fileData.data.includes('\n') ? fileData.data.split('\n').map((d) => {
-                        return <p>{d}</p>
+                {(fileData != null && fileData.data != undefined && (fileData.type == "text" || fileData.type == "other")) &&
+                    (fileData.data.includes('\n') ? fileData.data.split('\n').map((d, idx) => {
+                        return <p key={idx}>{d}</p>
                     }) : fileData.data)
                 }
 

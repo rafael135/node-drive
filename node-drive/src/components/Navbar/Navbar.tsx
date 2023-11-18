@@ -4,6 +4,7 @@ import { Avatar, Dropdown } from "flowbite-react";
 import { UserAuthContext } from "../../contexts/UserContext";
 
 import { BsFillPersonFill } from "react-icons/bs";
+import NavImg from "./NavImg";
 
 const Navbar = () => {
 
@@ -58,7 +59,7 @@ const Navbar = () => {
             </div>
 
             <div className="navbar-user">
-                <Dropdown arrowIcon={false} inline label={<Avatar className="navbar-avatar" alt="" img="" bordered rounded />}>
+                <Dropdown arrowIcon={false} inline label={<Avatar className="navbar-avatar" alt="" img={(authCtx?.user?.avatar != null) ? authCtx!.user!.avatar! : ""} bordered rounded />}>
                     <Dropdown.Header>
                         {(authCtx?.user != null) &&
                             <>

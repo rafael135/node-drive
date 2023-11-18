@@ -54,6 +54,13 @@ Route.group(() => {
 
 		Route.get("/:userId/video/:filePath", "VideosController.streamVideo");
 
+
+		Route.group(() => {
+			Route.put("/avatar", "UserController.changeAvatar").middleware(["auth"]);
+
+			Route.put("/name", "UserController.changeName").middleware(["auth"]);
+		}).prefix("/change");
+
 	}).prefix("/user");
 	
 }).prefix("/api");

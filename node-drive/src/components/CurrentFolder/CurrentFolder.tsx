@@ -60,7 +60,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
     
     let _folderPath: FolderPath = {
-        path: path.toString(),
+        path: path,
         setFolderPath: setPath
     }
 

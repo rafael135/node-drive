@@ -1,5 +1,52 @@
 @layer components {
     .userInfoContainer {
-        @apply w-full h-auto p-2;
+        @apply w-full h-auto p-2 border border-gray-500/40;
     }
+
+    .userInfoContainer .storagePlans {
+        @apply flex flex-row;
+    }
+
+    .storagePlans .storagePlan {
+        @apply flex-1 h-auto;
+    }
+
+
+    .userInfoContainer .userInfo {
+        @apply flex justify-start gap-1;
+    }
+    .userInfo .userAvatar {
+        @apply relative flex items-center w-16 h-16 border border-solid border-gray-500/40 rounded-full overflow-hidden cursor-pointer;
+    }
+    .userAvatar .changeAvatar {
+        @apply absolute top-0 bottom-0 left-0 right-0 bg-black/20 hidden;
+    }
+    .userAvatar .changeAvatar.show {
+        @apply block;
+    }
+    .userInfo .userAvatar img {
+        @apply max-w-full;
+    }
+    .userInfo .userAvatar .img {
+        @apply max-w-full;
+    }
+
+
+    .changeAvatarModal {
+
+    }
+    .changeAvatarModal-header {
+
+    }
+    .changeAvatarModal-body {
+        @apply !p-4;
+    }
+    .changeAvatarModal-body .avatarInput-label {
+        @apply w-full h-32 flex justify-center items-center border-2 border-dashed border-gray-500/50 transition-all ease-in-out duration-150 cursor-pointer hover:bg-black/10;
+    }
+    .changeAvatarModal-body .avatarInput-label p {
+        @apply text-slate-800 font-semibold text-lg;
+    }
+
+
 }

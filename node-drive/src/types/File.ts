@@ -11,7 +11,7 @@ export type FileType = {
 }
 
 export type FileDataType = {
-    type: "text" | "code" | "image" | "pdf" | "video" | "file/other";
+    type: "text" | "code" | "image" | "pdf" | "video" | "other";
     mimeType?: string;
     url?: string;
     data?: string;
@@ -21,8 +21,12 @@ export type FileDataType = {
 export type PublicFileInfo = {
     name: string;
     extension: string | null;
+    type: string;
     size: string;
     filePath: string;
+    url?: string;
+    mimeType?: string;
+    data?: string;
     created_at: string;
     updated_at: string;
 }

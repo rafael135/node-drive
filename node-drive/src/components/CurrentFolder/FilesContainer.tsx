@@ -225,6 +225,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                 <ShowFileDataModal
                     activeFile={activeFile}
                     fileData={fileData}
+                    setFileData={setFileData}
                     showFileData={showFileData}
                     setShowFileData={setShowFileData}
                 />

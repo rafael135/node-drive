@@ -16,6 +16,8 @@ const PublicFile = ({ userId, fileUrl }: props) => {
 
     const publicFileContext = useContext(PublicFileInterationContext)!;
 
+    const [showData, setShowData] = useState<boolean>(false);
+
     let dateNow = new Date(Date.now());
 
     
@@ -41,6 +43,26 @@ const PublicFile = ({ userId, fileUrl }: props) => {
 
                         {(fileInfo?.extension == "pdf") &&
                             <BsFilePdfFill className="fill-slate-200 w-48 h-48" />
+                        }
+
+                        {(fileInfo?.type == "image") &&
+                            <img
+                                src={`data:image/${fileInfo!.extension};base64,${fileInfo!.data}`}
+                                className="px-6"    
+                            />
+                        }
+
+                        {(fileInfo?.type == "video") &&
+                            <video
+                                controls={true}
+                                className="w-auto h-auto"
+                            >
+                                <source src={fileInfo.url!} type={fileInfo.mimeType!}></source>
+                            </video>
+                        }
+
+                        {(fileInfo?.type == "text" || fileInfo?.type == "other") &&
+                            `${fileInfo.data}`
                         }
                     </div>
 
@@ -68,6 +90,8 @@ const PublicFile = ({ userId, fileUrl }: props) => {
                                         <div className="flex-1">Tipo</div>
                                         <div className="flex-1 text-slate-100">
                                             {(fileInfo?.extension == "pdf") && "Documento"}
+
+                                            {(fileInfo?.type == "image") && fileInfo.mimeType}
                                         </div>
                                     </div>
 
