@@ -2,13 +2,22 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
 import Drive from '@ioc:Adonis/Core/Drive';
 import Application from "@ioc:Adonis/Core/Application";
 import fs from "node:fs/promises";
+import fsA from "node:fs";
+//import { pipeline } from "node:stream";
+//import tar from "tar";
+import archiver from "archiver";
+import jszip from "jszip";
+import stream from "stream";
+import zlib from "node:zlib";
 
-import Hash from '@ioc:Adonis/Core/Hash';
+
+//import Hash from '@ioc:Adonis/Core/Hash';
 
 import JWT from "jsonwebtoken";
 import PublicFile from 'App/Models/PublicFile';
 import User from 'App/Models/User';
 import mime from "mime";
+import UserController from './UserController';
 //import { fileTypeFromFile, FileTypeResult } from 'file-type';
 
 type decodedToken = {
@@ -222,7 +231,7 @@ export default class FilesController {
 
     async downloadFile({ request, response, params }: HttpContextContract) {
        let filePath: string | null = params.filePath;
-       let token = request.header("Authorization")!.split(' ');
+       let token = request.header("Authorization")!.split(' ')[1];
 
         if(filePath == null) {
             response.status(400);
@@ -234,9 +243,16 @@ export default class FilesController {
 
         filePath = decodeURI(filePath);
 
-        let decoded = JWT.decode(token[1]) as decodedToken;
+        let decoded = UserController.getUserDecodedToken(token);
 
-        let path = `user/${decoded.id}/files/${filePath}`;
+        if(decoded == null) {
+            response.status(401);
+            return response.send({
+                status: 401
+            });
+        }
+
+        let path = `user/${decoded!.id}/files/${filePath}`;
         
         let fileExists = await Drive.exists(path);
 
@@ -259,6 +275,84 @@ export default class FilesController {
             success: false,
             status: 400
         });
+    }
+
+    async downloadFilesCompacted({ request, response }: HttpContextContract) {
+        let token = request.header("Authorization")!.split(' ')[1];
+        //let { files } = request.qs() as { files: string[] };
+        let files: string[] | null = request.input("files", null);
+
+        //console.log(files);
+
+        if(token == null || files == null) {
+            response.status(400);
+            return response.send({
+                status: 400
+            });
+        }
+
+        let decoded = UserController.getUserDecodedToken(token);
+
+        if(decoded == null) {
+            response.status(401);
+            return response.send({
+                status: 401
+            });
+        }
+
+        let filesPath: string | string[] = `storage/user/${decoded.id}/files`;
+
+
+        
+
+        // Converter o novo arquivo zip para um buffer
+        //const data = await newZip.generateAsync({ type: "nodebuffer" });
+
+        let zipPath = `${filesPath}/downloadZip.zip`;
+
+
+        let zip = new jszip().folder(zipPath)!;
+
+
+
+        for(let i = 0; i < files.length; i++) {
+            zip.file(files[i], fsA.createReadStream(`${filesPath}/${files[i]}`), { base64: true, createFolders: false });
+        }
+
+        let zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
+
+        await Drive.use("local").put(`user/${decoded.id}/files/downloadZip.zip`, zipBuffer);
+        //console.log(zipPath);
+
+
+        /*
+        filesPath = filesPath.split('/');
+        console.log(filesPath);
+        filesPath.shift();
+        filesPath = filesPath.join('/');
+        */
+        let zipUrl = await Drive.use("local").getUrl(`user/${decoded.id}/files/downloadZip.zip`);
+        
+        let finalUrl = `${Application.appRoot}${zipUrl}`;
+        //console.log(finalUrl);
+
+        response.status(200);
+        /*
+        response.safeHeader("Content-Type", "application/zip");
+        response.safeHeader("Content-Disposition", "attachment");
+        response.safeHeader("filename", "files.zip");
+        */
+
+        try {
+            return response.attachment(finalUrl, "files.zip", undefined, true);
+        }catch(err) {
+            response.status(404);
+            return response.send({
+                status: 404
+            });
+        } finally {
+
+        }
     }
 
     async viewFile({ request, response }: HttpContextContract) {

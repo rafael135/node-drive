@@ -9,7 +9,7 @@ import FilesContainer from "./FilesContainer";
 import FileUploadToast from "./FileUploadToast";
 import UploadStatus from "../FileUpload/UploadStatus";
 import { sleep } from "../../helpers/PathOps";
-import { downloadFile } from "../../api/Files";
+import { downloadCompactedFiles, downloadFile } from "../../api/Files";
 import { UserContextType } from "../../contexts/UserContext";
 import { UsedSpaceContext } from "../../contexts/UsedSpaceContext";
 
@@ -130,6 +130,38 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
             await downloadFile(_folderPath, selectedFiles[i]);
         }
     }
+    
+
+    const handleCompactAndDownloadFilesBtn = () => {
+        let selectedFiles = files.filter((f) => {
+            if(f.selected == true) {
+                return true;
+            }
+
+            return false;
+        });
+
+        if(selectedFiles.length == 0) {
+            return;
+        }
+
+        let selectedFilesPath: string[] = [];
+
+        for(let i = 0; i < selectedFiles.length; i++) {
+            let path: string | string[] = selectedFiles[i].location.split('/');
+
+            for(let j = 0; j < 3; j++) {
+                path.shift();
+            }
+
+            path = path.join('');
+            
+            selectedFilesPath.push(path);
+        }
+
+        downloadCompactedFiles(_folderPath, selectedFilesPath);
+    }
+
 
     const handleBackFolder = () => {
         let splited = path.split('/');
@@ -394,6 +426,15 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                         >
                             <BsDownload className={`w-5 h-5 fill-gray-100 group-hover:scale-105`} />
                             Download
+                        </button>
+
+                        <button
+                            className="btn-action group"
+                            title="Compactar e realizar Download"
+                            onClick={handleCompactAndDownloadFilesBtn}
+                        >
+                            <BsDownload className={`w-5 h-5 fill-gray-100 group-hover:scale-105`} />
+                            Compactar e realizar Download
                         </button>
                     </>
                 }

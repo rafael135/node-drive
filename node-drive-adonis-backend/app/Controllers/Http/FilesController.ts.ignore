@@ -1,0 +1,87 @@
+//let zipFile = fsA.createWriteStream(`${filesPath}/downloadZip.zip`);
+        //let newZip = archiver("zip", {
+        //    zlib: { level: 9 }
+        //});
+
+        let newZip = new jszip();
+        
+
+        //newZip.pipe(zipFile);
+
+        files.forEach(async (file) => {
+            let fullPath = `${Drive.application.appRoot}/${filesPath}/${file}`;
+            let path = `user/${decoded!.id}/files/${file}`;
+
+            if(await Drive.use("local").exists(path) == true) {
+                let fileType = mime.getType(fullPath);
+
+                let data = await fs.readFile(fullPath);
+
+                if(fileType!.includes("image") || fileType!.includes("video")) {
+                    newZip.file(file, data, { base64: true });
+                } else {
+                    newZip.file(file, data);
+                }
+            }
+        });
+
+// Salvar o novo arquivo zip
+        //response.status(200);
+
+        try {
+            /*
+            let zipBlob = await newZip.generateAsync({ type: "blob" });
+
+            return response.send({
+                fileName: "compressedFiles.zip",
+                fileData: zipBlob,
+                status: 200
+            });
+            */
+
+            newZip.generateNodeStream({ type: "nodebuffer", streamFiles: true })
+                .pipe(fsA.createWriteStream(zipPath))
+            .on("finish", () => {
+
+                //return response.send({
+                //    fileName: "",
+                //    fileData: (await (fs.readFile(zipPath))).toString("binary"),
+                //    status: 200
+                //});
+            });
+
+            // await new Promise(resolve => stream.on("finish", resolve));
+
+            
+        } catch(err) {
+            console.log(err);
+            await fs.unlink(zipPath);
+            
+            response.status(404);
+            return response.send({
+                status: 404
+            });
+        } finally {
+            //await fs.unlink(zipPath);
+        }
+        
+        /*
+        filesPath = filesPath.split('/');
+        filesPath.shift();
+        filesPath = filesPath.join('/');
+
+        
+        */
+        
+
+        //try {
+        //    await response.download(finalUrl);
+        //}catch(e) {
+            //await fs.unlink(zipPath);
+        //}
+        //finally {
+            //await fs.unlink(zipFile.path);
+
+        //    response.status(200);
+        //    return;
+        //}

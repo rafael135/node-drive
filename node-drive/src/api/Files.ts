@@ -3,6 +3,7 @@ import AxiosInstance from "../helpers/AxiosInstance"
 import { FileDataType, FileType, PublicFileInfo, getPublicFileInfoResponse } from "../types/File";
 import { FolderPath } from "../components/CurrentFolder/CurrentFolder";
 import { getRealPath } from "../helpers/PathOps";
+import fileDownload from "js-file-download";
 
 
 
@@ -29,9 +30,39 @@ export const downloadFile = async (pathInfo: FolderPath, activeFile: FileType) =
             window.URL.revokeObjectURL(href);
         })
         .catch((err) => {
-            
+            console.log(err);
         });
     }
+}
+
+export const downloadCompactedFiles = async (pathInfo: FolderPath, files: string[]) => {
+    let path = getRealPath(pathInfo);
+    path = encodeURI(path);
+
+    //let filesEncoded = files.join(',');
+
+    AxiosInstance.post(`/user/files/multiple/download`, { files: files }, { headers: {
+        
+    } }).then((res) => {
+
+        //fileDownload(res.data, "files.zip", "application/zip");
+
+        /*
+        const href = window.URL.createObjectURL(res.data);
+
+        const anchorElement = document.createElement("a");
+        anchorElement.href = href;
+        anchorElement.download = `compactedFiles.zip`;
+
+        document.body.appendChild(anchorElement);
+        anchorElement.click();
+
+        document.body.removeChild(anchorElement);
+        window.URL.revokeObjectURL(href);
+        */
+    }).catch((err) => {
+        console.log(err);
+    });
 }
 
 type DeleteFileResponse = {

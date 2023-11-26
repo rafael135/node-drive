@@ -26,7 +26,7 @@ export default class VideosController {
 
         const videoPath = `${Application.appRoot}/storage/user/${userId}/files/${filePath}`;
 
-        const chunkSize = 10 ** 6; // 1MB
+        const chunkSize = 10 ** 6; // 1MB // Tamanho maximo de cada pedaço do video a ser enviado por stream
         const videoSize = fs.statSync(videoPath).size;
 
         if(range == undefined) {

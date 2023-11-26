@@ -33,6 +33,8 @@ Route.group(() => {
 		Route.group(() => {
 			Route.get("/download/:filePath", "FilesController.downloadFile").middleware(["auth"]).where("filePath", { cast: (path) => String(path) });
 
+			Route.post("/multiple/download", "FilesController.downloadFilesCompacted").middleware(["auth"]).where("files", { cast: (file) => Array.of(file) });
+
 			Route.post("/upload", "FilesController.uploadFile").middleware(["auth"]);
 
 			Route.put("/public", "FilesController.makeFilePublic").middleware(["auth"]);

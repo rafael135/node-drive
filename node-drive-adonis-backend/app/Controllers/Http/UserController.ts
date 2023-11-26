@@ -12,6 +12,12 @@ type decodedToken = {
 
 export default class UserController {
 
+    public static getUserDecodedToken(token: string): decodedToken | null {
+        let decodedUser = JWT.decode(token) as decodedToken | null;
+
+        return decodedUser;
+    }
+
     public static getFilesPath(userId: number): string {
         return `user/${userId}/files`;
     }
