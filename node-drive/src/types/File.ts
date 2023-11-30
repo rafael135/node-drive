@@ -8,7 +8,7 @@ export type FileType = {
     isPublic: boolean;
     shareLink?: string;
     selected?: boolean;
-}
+};
 
 export type FileDataType = {
     type: "text" | "code" | "image" | "pdf" | "video" | "other";
@@ -16,7 +16,7 @@ export type FileDataType = {
     url?: string;
     data?: string;
     extension?: string;
-}
+};
 
 export type PublicFileInfo = {
     name: string;
@@ -29,10 +29,15 @@ export type PublicFileInfo = {
     data?: string;
     created_at: string;
     updated_at: string;
-}
+};
 
 export type getPublicFileInfoResponse = {
     fileInfo: PublicFileInfo;
     status: number;
-}
+};
+
+export type downloadCompressedFilesResponse = {
+    url: string;
+    status: number;
+};
 

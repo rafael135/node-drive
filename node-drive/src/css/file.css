@@ -31,7 +31,7 @@
         @apply text-slate-800 font-medium py-1.5 text-center truncate;
     }
     .file-card .file-checkBox {
-        @apply absolute top-1 right-1 shadow-none outline-none ring-0 ring-transparent;
+        @apply absolute top-1 right-1 shadow-none outline-none ring-0 ring-transparent rounded-full transition-all ease-in-out duration-150 hover:cursor-alias hover:border-blue-500 focus:ring-offset-0;
     }
 
 

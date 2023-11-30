@@ -6,10 +6,9 @@ import fsA from "node:fs";
 //import { pipeline } from "node:stream";
 //import tar from "tar";
 import archiver from "archiver";
-import jszip from "jszip";
+import jszip, { file } from "jszip";
 import stream from "stream";
 import zlib from "node:zlib";
-
 
 //import Hash from '@ioc:Adonis/Core/Hash';
 
@@ -280,9 +279,7 @@ export default class FilesController {
     async downloadFilesCompacted({ request, response }: HttpContextContract) {
         let token = request.header("Authorization")!.split(' ')[1];
         //let { files } = request.qs() as { files: string[] };
-        let files: string[] | null = request.input("files", null);
-
-        //console.log(files);
+        let files: string | null = request.input("files", null);
 
         if(token == null || files == null) {
             response.status(400);
@@ -290,6 +287,9 @@ export default class FilesController {
                 status: 400
             });
         }
+
+        files = decodeURI(files);
+        let resFiles = files.split(',');
 
         let decoded = UserController.getUserDecodedToken(token);
 
@@ -313,38 +313,26 @@ export default class FilesController {
 
         let zip = new jszip().folder(zipPath)!;
 
-
-
-        for(let i = 0; i < files.length; i++) {
-            zip.file(files[i], fsA.createReadStream(`${filesPath}/${files[i]}`), { base64: true, createFolders: false });
+        for(let i = 0; i < resFiles.length; i++) {
+            zip.file(resFiles[i], fsA.createReadStream(`${filesPath}/${resFiles[i]}`), { base64: true, createFolders: false });
         }
 
         let zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
 
         await Drive.use("local").put(`user/${decoded.id}/files/downloadZip.zip`, zipBuffer);
-        //console.log(zipPath);
 
-
-        /*
-        filesPath = filesPath.split('/');
-        console.log(filesPath);
-        filesPath.shift();
-        filesPath = filesPath.join('/');
-        */
         let zipUrl = await Drive.use("local").getUrl(`user/${decoded.id}/files/downloadZip.zip`);
         
         let finalUrl = `${Application.appRoot}${zipUrl}`;
         //console.log(finalUrl);
 
         response.status(200);
-        /*
-        response.safeHeader("Content-Type", "application/zip");
-        response.safeHeader("Content-Disposition", "attachment");
-        response.safeHeader("filename", "files.zip");
-        */
-
+        
+        //response.header("Content-Type", "application/zip");
+        //response.header("Content-Disposition", "attachment");
+        //response.header("filename", "files.zip");
         try {
-            return response.attachment(finalUrl, "files.zip", undefined, true);
+            return response.download(finalUrl);
         }catch(err) {
             response.status(404);
             return response.send({

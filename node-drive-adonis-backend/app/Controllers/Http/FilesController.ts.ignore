@@ -85,3 +85,27 @@
         //    response.status(200);
         //    return;
         //}
+
+
+
+
+
+        //let fileBuffer = fsA.readFileSync(finalUrl).buffer;
+
+            //let fileBinary = Buffer.from(fileBuffer);
+            //let fileStream = fsA.createReadStream(finalUrl, { encoding: "binary" });
+            
+            //return response.stream(fileStream);
+
+            //return response.send(fileBinary);
+            
+            //return response.attachment(finalUrl, "files.zip");
+
+            //return response.send({
+            //    url: `http://localhost:3333/api/user/files/download/downloadZip.zip`,
+            //    status: 200
+            //});
+
+            //let fileBlob = fsA.readFileSync(finalUrl, { encoding: "base64" });
+
+            //return response.send(fileBlob);

@@ -137,10 +137,9 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
             if(f.selected == true) {
                 return true;
             }
-
             return false;
         });
-
+        
         if(selectedFiles.length == 0) {
             return;
         }

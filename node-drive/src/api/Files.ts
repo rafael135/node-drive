@@ -1,8 +1,9 @@
 //import { useQueryClient } from "@tanstack/react-query";
 import AxiosInstance from "../helpers/AxiosInstance"
-import { FileDataType, FileType, PublicFileInfo, getPublicFileInfoResponse } from "../types/File";
+import { FileDataType, FileType, PublicFileInfo, downloadCompressedFilesResponse, getPublicFileInfoResponse } from "../types/File";
 import { FolderPath } from "../components/CurrentFolder/CurrentFolder";
 import { getRealPath } from "../helpers/PathOps";
+import fileSaver from "file-saver";
 import fileDownload from "js-file-download";
 
 
@@ -41,25 +42,16 @@ export const downloadCompactedFiles = async (pathInfo: FolderPath, files: string
 
     //let filesEncoded = files.join(',');
 
-    AxiosInstance.post(`/user/files/multiple/download`, { files: files }, { headers: {
-        
-    } }).then((res) => {
-
-        //fileDownload(res.data, "files.zip", "application/zip");
-
-        /*
-        const href = window.URL.createObjectURL(res.data);
-
-        const anchorElement = document.createElement("a");
-        anchorElement.href = href;
-        anchorElement.download = `compactedFiles.zip`;
-
-        document.body.appendChild(anchorElement);
-        anchorElement.click();
-
-        document.body.removeChild(anchorElement);
-        window.URL.revokeObjectURL(href);
-        */
+    AxiosInstance.get(`/user/files/multiple/download`, { 
+        responseType: "blob",
+        headers: {
+            Accept: "application/zip"
+        },
+        params: {
+            files: encodeURI(files.join(','))
+        }
+     }).then((res) => {
+        fileDownload(res.data, "files.zip", "application/zip");
     }).catch((err) => {
         console.log(err);
     });
