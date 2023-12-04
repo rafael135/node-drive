@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useMemo, useContext, createContext,
 import { FileType } from "../../types/File";
 import AxiosInstance from "../../helpers/AxiosInstance";
 
-import { BsPlus, BsArrow90DegLeft, BsDownload } from "react-icons/bs";
-import { FileInput, Label, Modal } from "flowbite-react";
+import { BsPlus, BsArrow90DegLeft, BsDownload, BsArrowBarDown } from "react-icons/bs";
+import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
+import { Dropdown, FileInput, Label, Modal } from "flowbite-react";
 import UploadLabel from "./UploadLabel";
 import FilesContainer from "./FilesContainer";
 import FileUploadToast from "./FileUploadToast";
@@ -12,6 +13,7 @@ import { sleep } from "../../helpers/PathOps";
 import { downloadCompactedFiles, downloadFile } from "../../api/Files";
 import { UserContextType } from "../../contexts/UserContext";
 import { UsedSpaceContext } from "../../contexts/UsedSpaceContext";
+import DownloadBtn from "./Buttons/DownloadBtn";
 
 type props = {
     userFilesPath: string;
@@ -91,7 +93,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
             usedSpaceCtx.setUsedSize(response.occupiedSpace);
 
             files = files.filter((f) => {
-                if(f.name != "ignore") {
+                if(f.name != "ignore" && f.name != "downloadZip.zip") {
                     return true;
                 }
 
@@ -353,7 +355,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
     useEffect(() => {
         //console.log(usedSpaceCtx.usedSize, userCtx.user);
-    }, [usedSpaceCtx.usedSize, userCtx.user?.maxStorage]);
+    }, [usedSpaceCtx.usedSize, userCtx.user!.maxStorage]);
 
     
 
@@ -405,8 +407,9 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                     ref={selectFilterInput}
                     onChange={handleFilter}
                     title="Filtrar por Tipo"
+                    defaultValue={0}
                 >
-                    <option defaultChecked={true} value={0}>Ordenar por</option>
+                    <option value={0} disabled={true}>Ordenar por</option>
                     <option value={1}>Nome</option>
                     <option value={2}>Tipo</option>
                     <option value={3}>Tamanho</option>
@@ -418,6 +421,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
                 {(isFileChecked == true) && 
                     <>
+                        {/*
                         <button
                             className="btn-action group"
                             title="Download"
@@ -426,7 +430,25 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                             <BsDownload className={`w-5 h-5 fill-gray-100 group-hover:scale-105`} />
                             Download
                         </button>
+                        
+                        */}
 
+                        <Dropdown label="" renderTrigger={() => <button className="btn-action btn-download group">
+                            Opções de Download
+                            <RxTriangleDown className={`w-5 h-5 fill-gray-100 group-hover:scale-105`} />
+                        </button>}>
+                            <Dropdown.Item icon={BsDownload} onClick={handleDownloadSelectedFilesBtn}>
+                                Download
+                            </Dropdown.Item>
+
+                            <Dropdown.Item icon={BsDownload} onClick={handleCompactAndDownloadFilesBtn}>
+                                Compactar & Download
+                            </Dropdown.Item>
+                        </Dropdown>
+
+                        
+
+                        {/*
                         <button
                             className="btn-action group"
                             title="Compactar e realizar Download"
@@ -435,6 +457,8 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                             <BsDownload className={`w-5 h-5 fill-gray-100 group-hover:scale-105`} />
                             Compactar e realizar Download
                         </button>
+
+                        */}
                     </>
                 }
             </div>

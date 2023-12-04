@@ -18,6 +18,10 @@ export const downloadFile = async (pathInfo: FolderPath, activeFile: FileType) =
             responseType: "blob"
         })
         .then((res) => {
+
+            fileDownload(res.data, activeFile.name, (activeFile.fileType == "other") ? undefined : activeFile.fileType);
+
+            /*
             const href = window.URL.createObjectURL(res.data);
 
             const anchorElement = document.createElement("a");
@@ -29,6 +33,7 @@ export const downloadFile = async (pathInfo: FolderPath, activeFile: FileType) =
 
             document.body.removeChild(anchorElement);
             window.URL.revokeObjectURL(href);
+            */
         })
         .catch((err) => {
             console.log(err);
@@ -51,7 +56,7 @@ export const downloadCompactedFiles = async (pathInfo: FolderPath, files: string
             files: encodeURI(files.join(','))
         }
      }).then((res) => {
-        fileDownload(res.data, "files.zip", "application/zip");
+        fileDownload(res.data, "arquivos.zip", "application/zip");
     }).catch((err) => {
         console.log(err);
     });

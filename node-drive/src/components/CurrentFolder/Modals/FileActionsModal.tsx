@@ -111,31 +111,34 @@ const FileActionsModal = ({ showActions, setShowActions, activeFile, setActiveFi
                         <div className="flex flex-row gap-1 items-center">
                             <strong>Visibilidade:</strong> 
                             {(activeFile!.isPublic == true) ? "Público" : "Privado"}
-                            {(activeFile!.isPublic == true) ? <TfiUnlock className="w-5 h-5 text-blue-600" /> : <TfiLock className="w-5 h-5 text-red-600" />}
+                            {(activeFile!.isPublic == true) ? <TfiUnlock className="w-5 h-5 fill-blue-600" /> : <TfiLock className="w-5 h-5 fill-red-600" />}
                         </div>
 
                         <div className="customPbLinkTooltip flex flex-row gap-1">
-                            <Tooltip
-                                placement="top"
-                                style="light"
-                                content={pbLinkTooltipContent}
-                                onMouseOver={(e) => { if(activeFile!.isPublic == false) { e.preventDefault(); } }}
-                                className="w-auto"
-                                hidden={(fileDownloadLink == "") ? true : false}
-                            >
-                                <input
-                                    className="w-full"
-                                    type="text"
-                                    value={fileDownloadLink}
-                                    readOnly={true}
-                                    disabled={(activeFile!.isPublic == false)}
-                                    ref={pbLinkInputRef}
-                                    onClick={handleCopyUrl}
-                                    hidden={(fileDownloadLink == "") ? true : false}
-                                />
-                            </Tooltip>
+                            {(activeFile!.isPublic == true) &&
+                                <Tooltip
+                                    placement="top"
+                                    style="light"
+                                    content={pbLinkTooltipContent}
+                                    onMouseOver={(e) => { if(activeFile!.isPublic == false) { e.preventDefault(); } }}
+                                    className="w-auto"
+                                    /*hidden={(fileDownloadLink == "") ? true : false}*/
+                                >
+                                    
+                                    <input
+                                        className="w-full"
+                                        type="text"
+                                        value={fileDownloadLink}
+                                        readOnly={true}
+                                        /*disabled={(activeFile!.isPublic == false)}*/
+                                        ref={pbLinkInputRef}
+                                        onClick={handleCopyUrl}
+                                        hidden={(fileDownloadLink == "") ? true : false}
+                                    />
+                                </Tooltip>
+                            }
                             <button
-                                className={`text-white px-4 py-2 rounded-md ${(activeFile!.isPublic == true) ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"}`}
+                                className={`text-white px-4 py-2 rounded-md ${(activeFile!.isPublic == true) ? "bg-red-500 hover:bg-red-600" : "ms-auto bg-blue-500 hover:bg-blue-600"}`}
                                 onClick={btnChangeFileVisibility}
                                 
                             >

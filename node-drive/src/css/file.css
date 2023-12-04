@@ -13,11 +13,21 @@
     }
 
     .folderToolBar .btn-action {
-        @apply py-1 px-2.5 flex justify-center items-center gap-1 bg-blue-500 text-white text-base rounded-md hover:bg-blue-600 active:bg-blue-700;
+        @apply py-1 px-2.5 flex justify-center items-center gap-1 bg-blue-500 text-white text-base rounded-md transition-all ease-in-out duration-150 hover:bg-blue-600 active:bg-blue-700;
+    }
+    .folderToolBar .btn-action.btn-download svg {
+        @apply transition-all ease-in-out duration-150;
+    }
+    .folderToolBar .btn-action.btn-download[aria-expanded="true"] {
+        @apply bg-blue-700;
+    }
+    .folderToolBar .btn-action.btn-download[aria-expanded="true"] svg {
+        @apply rotate-180;
     }
     .folderToolBar .select-filter {
         @apply rounded-md;
     }
+    
 
 
 
