@@ -16,7 +16,7 @@
         @apply flex justify-start gap-1;
     }
     .userInfo .userAvatar {
-        @apply relative flex items-center w-16 h-16 border border-solid border-gray-500/40 rounded-full overflow-hidden cursor-pointer;
+        @apply relative flex items-center w-20 h-20 border border-solid border-gray-500/40 rounded-full overflow-hidden cursor-pointer;
     }
     .userAvatar .changeAvatar {
         @apply absolute top-0 bottom-0 left-0 right-0 bg-black/20 hidden;
@@ -47,6 +47,19 @@
     .changeAvatarModal-body .avatarInput-label p {
         @apply text-slate-800 font-semibold text-lg;
     }
+
+
+    .changeNameModal {
+        @apply relative;
+    }
+    .changeNameModal-header {
+
+    }
+    .changeNameModal-body {
+        @apply flex flex-col;
+    }
+
+    
 
 
 }

@@ -1,7 +1,7 @@
 export type User = {
     id: number;
     name: string;
-    email: number;
+    email: string;
     avatar?: string;
     storageTypeId: number;
     files_path: string;

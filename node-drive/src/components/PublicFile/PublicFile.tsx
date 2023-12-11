@@ -91,7 +91,11 @@ const PublicFile = ({ userId, fileUrl }: props) => {
                                         <div className="flex-1 text-slate-100">
                                             {(fileInfo?.extension == "pdf") && "Documento"}
 
-                                            {(fileInfo?.type == "image") && fileInfo.mimeType}
+                                            {(fileInfo?.type == "image") && "Imagem"}
+
+                                            {(fileInfo?.type == "video") && "Vídeo"}
+
+                                            {(fileInfo?.type == "other") && "Outro"}
                                         </div>
                                     </div>
 
@@ -127,6 +131,15 @@ const PublicFile = ({ userId, fileUrl }: props) => {
                                 <div className="flex flex-col gap-2 mt-2 text-[14px]">
                                     <div className="flex flex-row text-slate-100">
                                         <div className="flex-1">Qualquer um</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-2 mt-2 text-[14px]">
+                                    <div className="flex flex-row text-slate-100">
+                                        <div className="flex flex-row">
+                                            <img />
+                                        </div>
+                                        <div className="flex-1">Proprietário</div>
                                     </div>
                                 </div>
 

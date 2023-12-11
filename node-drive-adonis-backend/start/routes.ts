@@ -60,6 +60,8 @@ Route.group(() => {
 		Route.group(() => {
 			Route.put("/avatar", "UserController.changeAvatar").middleware(["auth"]);
 
+			Route.put("/email", "UserController.changeEmail").middleware(["auth"]);
+
 			Route.put("/name", "UserController.changeName").middleware(["auth"]);
 		}).prefix("/change");
 

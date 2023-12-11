@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext';
+import Hash from '@ioc:Adonis/Core/Hash';
 import JWT from "jsonwebtoken";
 import Drive from '@ioc:Adonis/Core/Drive';
 import User from 'App/Models/User';
@@ -78,22 +79,79 @@ export default class UserController {
             });
         }
 
+        let decoded = UserController.getUserDecodedToken(token);
 
+        if(decoded == null) {
+            response.status(401);
+            return response.send({
+                status: 401
+            });
+        }
+
+        let usr = await User.find(decoded.id);
+
+        if(usr != null) {
+            usr.name = newName;
+            await usr.save();
+
+            response.status(200);
+            return response.send({
+                status: 200
+            });
+        }
+
+        response.status(404);
+        return response.send({
+            status:404
+        });
     }   
 
     async changeEmail({ request, response }: HttpContextContract) {
         let token = request.header("Authorization")!.split(' ')[1];
 
-        let currentEmail: string | null = request.input("currentEmail", null);
+        let password: string | null = request.input("password", null);
         let newEmail: string | null = request.input("newEmail", null);
 
-        if(currentEmail == null || newEmail == null) {
+        if(newEmail == null || password == null) {
             response.status(400);
             return response.send({
                 status: 400
             });
         }
 
-        let decoded = JWT.decode(token) as decodedToken;
+        let decoded = UserController.getUserDecodedToken(token);
+
+        if(decoded == null) {
+            response.status(401);
+            return response.send({
+                status: 401
+            });
+        }
+
+        let usr = await User.find(decoded.id);
+
+        if(usr == null) {
+            response.status(401);
+            return response.send({
+                status: 401
+            });
+        }
+
+        let passwordValid = await Hash.verify(usr.password, password);
+
+        if(passwordValid == false) {
+            response.status(401);
+            return response.send({
+                status: 401
+            });
+        }
+
+        usr.email = newEmail;
+        await usr.save();
+
+        response.status(200);
+        return response.send({
+            status: 200
+        });
     }
 }

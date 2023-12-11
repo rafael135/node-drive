@@ -22,6 +22,11 @@ const FileNavbar = ({ fileInfo, userId }: props) => {
     const publicFileContext = useContext(PublicFileInterationContext)!;
 
     const handleDetailsMenu = () => {
+        if(publicFileContext.event == "details") {
+            publicFileContext.setEvent(null);
+            return;
+        }
+
         publicFileContext.setEvent("details");
     }
 
@@ -75,7 +80,7 @@ const FileNavbar = ({ fileInfo, userId }: props) => {
                 
 
                 <div className="navbar-user">
-                    <Dropdown arrowIcon={false} inline label={<Avatar className="navbar-avatar" alt="" img="" bordered rounded />}>
+                    <Dropdown arrowIcon={false} inline label={<Avatar className="navbar-avatar" alt="" img={(authCtx?.user?.avatar != null) ? authCtx!.user!.avatar! : ""} bordered rounded />}>
                         <Dropdown.Header>
                             {(authCtx?.user != null) &&
                                 <>
@@ -95,7 +100,7 @@ const FileNavbar = ({ fileInfo, userId }: props) => {
                             }
                             
                         </Dropdown.Header>
-                        
+                    
                         {(authCtx?.user != null) && 
                             <>
                                 <Dropdown.Item href="/user/config">
@@ -113,7 +118,7 @@ const FileNavbar = ({ fileInfo, userId }: props) => {
                                 Entrar
                             </Dropdown.Item>
                         }
-                        
+                    
                     </Dropdown>
                 </div>
             </header>
