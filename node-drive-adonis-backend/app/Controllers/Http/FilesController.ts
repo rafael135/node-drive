@@ -824,6 +824,14 @@ export default class FilesController {
         realPath.shift();
         realPath.shift();
         
+        type PublicFileResponse = {
+            fileInfo: PublicFileInfo | null;
+            userInfo: {
+                name: string;
+                avatar: string;
+            } | null;
+            status: number;
+        };
 
         let fileInfo: PublicFileInfo = {
             name: name,
@@ -838,11 +846,34 @@ export default class FilesController {
             updated_at: `${stats.mtime.getHours()}:${(stats.mtime.getMinutes() < 10) ? `0${stats.mtime.getMinutes()}` : `${stats.mtime.getMinutes()}`} ${stats.mtime.getFullYear()}/${stats.mtime.getMonth()}/${stats.mtime.getDay()}`
         };
 
-        response.status(200);
-        return response.send({
+        let usr = await User.find(userId);
+
+        if(usr == null) {
+            response.status(404);
+            return response.send({
+                fileInfo: null,
+                userInfo: null,
+                status: 404
+            });
+        }
+
+        let userInfo = {
+            name: usr!.name,
+            avatar: ""
+        }
+
+        if(usr.avatar != null) {
+            userInfo.avatar = `data:image/${userInfo.avatar.split('.')[1]};base64,${(await Drive.use("local").get(`user/${usr.id}/profile/${usr.avatar}`)).toString("base64")}`;
+        }
+
+        let res: PublicFileResponse = {
             fileInfo: fileInfo,
+            userInfo: userInfo,
             status: 200
-        });
+        };
+
+        response.status(200);
+        return response.send(res);
     }
 
 

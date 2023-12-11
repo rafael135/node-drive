@@ -10,12 +10,14 @@ export default class AppProvider {
 
 	public async boot () {
 		// IoC container is ready
+		/*
 		const { publicUserDriver } = await import("./publicUserProvider/index");
 		const Drive = this.app.container.use("Adonis/Core/Drive");
 
 		Drive.extend("publicUser", (_drive, _diskName, config) => {
 			return new publicUserDriver(config);
 		});
+		*/
 	}
 
 	public async ready () {

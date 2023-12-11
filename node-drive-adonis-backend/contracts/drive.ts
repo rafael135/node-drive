@@ -8,15 +8,15 @@
 import type { InferDisksFromConfig } from '@adonisjs/core/build/config'
 import type driveConfig from '../config/drive';
 
-import { publicUserDriverConfig, publicUserDriverContract } from 'providers/publicUserProvider';
+//import { publicUserDriverConfig, publicUserDriverContract } from 'providers/publicUserProvider';
 
 declare module '@ioc:Adonis/Core/Drive' {
 	interface DisksList extends InferDisksFromConfig<typeof driveConfig> {}
 
 	interface DriversList {
-		publicUser: {
+		/*publicUser: {
 			config: publicUserDriverConfig,
 			implementation: publicUserDriverContract
-		}
+		}*/
 	}
 }

@@ -198,6 +198,10 @@ export const getPublicDownloadLink = async (path: FolderPath, fileName: string, 
     }
 }
 
+type PublicFileInfoResponse = {
+
+}
+
 export const getPublicFileInfo = async (userId: number, fileUrl: string) => {
     let req = await AxiosInstance.get("/user/files/public/info", {
         params: {
@@ -209,7 +213,7 @@ export const getPublicFileInfo = async (userId: number, fileUrl: string) => {
     let res: getPublicFileInfoResponse = req.data;
     
     if(res.status == 200) {
-        return res.fileInfo;
+        return res;
     }
 
     return null;

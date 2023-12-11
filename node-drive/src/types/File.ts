@@ -33,6 +33,10 @@ export type PublicFileInfo = {
 
 export type getPublicFileInfoResponse = {
     fileInfo: PublicFileInfo;
+    userInfo: {
+        name: string;
+        avatar: string;
+    };
     status: number;
 };
 

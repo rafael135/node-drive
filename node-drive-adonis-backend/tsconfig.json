@@ -9,6 +9,7 @@
   ],
   "compilerOptions": {
     "outDir": "build",
+    "noUnusedLocals": false,
     "rootDir": "./",
     "sourceMap": true,
     "paths": {

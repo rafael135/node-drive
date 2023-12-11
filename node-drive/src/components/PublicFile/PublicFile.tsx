@@ -5,6 +5,7 @@ import { PublicFileInfo } from "../../types/File";
 import Layout from "./Layout";
 import { TfiClose, TfiZip } from "react-icons/tfi";
 import { PublicFileInterationContext } from "../../contexts/PublicFileInteractionContext";
+import { Avatar } from "flowbite-react";
 
 type props = {
     userId: number;
@@ -13,6 +14,7 @@ type props = {
 
 const PublicFile = ({ userId, fileUrl }: props) => {
     const [fileInfo, setFileInfo] = useState<PublicFileInfo | null>(null);
+    const [userInfo, setUserInfo] = useState<{ name: string, avatar: string | null } | null>(null);
 
     const publicFileContext = useContext(PublicFileInterationContext)!;
 
@@ -27,7 +29,8 @@ const PublicFile = ({ userId, fileUrl }: props) => {
 
         res.then((r) => {
             if(r != null) {
-                setFileInfo(r);
+                setFileInfo(r.fileInfo);
+                setUserInfo(r.userInfo);
             }
         });
     }, []);
@@ -122,7 +125,7 @@ const PublicFile = ({ userId, fileUrl }: props) => {
                                 </div>
                             </div>
 
-                            <div className="mt-6 px-4 font-semibold">
+                            <div className="mt-6 px-4 flex flex-col font-semibold">
                                 <div className="flex flex-row items-center gap-1 text-slate-100">
                                     <h2 className="inline-flex">Compartilhamento</h2>
                                     <span className="flex-1 h-[1px] bg-stone-700"></span>
@@ -135,11 +138,17 @@ const PublicFile = ({ userId, fileUrl }: props) => {
                                 </div>
 
                                 <div className="flex flex-col gap-2 mt-2 text-[14px]">
-                                    <div className="flex flex-row text-slate-100">
-                                        <div className="flex flex-row">
-                                            <img />
+                                    <div className="flex flex-row items-center text-slate-100">
+                                        <div className="font-bold mr-auto">Proprietário:</div>
+
+                                        <div className="flex flex-row items-center gap-1">
+                                            {(userInfo != null) &&
+                                                <>
+                                                    <Avatar className="navbar-avatar" alt="" img={(userInfo.avatar != null) ? userInfo.avatar : ""} bordered rounded />
+                                                    <h3 className="ms-1 text-sm text-white font-semibold">{userInfo.name}</h3>
+                                                </>
+                                            }
                                         </div>
-                                        <div className="flex-1">Proprietário</div>
                                     </div>
                                 </div>
 

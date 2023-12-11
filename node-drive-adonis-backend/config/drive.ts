@@ -40,6 +40,8 @@ export default driveConfig({
 		| files when not using this disk.
 		|
 		*/
+
+		/*
 		publicUser: {
 			driver: "publicUser",
 			visibility: "public",
@@ -49,7 +51,7 @@ export default driveConfig({
 			serveFiles: true,
 
 			basePath: '/publicUser',
-		},
+		},*/
 
 		local: {
 			driver: 'local',
