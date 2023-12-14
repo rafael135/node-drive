@@ -1,6 +1,7 @@
 import { Avatar } from "flowbite-react";
 import { useContext, useRef, useState } from "react";
 import { UserAuthContext } from "../../../contexts/UserContext";
+import { RiFileUserFill } from "react-icons/ri";
 import { BsPersonFill } from "react-icons/bs";
 import ChangeAvatarModal from "./Modals/ChangeAvatarModal";
 import ChangeNameModal from "./Modals/ChangeNameModal";
@@ -82,12 +83,12 @@ const Config = () => {
                             onMouseOut={handleAvatarMouseOut}
                         >
                             <div
-                                className="changeAvatar"
+                                className="changeAvatar transition-all ease-in-out duration-150"
                                 ref={changeAvatarRef}
                                 onClick={handleChangeAvatar}
                                 title="Mudar Avatar"
                             >
-
+                                <RiFileUserFill className="w-6 h-6 fill-white/80" />
                             </div>
 
                             {(userCtx.user!.avatar == null) &&

@@ -11,6 +11,11 @@ type decodedToken = {
     exp: number;
 }
 
+type InputErrorType = {
+    target: string;
+    msg: string;
+}
+
 export default class UserController {
 
     public static getUserDecodedToken(token: string): decodedToken | null {
@@ -71,10 +76,14 @@ export default class UserController {
         let token = request.header("Authorization")!.split(' ')[1];
         let newName: string | null = request.input("newName", null);
         
+        let errors: InputErrorType[] = [];
 
         if(newName == null) {
+            errors.push({ target: "newName", msg: "Nome não preenchido!" });
+
             response.status(400);
             return response.send({
+                errors: errors,
                 status: 400
             });
         }
@@ -82,8 +91,11 @@ export default class UserController {
         let decoded = UserController.getUserDecodedToken(token);
 
         if(decoded == null) {
+            errors.push({ target: "form", msg: "Erro desconhecido!" })
+
             response.status(401);
             return response.send({
+                errors: errors,
                 status: 401
             });
         }
@@ -96,12 +108,16 @@ export default class UserController {
 
             response.status(200);
             return response.send({
+                errors: null,
                 status: 200
             });
         }
 
+        errors.push({ target: "form", msg: "Erro desconhecido!" });
+
         response.status(404);
         return response.send({
+            errors: errors,
             status:404
         });
     }   
@@ -112,9 +128,26 @@ export default class UserController {
         let password: string | null = request.input("password", null);
         let newEmail: string | null = request.input("newEmail", null);
 
+        let errors: InputErrorType[] = [];
+
         if(newEmail == null || password == null) {
+            errors.push({ target: "newEmail", msg: "E-mail inválido!" });
+            errors.push({ target: "password", msg: "Senha inválida!" });
+
             response.status(400);
             return response.send({
+                errors: errors,
+                status: 400
+            });
+        }
+
+        if(newEmail.length == 0 || password.length == 0) {
+            errors.push({ target: "newEmail", msg: "E-mail não preenchido!" });
+            errors.push({ target: "password", msg: "Senha não preenchida!" });
+
+            response.status(400);
+            return response.send({
+                errors: errors,
                 status: 400
             });
         }
@@ -122,8 +155,12 @@ export default class UserController {
         let decoded = UserController.getUserDecodedToken(token);
 
         if(decoded == null) {
+            errors.push({ target: "newEmail", msg: "E-mail e/ou senha inválida!" });
+            errors.push({ target: "password", msg: "E-mail e/ou senha inválida!" });
+
             response.status(401);
             return response.send({
+                errors: errors,
                 status: 401
             });
         }
@@ -131,8 +168,12 @@ export default class UserController {
         let usr = await User.find(decoded.id);
 
         if(usr == null) {
+            errors.push({ target: "newEmail", msg: "E-mail e/ou senha inválida!" });
+            errors.push({ target: "password", msg: "E-mail e/ou senha inválida!" });
+
             response.status(401);
             return response.send({
+                errors: errors,
                 status: 401
             });
         }
@@ -140,8 +181,11 @@ export default class UserController {
         let passwordValid = await Hash.verify(usr.password, password);
 
         if(passwordValid == false) {
+            errors.push({ target: "password", msg: "E-mail e/ou senha inválida!" });
+
             response.status(401);
             return response.send({
+                errors: errors,
                 status: 401
             });
         }
@@ -151,6 +195,7 @@ export default class UserController {
 
         response.status(200);
         return response.send({
+            errors: null,
             status: 200
         });
     }

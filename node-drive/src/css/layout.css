@@ -74,4 +74,10 @@
     .mainPublicFileLayout-container .publicFileLayout-sidebar {
         
     }
+
+
+
+    input.errored {
+        @apply placeholder:text-red-600;
+    }
 }

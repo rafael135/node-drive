@@ -22,7 +22,7 @@
         @apply absolute top-0 bottom-0 left-0 right-0 bg-black/20 hidden;
     }
     .userAvatar .changeAvatar.show {
-        @apply block;
+        @apply flex justify-center items-center;
     }
     .userInfo .userAvatar img {
         @apply max-w-full;
@@ -42,10 +42,10 @@
         @apply !p-4;
     }
     .changeAvatarModal-body .avatarInput-label {
-        @apply w-full h-32 flex justify-center items-center border-2 border-dashed border-gray-500/50 transition-all ease-in-out duration-150 cursor-pointer hover:bg-black/10;
+        @apply w-full h-auto flex justify-center items-center border-2 border-dashed border-gray-500/50 transition-all ease-in-out duration-150 cursor-pointer hover:bg-black/10;
     }
     .changeAvatarModal-body .avatarInput-label p {
-        @apply text-slate-800 font-semibold text-lg;
+        @apply text-slate-800 font-semibold text-lg my-12;
     }
 
 

@@ -1,9 +1,11 @@
 import { Modal, Spinner } from "flowbite-react"
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { BiSolidError } from "react-icons/bi";
 import { FaCheck } from "react-icons/fa";
 import { UserAuthContext } from "../../../../contexts/UserContext";
 import { changeEmail } from "../../../../api/User";
+import { checkInputsErrors } from "../../../../helpers/Input";
+import { InputErrorType } from "../../../../types/Config";
 
 type props = {
     showEmailModal: boolean;
@@ -15,10 +17,35 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
 
     const [newEmail, setNewEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+
+    const defaultPlaceholders = ["Digite seu novo E-mail", "Confirme sua Senha"];
+
+    const emailRef = useRef<HTMLInputElement | null>(null);
+    const passwordRef = useRef<HTMLInputElement | null>(null);
+
+
     const [status, setStatus] = useState<"loading" | "success" | "error" | null>(null);
 
     const handleChangeEmailBtn = async () => {
         if(newEmail == "" || password == "") {
+            let errors: InputErrorType[] = [
+                { target: "newEmail", msg: "E-mail não preenchido!" },
+                { target: "password", msg: "Senha não preenchida!" }
+            ];
+
+            checkInputsErrors([emailRef!, passwordRef!], defaultPlaceholders, errors);
+
+            return;
+        }
+
+        if(!newEmail.match(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@[*[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+]*/)) {
+            let errors: InputErrorType[] = [
+                { target: "newEmail", msg: "E-mail inválido!" }
+            ];
+
+            setNewEmail("");
+            checkInputsErrors([emailRef], defaultPlaceholders, errors);
+
             return;
         }
 
@@ -37,6 +64,11 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
         }
 
         if(res.msg == "unauthorized" || res.msg == "error") {
+            //setNewEmail("");
+            setPassword("");
+
+            checkInputsErrors([emailRef!, passwordRef!], defaultPlaceholders, res.errors!);
+
             setStatus("error");
         }
     }
@@ -55,9 +87,9 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
                             <h4 className="text-red-600 font-semibold text-lg">Ocorreu um erro!</h4>
                             <button
                                 className="mt-1 px-4 py-1 text-white bg-red-500 rounded-md hover:bg-red-600 active:bg-red-700"
-                                onClick={() => { setShowEmailModal(false); }}
+                                onClick={() => { setStatus(null); }}
                             >
-                                Fechar
+                                Ok
                             </button>
                         </>
                     }
@@ -72,7 +104,7 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
             }
 
             <Modal.Header className="changeEmailModal-header">
-
+                <p className="font-bold text-xl text-slate-800">Mudança de E-mail</p>
             </Modal.Header>
 
             <Modal.Body className="changeEmailModal-body">
@@ -81,28 +113,34 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
                     <div>{userCtx.user!.email}</div>
                 </div>
 
-                <input
-                    className="my-1 w-full text-slate-800 border-l-0 border-t-0 border-r-0 border-b-2 border-b-gray-600/50 focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                    type="email"
-                    value={newEmail} onChange={(e) => { setNewEmail(e.target!.value); }}
-                    placeholder="Digite seu novo E-mail"
-                />
+                <form onSubmit={(e) => { e.preventDefault(); }}>
+                    <input
+                        className="my-1 w-full text-slate-800 border-l-0 border-t-0 border-r-0 border-b-2 border-b-gray-600/50 focus:ring-0 focus:ring-offset-0 focus:outline-none"
+                        type="email"
+                        id="newEmail"
+                        value={newEmail} onChange={(e) => { setNewEmail(e.target!.value); }}
+                        ref={emailRef}
+                        placeholder="Digite seu novo E-mail"
+                    />
 
-                <input
-                    className="mt-1 w-full text-slate-800 border-l-0 border-t-0 border-r-0 border-b-2 border-b-gray-600/50 focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                    type="password"
-                    value={password} onChange={(e) => { setPassword(e.target!.value); }}
-                    placeholder="Confirme sua senha"
-                />
-                
-                <div className="flex justify-center">
-                    <button
-                        className="mt-3 mx-auto px-4 py-1.5 bg-green-500 text-white rounded-md transition-all ease-in-out duration-150 hover:bg-green-600"
-                        onClick={handleChangeEmailBtn}
-                    >
-                        Alterar E-mail
-                    </button>
-                </div>
+                    <input
+                        className="mt-1 w-full text-slate-800 border-l-0 border-t-0 border-r-0 border-b-2 border-b-gray-600/50 focus:ring-0 focus:ring-offset-0 focus:outline-none"
+                        type="password"
+                        id="password"
+                        value={password} onChange={(e) => { setPassword(e.target!.value); }}
+                        ref={passwordRef}
+                        placeholder="Confirme sua senha"
+                    />
+                    
+                    <div className="flex justify-center">
+                        <button
+                            className="mt-3 mx-auto px-4 py-1.5 bg-green-500 text-white rounded-md transition-all ease-in-out duration-150 hover:bg-green-600"
+                            onClick={handleChangeEmailBtn}
+                        >
+                            Alterar E-mail
+                        </button>
+                    </div>
+                </form>
             </Modal.Body>
         </Modal>
     );
