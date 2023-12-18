@@ -1,4 +1,4 @@
-import { Modal, Spinner } from "flowbite-react"
+import { Spinner } from "flowbite-react"
 import { useContext, useRef, useState } from "react";
 import { UserAuthContext } from "../../../../contexts/UserContext";
 import { BiSolidError } from "react-icons/bi";
@@ -6,6 +6,8 @@ import { StatusType } from "../../../../types/Config";
 import { FaCheck } from "react-icons/fa";
 import { changeName } from "../../../../api/User";
 import { checkInputsErrors } from "../../../../helpers/Input";
+import Modal from "../../../Modal/Modal";
+import ModalHeader from "../../../Modal/ModalHeader";
 
 type props = {
     showNameModal: boolean;
@@ -54,7 +56,7 @@ const ChangeNameModal = ({ showNameModal, setShowNameModal }: props) => {
     }
 
     return (
-        <Modal className="changeNameModal" show={showNameModal} dismissible={true} onClose={() => { setShowNameModal(false); }}>
+        <Modal className="changeNameModal" show={showNameModal} dismissible={true} closeFn={() => { setShowNameModal(false); }}>
             {(status != null) &&
                 <div className="bg-white/60 absolute left-0 right-0 top-0 bottom-0 flex flex-col justify-center items-center">
                     {(status == "loading") && 
@@ -84,11 +86,11 @@ const ChangeNameModal = ({ showNameModal, setShowNameModal }: props) => {
                 </div>
             }
 
-            <Modal.Header className="changeNameModal-header">
+            <ModalHeader className="changeNameModal-header" closeFn={() => { setShowNameModal(false); }}>
                 <p className="font-bold text-xl text-slate-800">Mudança de Nome</p>
-            </Modal.Header>
+            </ModalHeader>
 
-            <Modal.Body className="changeNameModal-body">
+            <div className="changeNameModal-body">
                 <div className="flex flex-row gap-1">
                     <span className="font-bold">Nome atual:</span>
                     <div>{userCtx.user!.name}</div>
@@ -115,7 +117,7 @@ const ChangeNameModal = ({ showNameModal, setShowNameModal }: props) => {
                     </div>
 
                 </form>
-            </Modal.Body>
+            </div>
         </Modal>
     );
 }

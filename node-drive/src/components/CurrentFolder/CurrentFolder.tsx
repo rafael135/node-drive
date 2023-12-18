@@ -34,6 +34,45 @@ export type FolderPath = {
     setFolderPath: React.Dispatch<React.SetStateAction<string>>;
 };
 
+type PathLabelType = {
+    name: string;
+    path: string;
+};
+
+const getPathLabels = (path: string): PathLabelType[] => {
+    let cpyPath = path.split('/');
+
+        let homePath = "";
+
+        for(let i = 0; i < 4; i++) {
+            if(i + 1 < 4) {
+                homePath += cpyPath.shift() + '/';
+            } else {
+                homePath += cpyPath.shift();
+            }
+            
+        }
+
+        
+        let labels: PathLabelType[] = [];
+
+        //console.log(homePath);
+
+        labels.push({ name: "Home", path: homePath })
+
+        cpyPath.forEach((p, idx) => {
+            if(idx == 0) {
+                labels.push({ name: p, path: `${homePath}/${p}` });
+            } else {
+                labels.push({ name: p, path: `${labels[idx - 1].path}/${p}` });
+            }
+        });
+
+        return labels;
+
+        //console.log(labels);
+}
+
 const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     const usedSpaceCtx = useContext(UsedSpaceContext)!;
 
@@ -43,6 +82,8 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     let selectFilterInput = useRef(null);
     
     const [path, setPath] = useState<string>(userFilesPath);
+    const [pathLabels, setPathLabels] = useState<PathLabelType[]>(getPathLabels(path));
+
     const [files, setFiles] = useState<FileType[]>([]);
 
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -59,6 +100,8 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     const [showUploadStatus, setShowUploadStatus] = useState<boolean>(false);
 
     const [isFileChecked, setIsFileChecked] = useState<boolean>(false);
+
+
 
     
     let _folderPath: FolderPath = {
@@ -242,7 +285,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     }
     
     const filterFiles = (opt: "name" | "type" | "size") => {
-        console.log(files);
+        //console.log(files);
 
         if(opt == "name") {
             setFiles(files.sort((a, b) => {
@@ -340,13 +383,13 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
     useEffect(() => {
 
-        let isCkecked = files.find((f) => {
+        let isChecked = files.find((f) => {
             if(f.selected == true) {
                 return true;
             }
         });
 
-        if(isCkecked != undefined) {
+        if(isChecked != undefined) {
             setIsFileChecked(true);
         } else {
             setIsFileChecked(false);
@@ -357,6 +400,10 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
         //console.log(usedSpaceCtx.usedSize, userCtx.user);
     }, [usedSpaceCtx.usedSize, userCtx.user!.maxStorage]);
 
+    useEffect(() => {
+        setPathLabels(getPathLabels(path));
+        //console.log(pathLabels);
+    }, [path]);
     
 
     return (
@@ -385,6 +432,25 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
             }
 
             <div className="folderToolBar">
+                <div className="w-full py-0.5 px-2 flex flex-row gap-1 border-solid border-b border-b-gray-200">
+                    {pathLabels.map((p, idx) => {
+                        return (
+                            <>
+                                <span key={idx + p.name.length} className="px-1 text-slate-800 font-bold cursor-pointer rounded-md transition-all ease-in-out duration-150 hover:bg-black/10" onClick={() => { setPath(p.path) }}>
+                                    { p.name }
+                                </span>
+
+                                {(idx + 1 < pathLabels.length) &&
+                                    <span key={Math.random() * 99999999} className="text-slate-800">
+                                        /
+                                    </span>
+                                }
+                            </>
+                        );
+                    })}
+                </div>
+
+                <div className="flex-1 flex flex-row gap-2 items-center">
                 <button
                     className="btn-back group"
                     title="Voltar"
@@ -418,6 +484,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                 <div className="h-full w-[1px] bg-gray-400/70">
 
                 </div>
+                
 
                 {(isFileChecked == true) && 
                     <>
@@ -445,6 +512,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                                 Compactar & Download
                             </Dropdown.Item>
                         </Dropdown>
+                        
 
                         
 
@@ -461,6 +529,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                         */}
                     </>
                 }
+                </div>
             </div>
 
             <FilesContainer 

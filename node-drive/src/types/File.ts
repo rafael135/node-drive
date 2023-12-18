@@ -8,6 +8,7 @@ export type FileType = {
     isPublic: boolean;
     shareLink?: string;
     selected?: boolean;
+    
 };
 
 export type FileDataType = {
@@ -31,12 +32,14 @@ export type PublicFileInfo = {
     updated_at: string;
 };
 
+export type PublicFileUser = {
+    name: string;
+    avatar: string;
+}
+
 export type getPublicFileInfoResponse = {
     fileInfo: PublicFileInfo;
-    userInfo: {
-        name: string;
-        avatar: string;
-    };
+    userInfo: PublicFileUser;
     status: number;
 };
 

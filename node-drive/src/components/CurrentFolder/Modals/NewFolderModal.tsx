@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
-import { Button, Label, Modal, TextInput } from "flowbite-react";
+import { Button, Label, TextInput } from "flowbite-react";
 import { createNewFolder } from "../../../api/Files";
 import { FolderPath } from "../CurrentFolder";
+import Modal from "../../Modal/Modal";
 
 type props = {
     getFiles: () => Promise<void>;
@@ -46,8 +47,8 @@ const NewFolderModal = ({ getFiles, pathInfo, setToastMsgType, setToastMsg, setS
     }
 
     return (
-        <Modal show={showNewFolderModal == true} className="newFolderModal" dismissible={true} onClose={() => { setShowNewFolderModal(false); }}>
-            <Modal.Body className="newFolderModal-body">
+        <Modal show={showNewFolderModal == true} className="newFolderModal" dismissible={true} closeFn={() => { setShowNewFolderModal(false); }}>
+            <div className="newFolderModal-body">
                 <form ref={newFolderFormRef} onSubmit={(e) => { e.preventDefault(); handleNewFolder(); }}>
                     <Label 
                         htmlFor="folderName"
@@ -66,7 +67,7 @@ const NewFolderModal = ({ getFiles, pathInfo, setToastMsgType, setToastMsg, setS
                         Criar
                     </Button>
                 </form>
-            </Modal.Body>
+            </div>
         </Modal>
     );
 }

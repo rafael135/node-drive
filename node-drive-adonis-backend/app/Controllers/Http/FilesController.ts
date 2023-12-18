@@ -530,12 +530,28 @@ export default class FilesController {
                 status: 401
             });
         }
+
+        //console.log(`${path}/${folderName}`);
+
+        let drivePath = Drive.use("local").makePath(`${path}/${folderName}`);
+
+        let dirExists = await Drive.use("local").exists(drivePath);
+
+        
+        if(dirExists == true) {
+            response.status(406);
+            return response.send({
+                success: false,
+                status: 406
+            });
+        }
+        
         
         // Obtenho o caminho ate a pasta
-        let drivePath = Drive.use("local").makePath(`${path}`);
+        //let drivePath = await Drive.use("local").getUrl(`${path}`);
         
         // Crio o pasta no diretorio do usuario
-        await fs.mkdir(`${drivePath}/${folderName}`);
+        await fs.mkdir(`${drivePath}`);
 
         response.status(201);
         return response.send({

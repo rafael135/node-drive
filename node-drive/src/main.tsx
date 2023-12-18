@@ -15,6 +15,8 @@ import UserConfig from './routes/User/UserConfig';
 import SharedFiles from './routes/Files/SharedFiles';
 import DownloadFile from './routes/Files/DownloadFile';
 import { UsedSpaceContextProvider } from './contexts/UsedSpaceContext';
+import SearchFiles from './components/SearchFiles/SearchFiles';
+import { ModalContextProvider } from './contexts/ModalContext';
 
 const client = new QueryClient();
 
@@ -86,6 +88,11 @@ const router = createBrowserRouter([
 		path: "/file/:userId/:fileUrl",
 		element: <DownloadFile />,
 		errorElement: <ErrorPage />
+	},
+	{
+		path: "/files/search",
+		element: <SearchFiles />,
+		errorElement: <ErrorPage />
 	}
 ]);
 
@@ -93,9 +100,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
 		<QueryClientProvider client={client}>
 			<UserAuthProvider>
-				<UsedSpaceContextProvider>
-					<RouterProvider router={router} />
-				</UsedSpaceContextProvider>
+				<ModalContextProvider>
+					<UsedSpaceContextProvider>
+						<RouterProvider router={router} />
+					</UsedSpaceContextProvider>
+				</ModalContextProvider>
 			</UserAuthProvider>
 		</QueryClientProvider>
   	</React.StrictMode>

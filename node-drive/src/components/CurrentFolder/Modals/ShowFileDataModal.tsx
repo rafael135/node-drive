@@ -1,7 +1,8 @@
-import { Modal } from "flowbite-react";
 import { FileDataType, FileType } from "../../../types/File";
 import { SetStateAction, useEffect, useRef } from "react";
 import AxiosInstance, { baseUrl } from "../../../helpers/AxiosInstance";
+import Modal from "../../Modal/Modal";
+import ModalHeader from "../../Modal/ModalHeader";
 
 type props = {
     activeFile: FileType;
@@ -31,12 +32,12 @@ const ShowFileDataModal = ({ activeFile, fileData, showFileData, setShowFileData
     */
 
     return (
-        <Modal show={showFileData === true} className="selectedFileViewDataModal absolute top-0 bottom-0 left-0 right-0 flex justify-center items-center" dismissible={true} onClose={ () => { setShowFileData(false);  } }>
-            <Modal.Header className="selectedFileViewDataModal-header">
-                Visualizando <span className="font-thin">{activeFile.name}</span>
-            </Modal.Header>
+        <Modal show={showFileData} className="selectedFileViewDataModal flex justify-center items-center" dismissible={true} closeFn={ () => { setShowFileData(false);  } }>
+            <ModalHeader className="selectedFileViewDataModal-header" closeFn={() => { setShowFileData(false); }}>
+                <p>Visualizando <span className="font-thin">{activeFile.name}</span></p>
+            </ModalHeader>
     
-            <Modal.Body className="selectedFileViewDataModal-body">
+            <div className="selectedFileViewDataModal-body overflow-auto">
                 
 
                 {(fileData != null && fileData.data != undefined && (fileData.type == "text" || fileData.type == "other")) &&
@@ -78,7 +79,7 @@ const ShowFileDataModal = ({ activeFile, fileData, showFileData, setShowFileData
                 {(fileData == null) &&
                     "Carregando..."
                 }
-            </Modal.Body>
+            </div>
         </Modal>
     );
 }

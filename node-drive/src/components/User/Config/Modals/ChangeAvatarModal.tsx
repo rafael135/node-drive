@@ -1,11 +1,13 @@
 import { useContext, useState } from "react";
-import { Modal, Spinner } from "flowbite-react";
+import { Spinner } from "flowbite-react";
 //import { changeAvatar } from "../../../../api/User";
 import AxiosInstance from "../../../../helpers/AxiosInstance";
 import { UserAuthContext } from "../../../../contexts/UserContext";
 import { fileToBase64 } from "../../../../helpers/File";
 import { FaCheck } from "react-icons/fa";
 import { BiSolidError } from "react-icons/bi";
+import Modal from "../../../Modal/Modal";
+import ModalHeader from "../../../Modal/ModalHeader";
 
 
 type props = {
@@ -77,7 +79,7 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
         <Modal
             show={showAvatarModal}
             dismissible={true}
-            onClose={() => { setShowAvatarModal(false); }}
+            closeFn={() => { setShowAvatarModal(false); }}
             className="changeAvatarModal"
         >
 
@@ -115,11 +117,11 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
                 </div>
             }
 
-            <Modal.Header className="changeAvatarModal-header">
+            <ModalHeader className="changeAvatarModal-header" closeFn={() => { setShowAvatarModal(false); }}>
                 <p className="font-bold text-xl text-slate-800">Mudança de Avatar</p>
-            </Modal.Header>
+            </ModalHeader>
 
-            <Modal.Body className="changeAvatarModal-body">
+            <div className="changeAvatarModal-body">
                 <form onSubmit={(e) => { e.preventDefault(); }}>
                     <input
                         type="file"
@@ -140,7 +142,7 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
                         
                     </label>
                 </form>
-            </Modal.Body>
+            </div>
         </Modal>
     );
 }

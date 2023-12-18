@@ -1,4 +1,4 @@
-import { Modal, Spinner } from "flowbite-react"
+import { Spinner } from "flowbite-react"
 import { useContext, useRef, useState } from "react";
 import { BiSolidError } from "react-icons/bi";
 import { FaCheck } from "react-icons/fa";
@@ -6,6 +6,8 @@ import { UserAuthContext } from "../../../../contexts/UserContext";
 import { changeEmail } from "../../../../api/User";
 import { checkInputsErrors } from "../../../../helpers/Input";
 import { InputErrorType } from "../../../../types/Config";
+import Modal from "../../../Modal/Modal";
+import ModalHeader from "../../../Modal/ModalHeader";
 
 type props = {
     showEmailModal: boolean;
@@ -74,7 +76,7 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
     }
 
     return (
-        <Modal className="changeEmailModal" show={showEmailModal} dismissible={true} onClose={() => { setShowEmailModal(false); }}>
+        <Modal className="changeEmailModal" show={showEmailModal} dismissible={true} closeFn={() => { setShowEmailModal(false); }}>
             {(status != null) &&
                 <div className="bg-white/60 absolute left-0 right-0 top-0 bottom-0 flex flex-col justify-center items-center">
                     {(status == "loading") && 
@@ -103,11 +105,11 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
                 </div>
             }
 
-            <Modal.Header className="changeEmailModal-header">
+            <ModalHeader className="changeEmailModal-header" closeFn={() => { setShowEmailModal(false); }}>
                 <p className="font-bold text-xl text-slate-800">Mudança de E-mail</p>
-            </Modal.Header>
+            </ModalHeader>
 
-            <Modal.Body className="changeEmailModal-body">
+            <div className="changeEmailModal-body">
                 <div className="flex flex-row gap-1">
                     <span className="font-bold">E-mail atual:</span>
                     <div>{userCtx.user!.email}</div>
@@ -141,7 +143,7 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
                         </button>
                     </div>
                 </form>
-            </Modal.Body>
+            </div>
         </Modal>
     );
 }

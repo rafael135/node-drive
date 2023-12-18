@@ -46,9 +46,12 @@ export const checkInputsErrors = (inputsRefs: RefObject<HTMLInputElement>[], def
         
         // TODO
         const event = () => {
-            
+            form!.removeChild(errorSpan);
+
+            form!.removeEventListener("focusin", event);
         }
 
         form.appendChild(errorSpan);
+        form.addEventListener("focusin", event);
     }
 }

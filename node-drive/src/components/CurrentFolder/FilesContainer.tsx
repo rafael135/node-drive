@@ -10,6 +10,7 @@ import ShareFileModal from "./Modals/ShareFileModal";
 import FileActionsModal from "./Modals/FileActionsModal";
 import ShowFileDataModal from "./Modals/ShowFileDataModal";
 import NewFolderModal from "./Modals/NewFolderModal";
+import { AnimatePresence } from "framer-motion";
 
 
 type props = {
@@ -48,23 +49,23 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
 
     const [showFileVisibility, setShowFileVisibility] = useState<boolean>(false);
     const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
-    
+
 
 
     const openContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
-        if(activeFile != null) {
-            
+        if (activeFile != null) {
+
         }
 
         setMousePoint({ x: e.pageY, y: e.pageX });
         setShowContextMenu(true);
     }
 
-    
+
 
     const handleVisualize = async () => {
-        if(renamingFileIdx != null) {
+        if (renamingFileIdx != null) {
             return;
         }
 
@@ -79,7 +80,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
     const handleMakePublicFile = async () => {
         let res = await makeFilePublic(pathInfo, activeFile!.name);
 
-        if(res == true) {
+        if (res == true) {
             getFiles();
         }
 
@@ -87,39 +88,39 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
     }
 
     const contextMenuSelected = (fnNumber: number, fileIdx?: number) => {
-        if(fnNumber == 1) {
+        if (fnNumber == 1) {
             setShowAddModal(true);
-        } else if(fnNumber == 2) {
+        } else if (fnNumber == 2) {
             setShowActions(true);
-        } else if(fnNumber == 3) {
+        } else if (fnNumber == 3) {
             setShowNewFolderModal(true);
-        } else if(fnNumber == 4) {
+        } else if (fnNumber == 4) {
             setSelectedFile(activeFile);
             setShowFileVisibility(true);
             //handleMakePublicFile();
-        } else if(fnNumber == 5) {
+        } else if (fnNumber == 5) {
             //console.log(files[fileIdx!].name!);
             setRenamingFilesIdx(fileIdx!);
             setFileDefaultName(files[fileIdx!].name);
-        } else if(fnNumber == 9) {
-            
+        } else if (fnNumber == 9) {
+
         }
     }
 
     const handleDownload = () => {
-        if(activeFile != null) {
+        if (activeFile != null) {
             downloadFile(pathInfo, activeFile);
         }
     }
 
     const handleDelete = async () => {
-        if(activeFile == null) {
+        if (activeFile == null) {
             return;
         }
 
         let res = await deleteFile(activeFile.location);
 
-        if(res == true) {
+        if (res == true) {
             setToastMsgType("success");
             setToastMsg(`Arquivo "${activeFile.name}" deletado com sucesso!`);
         } else {
@@ -127,8 +128,17 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             setToastMsg(`Não foi possível deletar "${activeFile.name}"!`);
         }
 
+        let updatedFiles = files.filter((f) => {
+            if (f.name != activeFile.name && f.location != activeFile.location) {
+                return true;
+            }
+
+            return false;
+        })
+
         setShowActions(false);
-        getFiles();
+        //getFiles();
+        setFiles(updatedFiles);
         setShowToast(true);
     }
 
@@ -149,7 +159,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             isFile: file.isFile
         });
 
-        if(res == true) {
+        if (res == true) {
             setToastMsgType("success");
             setToastMsg("Arquivo renomeado!");
             setShowToast(true);
@@ -170,7 +180,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         const handleClick = () => { setShowContextMenu(false); };
         window.addEventListener("click", handleClick);
 
-        if(showContextMenu == false && showActions == false && showFileData == false) {
+        if (showContextMenu == false && showActions == false && showFileData == false) {
             setActiveFile(null);
             setFileData(null);
         }
@@ -178,20 +188,20 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         return () => { window.removeEventListener("click", handleClick); };
     }, [showContextMenu]);
 
-    
+
 
     return (
         <>
-            { (showContextMenu == true) && 
-                <ContextMenu x={mousePoint.x} y={mousePoint.y} selectFn={contextMenuSelected} fileIndex={files.findIndex((f) => { if(f == activeFile) { return true; } return false; })} activeFile={activeFile} />
+            {(showContextMenu == true) &&
+                <ContextMenu x={mousePoint.x} y={mousePoint.y} selectFn={contextMenuSelected} fileIndex={files.findIndex((f) => { if (f == activeFile) { return true; } return false; })} activeFile={activeFile} />
             }
 
             {(showFileVisibility == true && selectedFile != null) &&
                 <ShareFileModal activeFile={selectedFile} showFileVisibility={showFileVisibility} setShowFileVisibility={setShowFileVisibility} />
             }
 
-            { /* Modal para exibir ações para interagir com o arquivo */ }
-            {(activeFile != null) &&
+            { /* Modal para exibir ações para interagir com o arquivo */}
+            {(activeFile != null && showActions == true) &&
                 <FileActionsModal
                     showActions={showActions}
                     setShowActions={setShowActions}
@@ -206,7 +216,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                 />
             }
 
-            { /* Modal para criar uma nova pasta */ }
+            { /* Modal para criar uma nova pasta */}
             {(showNewFolderModal == true) &&
                 <NewFolderModal
                     getFiles={getFiles}
@@ -220,7 +230,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             }
 
 
-            { /* Modal para exibir conteúdo do arquivo */ }
+            { /* Modal para exibir conteúdo do arquivo */}
             {(activeFile?.isFile == true && showFileData == true) &&
                 <ShowFileDataModal
                     activeFile={activeFile}
@@ -232,29 +242,34 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             }
             <div className="filesMainContainer" ref={filesMainContainerRef} onContextMenu={(e) => { openContextMenu(e); }}>
                 <div className="w-full max-h-full h-auto overflow-hidden flex justify-center gap-2 flex-wrap p-2">
-                    { (files.length > 0) && 
-                        files.map((file, idx) => {
+                    {(files.length > 0) &&
+                        <AnimatePresence mode="popLayout">
+                            {files.map((file, idx) => {
 
-                            return <File
-                                key={idx}
-                                info={file}
-                                isRenaming={isRenaming}
-                                renamingFileIdx={renamingFileIdx}
-                                setRenamingFilesIdx={setRenamingFilesIdx}
-                                doneRenamingFile={doneRenamingFile}
-                                fileIndex={idx}
-                                setFileChecked={handleFileCheckBtn}
-                                folderPath={pathInfo}
-                                infoToShow={setActiveFile}
-                                activeFile={activeFile}
-                                setShowActions={setShowActions}
-                                showActions={showActions}
-                            />
-                        })
+                                return (<File
+                                    key={idx}
+                                    info={file}
+                                    isRenaming={isRenaming}
+                                    renamingFileIdx={renamingFileIdx}
+                                    setRenamingFilesIdx={setRenamingFilesIdx}
+                                    doneRenamingFile={doneRenamingFile}
+                                    fileIndex={idx}
+                                    setFileChecked={handleFileCheckBtn}
+                                    folderPath={pathInfo}
+                                    infoToShow={setActiveFile}
+                                    activeFile={activeFile}
+                                    setShowActions={setShowActions}
+                                    showActions={showActions}
+                                />
+                                )
+
+                            })}
+                        </AnimatePresence>
+
                     }
                 </div>
             </div>
-            
+
         </>
     );
 }
