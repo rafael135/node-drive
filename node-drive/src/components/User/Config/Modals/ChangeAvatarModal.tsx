@@ -6,8 +6,8 @@ import { UserAuthContext } from "../../../../contexts/UserContext";
 import { fileToBase64 } from "../../../../helpers/File";
 import { FaCheck } from "react-icons/fa";
 import { BiSolidError } from "react-icons/bi";
-import Modal from "../../../Modal/Modal";
-import ModalHeader from "../../../Modal/ModalHeader";
+import Modal from "../../../Molecules/Modal/Index";
+import ModalHeader from "../../../Molecules/Modal/ModalHeader";
 
 
 type props = {

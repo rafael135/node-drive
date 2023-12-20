@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
-import { Button, Label, TextInput } from "flowbite-react";
+import { Button, Label } from "flowbite-react";
 import { createNewFolder } from "../../../api/Files";
 import { FolderPath } from "../CurrentFolder";
-import Modal from "../../Modal/Modal";
+import Modal from "../../Molecules/Modal/Index";
+import TextInput from "../../Atoms/TextInput/Index";
 
 type props = {
     getFiles: () => Promise<void>;
@@ -55,11 +56,14 @@ const NewFolderModal = ({ getFiles, pathInfo, setToastMsgType, setToastMsg, setS
                         value="Nome da pasta:"
                     />
                     <TextInput
-                        id="folderName"
                         type="text"
+                        id="folderName"
+                        name="folderName"
+                        placeholder=""
                         value={ newFolderName }
-                        onChange={(e) => { setNewFolderName(e.target.value) }}
+                        setValue={setNewFolderName}
                         className="flex flex-1"
+                        inputRef={newFolderFormRef}
                     />
                     <Button
                         onClick={handleNewFolder}

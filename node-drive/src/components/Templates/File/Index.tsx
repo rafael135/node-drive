@@ -1,9 +1,9 @@
 import { RefObject, forwardRef, useEffect, useRef, useState } from "react";
-import { FileType } from "../../types/File";
+import { FileType } from "../../../types/File";
 import { BsFileEarmarkFill, BsDownload, BsFolderFill, BsFilePdfFill, BsFiletypeDocx, BsFileImageFill, BsFileTextFill, BsFileCodeFill, BsViewList, BsFileZipFill } from "react-icons/bs";
 import { Modal } from "flowbite-react";
-import AxiosInstance from "../../helpers/AxiosInstance";
-import { getFileData } from "../../api/Files";
+import AxiosInstance from "../../../helpers/AxiosInstance";
+import { getFileData } from "../../../api/Files";
 import { FcVideoFile } from "react-icons/fc";
 import { motion } from "framer-motion";
 

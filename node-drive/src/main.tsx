@@ -16,7 +16,7 @@ import SharedFiles from './routes/Files/SharedFiles';
 import DownloadFile from './routes/Files/DownloadFile';
 import { UsedSpaceContextProvider } from './contexts/UsedSpaceContext';
 import SearchFiles from './components/SearchFiles/SearchFiles';
-import { ModalContextProvider } from './contexts/ModalContext';
+import { MouseLocationContextProvider } from './contexts/MouseLocationContext';
 
 const client = new QueryClient();
 
@@ -100,11 +100,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
 		<QueryClientProvider client={client}>
 			<UserAuthProvider>
-				<ModalContextProvider>
+				<MouseLocationContextProvider>
 					<UsedSpaceContextProvider>
 						<RouterProvider router={router} />
 					</UsedSpaceContextProvider>
-				</ModalContextProvider>
+				</MouseLocationContextProvider>
 			</UserAuthProvider>
 		</QueryClientProvider>
   	</React.StrictMode>

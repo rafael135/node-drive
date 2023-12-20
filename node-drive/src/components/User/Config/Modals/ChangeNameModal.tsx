@@ -6,8 +6,10 @@ import { StatusType } from "../../../../types/Config";
 import { FaCheck } from "react-icons/fa";
 import { changeName } from "../../../../api/User";
 import { checkInputsErrors } from "../../../../helpers/Input";
-import Modal from "../../../Modal/Modal";
-import ModalHeader from "../../../Modal/ModalHeader";
+import Modal from "../../../Molecules/Modal/Index";
+import ModalHeader from "../../../Molecules/Modal/ModalHeader";
+import Button from "../../../Atoms/Button/Index";
+import TextInput from "../../../Atoms/TextInput/Index";
 
 type props = {
     showNameModal: boolean;
@@ -97,23 +99,24 @@ const ChangeNameModal = ({ showNameModal, setShowNameModal }: props) => {
                 </div>
 
                 <form onSubmit={(e) => { e.preventDefault(); }}>
-                    <input
-                        className="my-1 w-full text-slate-800 border-l-0 border-t-0 border-r-0 border-b-2 border-b-gray-600/50 focus:ring-0 focus:ring-offset-0 focus:outline-none"
+                    <TextInput
                         type="text"
                         id="newName"
-                        ref={nameRef}
-                        value={newName} onChange={(e) => { setNewName(e.target!.value); }}
+                        name="newName"
+                        inputRef={nameRef}
+                        value={newName} setValue={setNewName}
                         placeholder="Digite seu novo nome"
                     />
                 
                 
                     <div className="flex justify-center">
-                        <button
-                            className="mt-3 mx-auto px-4 py-1.5 bg-green-500 text-white rounded-md transition-all ease-in-out duration-150 hover:bg-green-600"
+                        <Button
+                            type="success"
+                            className="mt-3 mx-auto px-4 py-1.5"
                             onClick={handleChangeNameBtn}
                         >
                             Alterar Nome
-                        </button>
+                        </Button>
                     </div>
 
                 </form>

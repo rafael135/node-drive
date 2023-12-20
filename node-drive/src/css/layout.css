@@ -80,4 +80,18 @@
     input.errored {
         @apply placeholder:text-red-600;
     }
+
+    button.btn-default {
+        @apply py-1 px-2.5 flex justify-center items-center gap-1 bg-blue-500 text-white text-base rounded-md transition-all ease-in-out duration-150 hover:bg-blue-600 active:bg-blue-700;
+    }
+    button.btn-default.btn-error {
+        @apply bg-red-500 hover:bg-red-600 active:bg-red-700;
+    }
+    button.btn-default.btn-success {
+        @apply bg-green-500 hover:bg-green-600 active:bg-green-700;
+    }
+
+    input.input-default {
+        @apply my-1 w-full text-slate-800 border-l-0 border-t-0 border-r-0 border-b-2 border-b-gray-600/50 focus:ring-0 focus:ring-offset-0 focus:outline-none;
+    }
 }

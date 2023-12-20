@@ -1,8 +1,8 @@
 import { FileDataType, FileType } from "../../../types/File";
 import { SetStateAction, useEffect, useRef } from "react";
 import AxiosInstance, { baseUrl } from "../../../helpers/AxiosInstance";
-import Modal from "../../Modal/Modal";
-import ModalHeader from "../../Modal/ModalHeader";
+import Modal from "../../Molecules/Modal/Index";
+import ModalHeader from "../../Molecules/Modal/ModalHeader";
 
 type props = {
     activeFile: FileType;

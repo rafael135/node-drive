@@ -6,8 +6,10 @@ import { UserAuthContext } from "../../../../contexts/UserContext";
 import { changeEmail } from "../../../../api/User";
 import { checkInputsErrors } from "../../../../helpers/Input";
 import { InputErrorType } from "../../../../types/Config";
-import Modal from "../../../Modal/Modal";
-import ModalHeader from "../../../Modal/ModalHeader";
+import Modal from "../../../Molecules/Modal/Index";
+import ModalHeader from "../../../Molecules/Modal/ModalHeader";
+import TextInput from "../../../Atoms/TextInput/Index";
+import Button from "../../../Atoms/Button/Index";
 
 type props = {
     showEmailModal: boolean;
@@ -87,12 +89,13 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
                         <>
                             <BiSolidError className="w-10 h-10 fill-red-600" />
                             <h4 className="text-red-600 font-semibold text-lg">Ocorreu um erro!</h4>
-                            <button
-                                className="mt-1 px-4 py-1 text-white bg-red-500 rounded-md hover:bg-red-600 active:bg-red-700"
+                            <Button
+                                type="error"
+                                className="mt-1 px-4 py-1"
                                 onClick={() => { setStatus(null); }}
                             >
                                 Ok
-                            </button>
+                            </Button>
                         </>
                     }
 
@@ -116,21 +119,23 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
                 </div>
 
                 <form onSubmit={(e) => { e.preventDefault(); }}>
-                    <input
+                    <TextInput
                         className="my-1 w-full text-slate-800 border-l-0 border-t-0 border-r-0 border-b-2 border-b-gray-600/50 focus:ring-0 focus:ring-offset-0 focus:outline-none"
                         type="email"
                         id="newEmail"
-                        value={newEmail} onChange={(e) => { setNewEmail(e.target!.value); }}
-                        ref={emailRef}
+                        name="newEmail"
+                        value={newEmail} setValue={setNewEmail}
+                        inputRef={emailRef}
                         placeholder="Digite seu novo E-mail"
                     />
 
-                    <input
+                    <TextInput
                         className="mt-1 w-full text-slate-800 border-l-0 border-t-0 border-r-0 border-b-2 border-b-gray-600/50 focus:ring-0 focus:ring-offset-0 focus:outline-none"
                         type="password"
                         id="password"
-                        value={password} onChange={(e) => { setPassword(e.target!.value); }}
-                        ref={passwordRef}
+                        name="password"
+                        value={password} setValue={setPassword}
+                        inputRef={passwordRef}
                         placeholder="Confirme sua senha"
                     />
                     

@@ -8,6 +8,8 @@ type props = {
     closeFn: () => void;
     className?: string;
     dismissible?: boolean;
+    initialX?: number;
+    initialY?: number;
 };
 
 const Modal = ({ children, show, closeFn, dismissible, className }: props) => {

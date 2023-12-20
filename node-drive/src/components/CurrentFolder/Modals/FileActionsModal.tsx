@@ -6,8 +6,8 @@ import { FileType } from "../../../types/File";
 import { getPublicDownloadLink, makeFilePublic } from "../../../api/Files";
 import { FolderPath } from "../CurrentFolder";
 import { UserAuthContext } from "../../../contexts/UserContext";
-import Modal from "../../Modal/Modal";
-import ModalFooter from "../../Modal/ModalFooter";
+import Modal from "../../Molecules/Modal/Index";
+import ModalFooter from "../../Molecules/Modal/ModalFooter";
 
 type props = {
     showActions: boolean;

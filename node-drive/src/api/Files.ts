@@ -2,7 +2,7 @@
 import AxiosInstance from "../helpers/AxiosInstance"
 import { FileDataType, FileType, PublicFileInfo, downloadCompressedFilesResponse, getPublicFileInfoResponse } from "../types/File";
 import { FolderPath } from "../components/CurrentFolder/CurrentFolder";
-import { getRealPath } from "../helpers/PathOps";
+//import { getRealPath } from "../helpers/PathOps";
 import fileSaver from "file-saver";
 import fileDownload from "js-file-download";
 
@@ -10,7 +10,7 @@ import fileDownload from "js-file-download";
 
 export const downloadFile = async (pathInfo: FolderPath, activeFile: FileType) => {
     if(activeFile != null) {
-        let path = getRealPath(pathInfo);
+        let path = pathInfo.path;
         path = encodeURI(path);
         let fileName = encodeURI(activeFile.name);
 
@@ -42,7 +42,7 @@ export const downloadFile = async (pathInfo: FolderPath, activeFile: FileType) =
 }
 
 export const downloadCompactedFiles = async (pathInfo: FolderPath, files: string[]) => {
-    let path = getRealPath(pathInfo);
+    let path = pathInfo.path;
     path = encodeURI(path);
 
     //let filesEncoded = files.join(',');
@@ -130,9 +130,9 @@ type makeFilePublicResponse = {
     status: number;
 }
 
-export const makeFilePublic = async (path: FolderPath, fileName: string) => {
+export const makeFilePublic = async (filePath: FolderPath, fileName: string) => {
     let req = await AxiosInstance.put("/user/files/public", {
-        filePath: `${getRealPath(path)}${fileName}`
+        filePath: `${filePath.path}${fileName}`
     });
 
     let res: makeFilePublicResponse = req.data;
@@ -154,9 +154,9 @@ type renameFileResponse = {
     status: number;
 }
 
-export const renameFile = async (path: FolderPath, fileName: string, { newName, isFile }: { newName: string; isFile: boolean }) => {
+export const renameFile = async (filePath: FolderPath, fileName: string, { newName, isFile }: { newName: string; isFile: boolean }) => {
     let req = await AxiosInstance.put("/user/files/rename", {
-        filePath: `${getRealPath(path)}/${fileName}`,
+        filePath: `${filePath.path}/${fileName}`,
         newName: newName,
         isFile: isFile
     });
@@ -175,10 +175,10 @@ type getPublicDownloadLinkResponse = {
     status: number;
 }
 
-export const getPublicDownloadLink = async (path: FolderPath, fileName: string, userId: number) => {
+export const getPublicDownloadLink = async (filePath: FolderPath, fileName: string, userId: number) => {
     let req = await AxiosInstance.get("/user/files/public/url", {
         params: {
-            filePath: `${getRealPath(path)}/${fileName}`,
+            filePath: `${filePath.path}/${fileName}`,
             userId: userId
         }
     });

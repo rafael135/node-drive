@@ -13,10 +13,10 @@ import { sleep } from "../../helpers/PathOps";
 import { downloadCompactedFiles, downloadFile } from "../../api/Files";
 import { UserContextType } from "../../contexts/UserContext";
 import { UsedSpaceContext } from "../../contexts/UsedSpaceContext";
-import DownloadBtn from "./Buttons/DownloadBtn";
+import DownloadBtn from "../Atoms/DownloadButton/Index";
+import PathLabel from "../Atoms/PathLabel/Index";
 
 type props = {
-    userFilesPath: string;
     userCtx: UserContextType;
 };
 
@@ -40,48 +40,41 @@ type PathLabelType = {
 };
 
 const getPathLabels = (path: string): PathLabelType[] => {
+    let labels: PathLabelType[] = [];
+
     let cpyPath = path.split('/');
+    //console.log(cpyPath);
 
-        let homePath = "";
+    let homePath = "";
 
-        for(let i = 0; i < 4; i++) {
-            if(i + 1 < 4) {
-                homePath += cpyPath.shift() + '/';
-            } else {
-                homePath += cpyPath.shift();
-            }
-            
-        }
+    labels.push({ name: "Home", path: homePath });
 
-        
-        let labels: PathLabelType[] = [];
-
-        //console.log(homePath);
-
-        labels.push({ name: "Home", path: homePath })
-
-        cpyPath.forEach((p, idx) => {
-            if(idx == 0) {
-                labels.push({ name: p, path: `${homePath}/${p}` });
-            } else {
-                labels.push({ name: p, path: `${labels[idx - 1].path}/${p}` });
-            }
-        });
-
+    if(cpyPath.length == 0) {
         return labels;
+    }
+    //console.log(homePath);
 
-        //console.log(labels);
+    cpyPath.forEach((p, idx) => {
+        if(idx == 0) {
+
+        } else {
+            labels.push({ name: p, path: `${labels[idx - 1].path}/${p}` });
+        }
+    });
+    //console.log(labels);
+
+    return labels;
 }
 
-const CurrentFolder = ({userFilesPath, userCtx}: props) => {
+const CurrentFolder = ({ userCtx }: props) => {
     const usedSpaceCtx = useContext(UsedSpaceContext)!;
 
     //console.log(userFilesPath);
     let fileUploadInput = useRef<HTMLInputElement | null>(null);
 
     let selectFilterInput = useRef(null);
-    
-    const [path, setPath] = useState<string>(userFilesPath);
+
+    const [path, setPath] = useState<string>("");
     const [pathLabels, setPathLabels] = useState<PathLabelType[]>(getPathLabels(path));
 
     const [files, setFiles] = useState<FileType[]>([]);
@@ -103,19 +96,19 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
 
 
-    
+
     let _folderPath: FolderPath = {
         path: path,
         setFolderPath: setPath
     }
 
     type FileResponse = {
-        
+
         files: FileType[];
         occupiedSpace: number;
         status: number;
     }
-    
+
     type UploadResponse = {
         success: boolean;
         status: number;
@@ -127,7 +120,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
         AxiosInstance.get("/user/files", { params: { userId: userCtx.user!.id, path: path } }).then((res) => {
             let response: FileResponse = res.data;
 
-            if(response.status != 200) {
+            if (response.status != 200) {
                 return;
             }
 
@@ -136,7 +129,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
             usedSpaceCtx.setUsedSize(response.occupiedSpace);
 
             files = files.filter((f) => {
-                if(f.name != "ignore" && f.name != "downloadZip.zip") {
+                if (f.name != "ignore" && f.name != "downloadZip.zip") {
                     return true;
                 }
 
@@ -160,46 +153,46 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
     const handleDownloadSelectedFilesBtn = async () => {
         let selectedFiles = files.filter((f) => {
-            if(f.selected == true) {
+            if (f.selected == true) {
                 return true;
             }
 
             return false;
         });
 
-        if(selectedFiles.length == 0) {
+        if (selectedFiles.length == 0) {
             return;
         }
 
-        for(let i = 0; i < selectedFiles.length; i++) {
+        for (let i = 0; i < selectedFiles.length; i++) {
             await downloadFile(_folderPath, selectedFiles[i]);
         }
     }
-    
+
 
     const handleCompactAndDownloadFilesBtn = () => {
         let selectedFiles = files.filter((f) => {
-            if(f.selected == true) {
+            if (f.selected == true) {
                 return true;
             }
             return false;
         });
-        
-        if(selectedFiles.length == 0) {
+
+        if (selectedFiles.length == 0) {
             return;
         }
 
         let selectedFilesPath: string[] = [];
 
-        for(let i = 0; i < selectedFiles.length; i++) {
+        for (let i = 0; i < selectedFiles.length; i++) {
             let path: string | string[] = selectedFiles[i].location.split('/');
 
-            for(let j = 0; j < 3; j++) {
+            for (let j = 0; j < 3; j++) {
                 path.shift();
             }
 
             path = path.join('');
-            
+
             selectedFilesPath.push(path);
         }
 
@@ -210,7 +203,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     const handleBackFolder = () => {
         let splited = path.split('/');
 
-        if( splited[splited.length - 1] == "files") {
+        if (splited[splited.length - 1] == "files") {
             return;
         }
 
@@ -238,8 +231,8 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
             let res: UploadResponse = req.data;
 
-            if(res.success == true) {
-                
+            if (res.success == true) {
+
 
                 setShowAddModal(false);
 
@@ -250,10 +243,10 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     }
 
     const handleFileUpload = async () => {
-        if(fileUploadInput != null) {
+        if (fileUploadInput != null) {
             let input = fileUploadInput.current as HTMLInputElement;
 
-            if(input.files == null) {
+            if (input.files == null) {
                 return;
             }
 
@@ -266,9 +259,9 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
             //setShowUploadStatus(true);
 
-            
-            
-            for(let i = 0; i < input.files.length; i++) {
+
+
+            for (let i = 0; i < input.files.length; i++) {
                 let file = input.files.item(i)!;
 
                 //console.log(file);
@@ -276,36 +269,36 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                 await uploadFile(file);
                 //console.log(i);
                 setFilesToUploadCompleted(filesToUploadCompleted + 1);
-                
+
             }
-            
+
             setShowAddModal(false);
             await getFiles();
         }
     }
-    
+
     const filterFiles = (opt: "name" | "type" | "size") => {
         //console.log(files);
 
-        if(opt == "name") {
+        if (opt == "name") {
             setFiles(files.sort((a, b) => {
-                if(a.name.localeCompare(b.name) == 0) {
+                if (a.name.localeCompare(b.name) == 0) {
                     return 0;
                 }
                 return (a.name.localeCompare(b.name) == 1) ? 1 : -1;
             }));
             console.log(files);
-        } else if(opt == "type") {
+        } else if (opt == "type") {
             setFiles(files.sort((a, b) => {
-                if(a.isFile == true && b.isFile == false) {
+                if (a.isFile == true && b.isFile == false) {
                     return 1;
-                } else if(a.isFile == false && b.isFile == true) {
+                } else if (a.isFile == false && b.isFile == true) {
                     return -1;
                 } else {
                     return 0;
                 }
             }));
-        } else if(opt == "size") {
+        } else if (opt == "size") {
             setFiles(files.sort((a, b) => {
                 let sizeAMed = a.size.split(' ')[1];
                 let sizeBMed = b.size.split(' ')[1];
@@ -313,25 +306,25 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                 let sizeA = parseFloat(a.size.split(' ')[0]);
                 let sizeB = parseFloat(a.size.split(' ')[0]);
 
-                if(sizeAMed == "Bytes") {
+                if (sizeAMed == "Bytes") {
 
-                } else if(sizeAMed == "Kb") {
+                } else if (sizeAMed == "Kb") {
                     sizeA = sizeA * 1000;
                 } else {
                     sizeA = sizeA * 1000000;
                 }
 
-                if(sizeBMed == "Bytes") {
+                if (sizeBMed == "Bytes") {
 
-                } else if(sizeBMed == "Kb") {
+                } else if (sizeBMed == "Kb") {
                     sizeB = sizeB * 1000;
                 } else {
                     sizeB = sizeB * 1000000;
                 }
 
-                if(sizeA > sizeB) {
+                if (sizeA > sizeB) {
                     return 1;
-                } else if(sizeA < sizeB) {
+                } else if (sizeA < sizeB) {
                     return -1;
                 } else {
                     return 0;
@@ -347,7 +340,7 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
 
         let opt = selectInput.selectedIndex;
 
-        switch(opt) {
+        switch (opt) {
             case 1:
                 filterFiles("name");
                 break;
@@ -384,12 +377,12 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
     useEffect(() => {
 
         let isChecked = files.find((f) => {
-            if(f.selected == true) {
+            if (f.selected == true) {
                 return true;
             }
         });
 
-        if(isChecked != undefined) {
+        if (isChecked != undefined) {
             setIsFileChecked(true);
         } else {
             setIsFileChecked(false);
@@ -404,15 +397,15 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
         setPathLabels(getPathLabels(path));
         //console.log(pathLabels);
     }, [path]);
-    
+
 
     return (
         <>
-            { (showToast == true) &&
+            {(showToast == true) &&
                 <FileUploadToast msgType={toastMsgType} msg={toastMsg} setShowToast={setShowToast} />
             }
 
-            { (showUploadStatus == true) &&
+            {(showUploadStatus == true) &&
                 <UploadStatus setShowStatus={setShowUploadStatus} filesCompleted={filesToUploadCompleted} qteFiles={qteFilesToUpload} />
             }
 
@@ -436,9 +429,12 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                     {pathLabels.map((p, idx) => {
                         return (
                             <>
-                                <span key={idx + p.name.length} className="px-1 text-slate-800 font-bold cursor-pointer rounded-md transition-all ease-in-out duration-150 hover:bg-black/10" onClick={() => { setPath(p.path) }}>
-                                    { p.name }
-                                </span>
+                                <PathLabel
+                                    key={idx + p.name.length}
+                                    name={p.name}
+                                    path={p.path}
+                                    setValue={setPath}
+                                />
 
                                 {(idx + 1 < pathLabels.length) &&
                                     <span key={Math.random() * 99999999} className="text-slate-800">
@@ -451,44 +447,44 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                 </div>
 
                 <div className="flex-1 flex flex-row gap-2 items-center">
-                <button
-                    className="btn-back group"
-                    title="Voltar"
-                    onClick={handleBackFolder}
-                >
-                    <BsArrow90DegLeft className={`w-4 h-4 fill-slate-600 group-active:fill-slate-500`} />
-                </button>
+                    <button
+                        className="btn-back group"
+                        title="Voltar"
+                        onClick={handleBackFolder}
+                    >
+                        <BsArrow90DegLeft className={`w-4 h-4 fill-slate-600 group-active:fill-slate-500`} />
+                    </button>
 
-                <button 
-                    className="btn-action group"
-                    title="Adicionar arquivo"
-                    onClick={handleAddFile}
-                >
-                    <BsPlus className={`w-8 h-8 fill-gray-100 group-hover:scale-105`} />
-                    Adicionar
-                </button>
+                    <button
+                        className="btn-action group"
+                        title="Adicionar arquivo"
+                        onClick={handleAddFile}
+                    >
+                        <BsPlus className={`w-8 h-8 fill-gray-100 group-hover:scale-105`} />
+                        Adicionar
+                    </button>
 
-                <select
-                    className="select-filter"
-                    ref={selectFilterInput}
-                    onChange={handleFilter}
-                    title="Filtrar por Tipo"
-                    defaultValue={0}
-                >
-                    <option value={0} disabled={true}>Ordenar por</option>
-                    <option value={1}>Nome</option>
-                    <option value={2}>Tipo</option>
-                    <option value={3}>Tamanho</option>
-                </select>
+                    <select
+                        className="select-filter"
+                        ref={selectFilterInput}
+                        onChange={handleFilter}
+                        title="Filtrar por Tipo"
+                        defaultValue={0}
+                    >
+                        <option value={0} disabled={true}>Ordenar por</option>
+                        <option value={1}>Nome</option>
+                        <option value={2}>Tipo</option>
+                        <option value={3}>Tamanho</option>
+                    </select>
 
-                <div className="h-full w-[1px] bg-gray-400/70">
+                    <div className="h-full w-[1px] bg-gray-400/70">
 
-                </div>
-                
+                    </div>
 
-                {(isFileChecked == true) && 
-                    <>
-                        {/*
+
+                    {(isFileChecked == true) &&
+                        <>
+                            {/*
                         <button
                             className="btn-action group"
                             title="Download"
@@ -500,23 +496,23 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                         
                         */}
 
-                        <Dropdown label="" renderTrigger={() => <button className="btn-action btn-download group">
-                            Opções de Download
-                            <RxTriangleDown className={`w-5 h-5 fill-gray-100 group-hover:scale-105`} />
-                        </button>}>
-                            <Dropdown.Item icon={BsDownload} onClick={handleDownloadSelectedFilesBtn}>
-                                Download
-                            </Dropdown.Item>
+                            <Dropdown label="" renderTrigger={() => <button className="btn-action btn-download group">
+                                Opções de Download
+                                <RxTriangleDown className={`w-5 h-5 fill-gray-100 group-hover:scale-105`} />
+                            </button>}>
+                                <Dropdown.Item icon={BsDownload} onClick={handleDownloadSelectedFilesBtn}>
+                                    Download
+                                </Dropdown.Item>
 
-                            <Dropdown.Item icon={BsDownload} onClick={handleCompactAndDownloadFilesBtn}>
-                                Compactar & Download
-                            </Dropdown.Item>
-                        </Dropdown>
-                        
+                                <Dropdown.Item icon={BsDownload} onClick={handleCompactAndDownloadFilesBtn}>
+                                    Compactar & Download
+                                </Dropdown.Item>
+                            </Dropdown>
 
-                        
 
-                        {/*
+
+
+                            {/*
                         <button
                             className="btn-action group"
                             title="Compactar e realizar Download"
@@ -527,12 +523,12 @@ const CurrentFolder = ({userFilesPath, userCtx}: props) => {
                         </button>
 
                         */}
-                    </>
-                }
+                        </>
+                    }
                 </div>
             </div>
 
-            <FilesContainer 
+            <FilesContainer
                 files={files}
                 setFiles={setFiles}
                 pathInfo={_folderPath}

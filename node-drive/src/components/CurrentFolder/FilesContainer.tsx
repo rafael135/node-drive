@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { FileDataType, FileType } from "../../types/File";
-import File from "../Files/File";
+import File from "../Templates/File/Index";
 import { FolderPath } from "./CurrentFolder";
 import ContextMenu from "./ContextMenu";
 import { deleteFile, downloadFile, getFileData, makeFilePublic, renameFile } from "../../api/Files";
-import { getRealPath } from "../../helpers/PathOps";
+//import { getRealPath } from "../../helpers/PathOps";
 
-import ShareFileModal from "./Modals/ShareFileModal";
+//import ShareFileModal from "./Modals/ShareFileModal";
 import FileActionsModal from "./Modals/FileActionsModal";
 import ShowFileDataModal from "./Modals/ShowFileDataModal";
 import NewFolderModal from "./Modals/NewFolderModal";
@@ -69,7 +69,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             return;
         }
 
-        let data = await getFileData(`${getRealPath(pathInfo)}${activeFile!.name}`);
+        let data = await getFileData(`${activeFile!.name}`);
 
         setFileData(data);
 
@@ -196,9 +196,9 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                 <ContextMenu x={mousePoint.x} y={mousePoint.y} selectFn={contextMenuSelected} fileIndex={files.findIndex((f) => { if (f == activeFile) { return true; } return false; })} activeFile={activeFile} />
             }
 
-            {(showFileVisibility == true && selectedFile != null) &&
+            {/*(showFileVisibility == true && selectedFile != null) &&
                 <ShareFileModal activeFile={selectedFile} showFileVisibility={showFileVisibility} setShowFileVisibility={setShowFileVisibility} />
-            }
+            */}
 
             { /* Modal para exibir ações para interagir com o arquivo */}
             {(activeFile != null && showActions == true) &&

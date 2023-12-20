@@ -1,6 +1,6 @@
 import { FolderPath } from "../components/CurrentFolder/CurrentFolder";
 
-
+/*
 export const getRealPath = (pathInfo: FolderPath) => {
     let splitedPath = pathInfo.path.split('/');
 
@@ -17,6 +17,7 @@ export const getRealPath = (pathInfo: FolderPath) => {
 
     return path;
 }
+*/
 
 export const sleep = async (ms: number) => {
     return new Promise<void>(resolve => setTimeout(resolve, ms));

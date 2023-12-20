@@ -162,7 +162,7 @@ export default class FilesController {
 
         let publicFiles = await PublicFile.query().select("file_path").where("user_id", "=", decoded.id);
         
-        //let path = `user/${decoded.id}/files`;
+        path = `user/${decoded.id}/files${(path != "") ? `/${path}` : ''}`;
 
         // Percorro todos os arquivos do diretorio do usuario
         let filesAndFolders = await Drive.list(path).map( async(file) => {
