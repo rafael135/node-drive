@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import PublicFile from "../../components/PublicFile/PublicFile";
+import PublicFile from "../../components/Pages/PublicFile/Index";
 import { PublicFileContextProvider } from "../../contexts/PublicFileInteractionContext";
 
 const DownloadFile = () => {

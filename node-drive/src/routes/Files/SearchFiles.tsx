@@ -1,5 +1,5 @@
-import Layout from "../../components/Layout";
-import SearchFiles from "../../components/SearchFiles/SearchFiles";
+import Layout from "../../components/Templates/DefaultLayout/Index";
+import SearchFiles from "../../components/Pages/SearchFiles/Index";
 
 
 const SearchFilesRoute = () => {

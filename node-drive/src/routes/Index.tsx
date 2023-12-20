@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import CurrentFolder from "../components/CurrentFolder/CurrentFolder";
-import Layout from "../components/Layout";
+import Layout from "../components/Templates/DefaultLayout/Index";
 import { UserAuthContext } from "../contexts/UserContext";
+import CurrentFolder from "../components/Pages/Home/Index";
 
 
 const Index = () => {

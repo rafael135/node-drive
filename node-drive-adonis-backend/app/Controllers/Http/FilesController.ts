@@ -339,7 +339,7 @@ export default class FilesController {
                 status: 404
             });
         } finally {
-
+            
         }
     }
 

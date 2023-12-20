@@ -15,8 +15,9 @@ import UserConfig from './routes/User/UserConfig';
 import SharedFiles from './routes/Files/SharedFiles';
 import DownloadFile from './routes/Files/DownloadFile';
 import { UsedSpaceContextProvider } from './contexts/UsedSpaceContext';
-import SearchFiles from './components/SearchFiles/SearchFiles';
+
 import { MouseLocationContextProvider } from './contexts/MouseLocationContext';
+import SearchFilesRoute from './routes/Files/SearchFiles';
 
 const client = new QueryClient();
 
@@ -91,7 +92,7 @@ const router = createBrowserRouter([
 	},
 	{
 		path: "/files/search",
-		element: <SearchFiles />,
+		element: <SearchFilesRoute />,
 		errorElement: <ErrorPage />
 	}
 ]);

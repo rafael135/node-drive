@@ -1,5 +1,7 @@
-import Config from "../../components/User/Config/Config";
-import UserLayout from "../../components/User/UserLayout";
+import Config from "../../components/Pages/User/Config/Index";
+import UserLayout from "../../components/Templates/UserLayout/Index";
+
+
 
 
 const UserConfig = () => {
