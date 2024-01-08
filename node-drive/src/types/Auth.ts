@@ -3,8 +3,7 @@ export type User = {
     name: string;
     email: string;
     avatar?: string;
-    storageTypeId: number;
-    files_path: string;
+    storage_type_id: number;
     public_files_path: string;
 
     maxStorage: number;

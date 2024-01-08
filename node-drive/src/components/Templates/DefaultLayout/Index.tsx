@@ -36,7 +36,7 @@ const Layout = ({ children, activeTab }: props) => {
                             <BsFiles className="fill-gray-500" />
                             <p className="flex-1">Meus arquivos</p>
                         </Link>
-                        <Link className={`layout-sidebar--item ${(activeTab == "sharedFiles") ? "active" : ""}`} to={"/files/shared"}>
+                        <Link className={`layout-sidebar--item ${(activeTab == "sharedFiles") ? "active" : ""}`} to={"/shared"}>
                             <BsShareFill className="fill-gray-500" />
                             <p className="flex-1">Arquivos compartilhados</p>
                         </Link>

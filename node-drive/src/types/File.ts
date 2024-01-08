@@ -8,8 +8,11 @@ export type FileType = {
     isPublic: boolean;
     shareLink?: string;
     selected?: boolean;
-    
 };
+
+export type PublicFileType = Omit<FileType, "isFile" | "isPublic">;
+
+export type SearchedFileType = Omit<FileType, "isFile" | "isPublic" | "selected">;
 
 export type FileDataType = {
     type: "text" | "code" | "image" | "pdf" | "video" | "other";
@@ -35,7 +38,7 @@ export type PublicFileInfo = {
 export type PublicFileUser = {
     name: string;
     avatar: string;
-}
+};
 
 export type getPublicFileInfoResponse = {
     fileInfo: PublicFileInfo;

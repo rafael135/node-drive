@@ -12,7 +12,7 @@ const ModalHeader = ({ children, className, title, closeFn }: props) => {
 
     return (
         <div className={`w-full p-5 flex items-center justify-between rounded-t border-solid border-b border-b-gray-200 ${className ?? ""}`}>
-            <div>
+            <div className="flex-1">
                 {(title != undefined) && <p className="font-bold text-xl text-slate-800">{title}</p>}
 
                 {(title == undefined) &&

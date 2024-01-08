@@ -1,3 +1,19 @@
+import styled from "styled-components";
+
+
+const StyledPathLabel = styled.span({
+    paddingLeft: "0.25rem",
+    paddingRight: "0.25rem",
+    color: "rgb(30 41 59)",
+    fontWeight: "700",
+    cursor: "pointer",
+    borderRadius: "0.375rem",
+    transitionProperty: "all",
+    transitionTimingFunction: "ease-in-out",
+    transitionDuration: "150ms"
+});
+
+
 type props = {
     name: string;
     path: string;
@@ -8,11 +24,11 @@ const PathLabel = ({ name, path, setValue }: props) => {
 
 
     return (
-        <span
-            className="px-1 text-slate-800 font-bold cursor-pointer rounded-md transition-all ease-in-out duration-150 hover:bg-black/10"
+        <StyledPathLabel
+            className="hover:bg-black/10"
             onClick={() => { setValue(path); }}>
             { name }
-        </span>
+        </StyledPathLabel>
     )
 }
 

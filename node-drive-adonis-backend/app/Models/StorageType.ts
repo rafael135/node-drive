@@ -6,7 +6,16 @@ export default class StorageType extends BaseModel {
   public id: number
 
   @column()
-  public storage_size: number
+  public title: string
+
+  @column()
+  public storageSize: number
+
+  @column()
+  public price: number | null
+
+  @column()
+  public maxSharedFiles: number | null
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

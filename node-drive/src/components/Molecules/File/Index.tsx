@@ -1,4 +1,4 @@
-import { RefObject, forwardRef, useEffect, useRef, useState } from "react";
+import { RefObject, forwardRef, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { FileType } from "../../../types/File";
 import { BsFileEarmarkFill, BsDownload, BsFolderFill, BsFilePdfFill, BsFiletypeDocx, BsFileImageFill, BsFileTextFill, BsFileCodeFill, BsViewList, BsFileZipFill } from "react-icons/bs";
 import { Modal } from "flowbite-react";
@@ -6,6 +6,7 @@ import AxiosInstance from "../../../helpers/AxiosInstance";
 import { getFileData } from "../../../api/Files";
 import { FcVideoFile } from "react-icons/fc";
 import { motion } from "framer-motion";
+import { GrDocumentWord } from "react-icons/gr";
 
 type props = {
     key: number;
@@ -25,18 +26,21 @@ type props = {
     activeFile: FileType | null;
     setShowActions: React.Dispatch<React.SetStateAction<boolean>>;
     showActions: boolean;
+    focus: boolean;
 }
 
-const File = forwardRef(({ key, info, isRenaming, renamingFileIdx, setRenamingFilesIdx, doneRenamingFile, fileIndex, setFileChecked, folderPath, infoToShow, setShowActions, showActions }: props, ref) => {
+const File = forwardRef(({ key, info, isRenaming, renamingFileIdx, setRenamingFilesIdx, doneRenamingFile, fileIndex, setFileChecked, folderPath, infoToShow, setShowActions, showActions, focus }: props, ref) => {
     const [activeFile, setActiveFile] = useState<string | null>(null);
 
     const fileNameRef = useRef<HTMLSpanElement | null>(null);
     const [newFileName, setNewFileName] = useState<string>(info.name);
 
+    const [_focus, _setFocus] = useState<boolean>(focus);
+
 
     const handleOpenFolder = () => {
         if (info.isFile == false) {
-            console.log(`${folderPath.path}/${info.name}`);
+            //console.log(`${folderPath.path}/${info.name}`);
             folderPath.setFolderPath(`${folderPath.path}/${info.name}`);
         }
     }
@@ -95,11 +99,12 @@ const File = forwardRef(({ key, info, isRenaming, renamingFileIdx, setRenamingFi
     return (
         <motion.div
             key={key}
-            className="file-card"
+            className={`file-card ${(_focus == true) ? "animate-fast-pulse" : ""}`}
             transition={{ type: "spring", duration: 0.5 }}
             initial={{ opacity: 1, y: 800 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 800, transitionEnd: { display: "none" } }}
+            onClick={() => _setFocus(false)}
         >
 
             <div
@@ -120,7 +125,7 @@ const File = forwardRef(({ key, info, isRenaming, renamingFileIdx, setRenamingFi
                     <BsFilePdfFill className="flex-1 p-1 w-auto fill-red-500" />
                 }
 
-                {(info.isFile == true && info.extension == "docx") &&
+                {(info.isFile == true && info.extension == "docx" || info.extension == "doc") &&
                     <BsFiletypeDocx className="flex-1 p-1 w-auto fill-blue-500" />
                 }
 

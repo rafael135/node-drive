@@ -3,6 +3,8 @@ import Hash from '@ioc:Adonis/Core/Hash';
 import JWT from "jsonwebtoken";
 import Drive from '@ioc:Adonis/Core/Drive';
 import User from 'App/Models/User';
+import StorageType from 'App/Models/StorageType';
+import PublicFile from 'App/Models/PublicFile';
 
 type decodedToken = {
     id: number;
@@ -196,6 +198,92 @@ export default class UserController {
         response.status(200);
         return response.send({
             errors: null,
+            status: 200
+        });
+    }
+
+    async changeStoragePlan({ request, response }: HttpContextContract) {
+        let selectedPlanId: number | null = request.input("selected", null);
+        let token: string | null = request.header("Authorization")!.split(' ')[1];
+
+        if(selectedPlanId == null || token == null) {
+            response.status(400);
+            return response.send({
+                success: false,
+                status: 400
+            });
+        }
+
+        let decoded = UserController.getUserDecodedToken(token);
+
+        if(decoded == null) {
+            response.status(401);
+            return response.send({
+                success: false,
+                status: 401
+            });
+        }
+
+        let user = await User.find(decoded.id);
+
+        if(user != null) {
+            let storagePlan = await StorageType.find(selectedPlanId);
+
+            if(storagePlan != null) {
+                user.storage_type_id = storagePlan.id;
+                user.save();
+
+                response.status(200);
+                return response.send({
+                    success: true,
+                    status: 200
+                });
+            } else {
+                response.status(400);
+                return response.send({
+                    success: false,
+                    status: 400
+                });
+            }
+        }
+
+        response.status(401);
+        return response.send({
+            success: false,
+            status: 401
+        });
+
+
+    }
+
+    async getMaxSharedFilesQte({ request, response }: HttpContextContract) {
+        let token: string = request.header("Authorization")!.split(' ')[1];
+
+        let decodedToken = UserController.getUserDecodedToken(token);
+
+        if(decodedToken == null) {
+            response.status(401);
+            return response.send({
+                maxQte: null,
+                status: 401
+            });
+        }
+
+        let usr = await User.find(decodedToken.id);
+
+        if(usr == null) {
+            response.status(406);
+            return response.send({
+                maxQte: null,
+                status: 406
+            });
+        }
+
+        let maxQte = (await StorageType.find(usr.storage_type_id))!.maxSharedFiles;
+
+        response.status(200);
+        return response.send({
+            maxQte: maxQte,
             status: 200
         });
     }

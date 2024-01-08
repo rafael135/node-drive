@@ -91,3 +91,39 @@ export const changeName = async (newName: string): Promise<changeNameReturn> => 
 
     return { msg: "error", data: null, errors: res.errors!};
 }
+
+type changeUserPlanResponse = {
+    success: boolean;
+    status: number;
+}
+
+export const changeUserPlan = async (selectedPlanId: number): Promise<boolean> => {
+    let req = await AxiosInstance.put("/user/change/plan", {
+        selected: selectedPlanId
+    });
+
+    let res: changeUserPlanResponse = req.data;
+
+    if(res.success == true) {
+        return true;
+    }
+
+    return false;
+}
+
+type getUserPublicFilesQteResponse = {
+    maxQte: number | null;
+    status: number;
+}
+
+export const getUserPublicFilesQte = async (): Promise<number | null> => {
+    let req = await AxiosInstance.get("/user/files/public/max");
+
+    let res: getUserPublicFilesQteResponse = req.data;
+
+    if(res.status >= 400 && res.status <= 410) {
+        return -1;
+    }
+
+    return res.maxQte;
+}

@@ -7,7 +7,10 @@ export default class extends BaseSchema {
 		this.schema.createTable(this.tableName, (table) => {
 			table.increments('id');
 
+			table.string("title");
 			table.integer("storage_size");
+			table.float("price").nullable();
+			table.integer("max_shared_files").nullable();
 
 			/**
 			 * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL

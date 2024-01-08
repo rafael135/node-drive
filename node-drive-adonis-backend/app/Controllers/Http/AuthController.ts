@@ -85,7 +85,7 @@ export default class AuthController {
                 name: name,
                 email: email,
                 password: passwordHash,
-                storage_type_id: null,
+                storage_type_id: 1,
                 files_path: null,
                 avatar: null
             });
@@ -112,7 +112,7 @@ export default class AuthController {
             return response.send({
                 response: {
                     user: newUser,
-                    maxSpace: (userStorageType == null) ? 5 : userStorageType.storage_size,
+                    maxSpace: (userStorageType == null) ? 5 : userStorageType.storageSize,
                     token: token
                 },
                 status: 201
@@ -217,7 +217,7 @@ export default class AuthController {
                 return response.send({
                     response: {
                         user: usr,
-                        maxSpace: (userStorageType == null) ? 5 : userStorageType.storage_size,
+                        maxSpace: (userStorageType == null) ? 5 : userStorageType.storageSize,
                         token: token
                     },
                     status: 200

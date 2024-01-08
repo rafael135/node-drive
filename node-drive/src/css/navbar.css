@@ -1,6 +1,6 @@
 @layer components {
     header {
-        @apply w-full h-16 px-4 flex items-center bg-gray-100 shadow-sm;
+        @apply w-full h-16 px-4 flex items-center bg-gray-100 shadow-sm border-solid border-b border-b-gray-600/20;
     }
 
     header .navbar-logo {
@@ -21,7 +21,7 @@
         @apply bg-white/90;
     }
     .navbar-searchFiles input {
-        @apply flex-1 text-slate-900 p-0 py-1 text-lg border-transparent bg-transparent outline-none focus:ring-0 focus:shadow-none border-none;
+        @apply flex-1 text-slate-900 p-0 py-1 pl-2 text-lg border-transparent bg-transparent outline-none focus:ring-0 focus:shadow-none border-none;
     }
     .navbar-searchFiles span {
         @apply p-2 aspect-square cursor-pointer rounded-full flex items-center justify-center;

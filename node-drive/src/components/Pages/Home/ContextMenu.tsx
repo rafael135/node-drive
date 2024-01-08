@@ -1,15 +1,16 @@
-import { BsFileText, BsFolderPlus, BsShareFill, BsTicketDetailedFill, BsUpload, BsWrenchAdjustableCircleFill } from "react-icons/bs";
+import { BsFileText, BsFolderPlus, BsShareFill, BsTicketDetailedFill, BsTrashFill, BsUpload, BsWrenchAdjustableCircleFill } from "react-icons/bs";
 import { FileType } from "../../../types/File";
 
 type props = {
     x: number;
     y: number;
     selectFn: (fnNumber: number, fileIdx?: number) => void;
+    onClose: () => void;
     activeFile: FileType | null;
     fileIndex: number;
 }
 
-const ContextMenu = ({ x, y, selectFn, activeFile, fileIndex }: props) => {
+const ContextMenu = ({ x, y, selectFn, onClose, activeFile, fileIndex }: props) => {
     return (
         <div className={`fileContextMenu`} style={{ top: `${x}px`, left: `${y}px` }}>
             <ul>
@@ -50,6 +51,17 @@ const ContextMenu = ({ x, y, selectFn, activeFile, fileIndex }: props) => {
                     </li>
                 }
 
+                {(activeFile?.isFile == false) &&
+                    <li
+                        onClick={() => { selectFn(6, fileIndex) }}
+                        className="contextMenu-item group"
+                    >
+                        <BsTrashFill className="contextMenu-item--img" />
+                        Deletar pasta
+                    </li>
+                }
+
+                {/*
                 { (activeFile?.isFile == false) &&
                     <>
                         <li
@@ -61,18 +73,7 @@ const ContextMenu = ({ x, y, selectFn, activeFile, fileIndex }: props) => {
                         </li>
                     </>
                 }
-
-                {(activeFile?.isFile == true) &&
-                    <>
-                        <li
-                            onClick={() => { selectFn(4); }}
-                            className="contextMenu-item group"
-                        >
-                            <BsShareFill className="contextMenu-item--img" />
-                            Tornar Público
-                        </li>
-                    </>
-                }
+                */}
             </ul>
         </div>
     )

@@ -13,6 +13,9 @@ export default class PublicFile extends BaseModel {
   public user: BelongsTo<typeof User>
 
   @column()
+  public listed: boolean
+
+  @column()
   public fileUrl: string
 
   @column()

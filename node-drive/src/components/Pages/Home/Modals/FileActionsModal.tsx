@@ -106,12 +106,15 @@ const FileActionsModal = ({ showActions, setShowActions, activeFile, setActiveFi
         <Modal show={showActions} closeFn={handleClose} dismissible={true} className="selectedFileModal">
             <div className="p-6 flex-1 overflow-auto selectedFileModal-body">
                 <div className="flex flex-row gap-2 items-center">
-                    <label htmlFor="fileName" className="text-slate-800 text-lg"><strong>Nome do arquivo:</strong></label>
+                    <label htmlFor="fileName" className="text-slate-800 text-lg"><strong>{(activeFile!.isFile == true) ? "Nome do arquivo:" : "Nome da pasta:"}</strong></label>
                     <input id="fileName" type="text" className="flex-1 text-slate-900" readOnly={true} defaultValue={activeFile!.name} />
                 </div>
 
                 <div className="flex flex-row gap-2 py-2 border-solid border-t border-b border-t-gray-500/40 border-b-gray-500/40">
-                    <span className="flex-1 text-slate-800 text-lg"><strong>Extensão:</strong> {(activeFile!.extension != null) ? `.${activeFile!.extension}` : "N/t"}</span>
+                    {(activeFile!.isFile == true) &&
+                        <span className="flex-1 text-slate-800 text-lg"><strong>Extensão:</strong> {(activeFile!.extension != null) ? `.${activeFile!.extension}` : "N/t"}</span>
+                    }
+                    
                     <span className="flex-1 text-slate-800 text-lg"><strong>Tamanho:</strong> {activeFile!.size}</span>
                 </div>
 
@@ -160,11 +163,14 @@ const FileActionsModal = ({ showActions, setShowActions, activeFile, setActiveFi
                     <BsDownload className="fill-white group-hover:scale-105" />
                     Download
                 </button>
-
-                <button onClick={handleVisualize} className="btn-action group">
-                    <BsViewList className="fill-white group-hover:scale-105" />
-                    Visualizar
-                </button>
+                
+                {(activeFile!.isFile == true) &&
+                    <button onClick={handleVisualize} className="btn-action group">
+                        <BsViewList className="fill-white group-hover:scale-105" />
+                        Visualizar
+                    </button>
+                }
+                
 
                 <button onClick={handleDelete} className="btn-action group">
                     <BsTrashFill className="fill-white group-hover:scale-105" />

@@ -11,7 +11,7 @@ export default class VideosController {
         const userId: string | null = params.userId;
         const filePath: string | null = params.filePath;
 
-        const token = request.header("Authorization");
+        //const token = request.header("Authorization")!.split[1];
 
         //console.log(userId);
 
@@ -62,7 +62,7 @@ export default class VideosController {
         response.status(206);
 
         const videoStream = fs.createReadStream(videoPath, { start: start, end: end });
-
+        
         return response.stream(videoStream);
 
         // CÓDIGO PARA TESTES:

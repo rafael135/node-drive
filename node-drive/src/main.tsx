@@ -10,16 +10,16 @@ import Register from './routes/Auth/Register';
 import User from './routes/User/User';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Logout from './routes/Auth/Logout';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import UserConfig from './routes/User/UserConfig';
-import SharedFiles from './routes/Files/SharedFiles';
 import DownloadFile from './routes/Files/DownloadFile';
 import { UsedSpaceContextProvider } from './contexts/UsedSpaceContext';
 
 import { MouseLocationContextProvider } from './contexts/MouseLocationContext';
 import SearchFilesRoute from './routes/Files/SearchFiles';
-
-const client = new QueryClient();
+import { queryClient } from './utils/QueryClient';
+import UserPublicFilesPage from './routes/Files/UserPublicFilesPage';
 
 const router = createBrowserRouter([
 	{
@@ -74,12 +74,12 @@ const router = createBrowserRouter([
 		errorElement: <ErrorPage />
 	},
 	{
-		path: "/files/shared",
+		path: "/shared",
 		element: <ProtectedRoute />,
 		children: [
 			{
-				path: "/files/shared",
-				element: <SharedFiles />,
+				path: "/shared",
+				element: <UserPublicFilesPage />,
 				errorElement: <ErrorPage />
 			}
 		],
@@ -99,11 +99,13 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
-		<QueryClientProvider client={client}>
+		<QueryClientProvider client={queryClient}>
 			<UserAuthProvider>
 				<MouseLocationContextProvider>
 					<UsedSpaceContextProvider>
 						<RouterProvider router={router} />
+
+						<ReactQueryDevtools initialIsOpen={false} position="right" buttonPosition="bottom-right" />
 					</UsedSpaceContextProvider>
 				</MouseLocationContextProvider>
 			</UserAuthProvider>

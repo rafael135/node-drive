@@ -10,15 +10,12 @@ import FilesContainer from "./FilesContainer";
 import FileUploadToast from "./FileUploadToast";
 import UploadStatusToast from "../../Molecules/UploadStatusToast/Index";
 import { sleep } from "../../../helpers/PathOps";
-import { downloadCompactedFiles, downloadFile } from "../../../api/Files";
+import { downloadCompactedFiles, downloadFile, getUserFiles } from "../../../api/Files";
 import { UserContextType } from "../../../contexts/UserContext";
 import { UsedSpaceContext } from "../../../contexts/UsedSpaceContext";
 import DownloadBtn from "../../Atoms/DownloadButton/Index";
 import PathLabel from "../../Atoms/PathLabel/Index";
-
-type props = {
-    userCtx: UserContextType;
-};
+import { useSearchParams } from "react-router-dom";
 
 /*
 export type FileUploadStatusContextType = {
@@ -66,15 +63,40 @@ const getPathLabels = (path: string): PathLabelType[] => {
     return labels;
 }
 
+type props = {
+    userCtx: UserContextType;
+};
+
 const CurrentFolder = ({ userCtx }: props) => {
     const usedSpaceCtx = useContext(UsedSpaceContext)!;
+    const [searchParams] = useSearchParams();
+
+    let fileToFocus: string[] | string | null = searchParams.get("file");
+    let fileNameToFocus: string | null = null;
+    let filePathToFocus: string | null = null;
+
+    if(fileToFocus != null) {
+        fileToFocus = decodeURI(fileToFocus);
+        fileToFocus = fileToFocus.split("\\");
+        
+        if(fileToFocus.length == 1) {
+            fileNameToFocus = fileToFocus.join();
+        } else {
+            fileNameToFocus = fileToFocus.pop()!;
+            filePathToFocus = fileToFocus.join("/");
+        }
+        //console.log(fileNameToFocus);
+    }
+
+    
+    
 
     //console.log(userFilesPath);
     let fileUploadInput = useRef<HTMLInputElement | null>(null);
 
     let selectFilterInput = useRef(null);
 
-    const [path, setPath] = useState<string>("");
+    const [path, setPath] = useState<string>(`${(filePathToFocus != null) ? `/${filePathToFocus}` : ""}`);
     const [pathLabels, setPathLabels] = useState<PathLabelType[]>(getPathLabels(path));
 
     const [files, setFiles] = useState<FileType[]>([]);
@@ -117,6 +139,8 @@ const CurrentFolder = ({ userCtx }: props) => {
     const getFiles = async () => {
         //setFiles([]);
 
+        //let res = await getUserFiles(userCtx.user!.id, path);
+
         AxiosInstance.get("/user/files", { params: { userId: userCtx.user!.id, path: path } }).then((res) => {
             let response: FileResponse = res.data;
 
@@ -136,10 +160,10 @@ const CurrentFolder = ({ userCtx }: props) => {
                 return false;
             });
 
-            setFiles(files.map((file) => {
+            setFiles([...files.map((file) => {
                 file.selected = false;
                 return file;
-            }));
+            })]);
 
             //console.log(files);
         }).catch((err) => {
@@ -167,10 +191,15 @@ const CurrentFolder = ({ userCtx }: props) => {
         for (let i = 0; i < selectedFiles.length; i++) {
             await downloadFile(_folderPath, selectedFiles[i]);
         }
+
+        setFiles(files.map((f) => {
+            f.selected = false;
+            return f;
+        }));
     }
 
 
-    const handleCompactAndDownloadFilesBtn = () => {
+    const handleCompactAndDownloadFilesBtn = async () => {
         let selectedFiles = files.filter((f) => {
             if (f.selected == true) {
                 return true;
@@ -196,18 +225,31 @@ const CurrentFolder = ({ userCtx }: props) => {
             selectedFilesPath.push(path);
         }
 
-        downloadCompactedFiles(_folderPath, selectedFilesPath);
+        await downloadCompactedFiles(_folderPath, selectedFilesPath);
+
+        setFiles(files.map((f) => {
+            f.selected = false;
+            return f;
+        }));
     }
 
 
     const handleBackFolder = () => {
-        let splited = path.split('/');
-
-        if (splited[splited.length - 1] == "files") {
+        if(path == "") {
             return;
         }
 
+        //console.log(path);
+        let splited = path.split('/');
+        //console.log(splited);
+
+        //if (splited[0] == "") {
+        //    splited.shift();
+        //}
+
         splited.pop();
+
+        //console.log(splited);
         setPath(splited.join('/'));
     }
 
@@ -220,7 +262,7 @@ const CurrentFolder = ({ userCtx }: props) => {
 
         fileReader.addEventListener("load", async (e) => {
             let req = await AxiosInstance.post("/user/files/upload", {
-                path: path,
+                path: (path == "") ? "/" : path,
                 file: e.target!.result,
                 fileName: name
             }, {
@@ -273,7 +315,10 @@ const CurrentFolder = ({ userCtx }: props) => {
             }
 
             setShowAddModal(false);
-            await getFiles();
+
+            await sleep(900);
+
+            getFiles();
         }
     }
 
@@ -287,7 +332,7 @@ const CurrentFolder = ({ userCtx }: props) => {
                 }
                 return (a.name.localeCompare(b.name) == 1) ? 1 : -1;
             }));
-            console.log(files);
+            //console.log(files);
         } else if (opt == "type") {
             setFiles(files.sort((a, b) => {
                 if (a.isFile == true && b.isFile == false) {
@@ -304,7 +349,7 @@ const CurrentFolder = ({ userCtx }: props) => {
                 let sizeBMed = b.size.split(' ')[1];
 
                 let sizeA = parseFloat(a.size.split(' ')[0]);
-                let sizeB = parseFloat(a.size.split(' ')[0]);
+                let sizeB = parseFloat(b.size.split(' ')[0]);
 
                 if (sizeAMed == "Bytes") {
 
@@ -539,6 +584,7 @@ const CurrentFolder = ({ userCtx }: props) => {
                 setToastMsg={setToastMsg}
                 setShowToast={setShowToast}
                 getFiles={getFiles}
+                fileNameToFocus={fileNameToFocus}
             />
         </>
     );

@@ -28,7 +28,7 @@ Route.group(() => {
 
 		Route.post("/checkToken", "AuthController.checkToken").middleware(["auth"]);
 
-		Route.get("/files", "FilesController.getFoldersAndFilesFrom").middleware(["auth"]);
+		Route.get("/files", "FilesController.getFoldersAndFilesForUser").middleware(["auth"]);
 
 		Route.group(() => {
 			Route.get("/download/:filePath", "FilesController.downloadFile").middleware(["auth"]).where("filePath", { cast: (path) => String(path) });
@@ -37,19 +37,27 @@ Route.group(() => {
 
 			Route.post("/upload", "FilesController.uploadFile").middleware(["auth"]);
 
-			Route.put("/public", "FilesController.makeFilePublic").middleware(["auth"]);
+			Route.get("/public/max", "UserController.getMaxSharedFilesQte").middleware(["auth"]);
 
 			Route.get("/public/url", "FilesController.getPublicFileUrl");
 
 			Route.get("/public/info", "FilesController.getPublicFileInfo");
 
+			Route.get("/public/:userId", "FilesController.getUserPublicFiles").middleware(["auth"]);
+
+			Route.put("/public", "FilesController.makeFilePublic").middleware(["auth"]);
+
 			Route.get("/view", "FilesController.viewFile").middleware(["auth"]);
+
+			Route.get("/search", "FilesController.searchUserFiles").middleware(["auth"]);
 
 			Route.delete("/", "FilesController.deleteFile").middleware(["auth"]);
 
 			Route.post("/new/folder", "FilesController.newFolder").middleware(["auth"]);
 
 			Route.put("/rename", "FilesController.renameFileOrFolder").middleware(["auth"]);
+
+			
 		}).prefix("/files");
 
 		Route.get("/:userId/files/public/download", "FilesController.downloadPublicFile");
@@ -63,9 +71,18 @@ Route.group(() => {
 			Route.put("/email", "UserController.changeEmail").middleware(["auth"]);
 
 			Route.put("/name", "UserController.changeName").middleware(["auth"]);
+
+			Route.put("/plan", "UserController.changeStoragePlan").middleware(["auth"]);
 		}).prefix("/change");
 
 	}).prefix("/user");
+
+	Route.group(() => {
+		Route.get("/search", "FilesController.searchPublicFiles").middleware(["auth"]);
+	}).prefix("/files");
+
+
+	Route.get("/storageTypes", "StorageTypeController.getStorageTypes");
 	
 }).prefix("/api");
 

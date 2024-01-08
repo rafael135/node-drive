@@ -25,9 +25,10 @@ type props = {
     setToastMsg: React.Dispatch<React.SetStateAction<string>>;
     setShowToast: React.Dispatch<React.SetStateAction<boolean>>;
     getFiles: () => Promise<void>;
-}
+    fileNameToFocus: string | null;
+};
 
-const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile, setActiveFile, setToastMsgType, setToastMsg, setShowToast, getFiles }: props) => {
+const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile, setActiveFile, setToastMsgType, setToastMsg, setShowToast, getFiles, fileNameToFocus }: props) => {
     const [showContextMenu, setShowContextMenu] = useState<boolean>(false);
     const [mousePoint, setMousePoint] = useState({ x: 0, y: 0 });
 
@@ -55,11 +56,15 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
     const openContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
         if (activeFile != null) {
-
+            
         }
 
         setMousePoint({ x: e.pageY, y: e.pageX });
         setShowContextMenu(true);
+    }
+
+    const handleClick = (e: React.MouseEvent) => {
+        
     }
 
 
@@ -102,8 +107,6 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             //console.log(files[fileIdx!].name!);
             setRenamingFilesIdx(fileIdx!);
             setFileDefaultName(files[fileIdx!].name);
-        } else if (fnNumber == 9) {
-
         }
     }
 
@@ -176,6 +179,10 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         setIsRenaming(false);
     }
 
+    const handleCloseContextMenu = () => {
+
+    }
+
     useEffect(() => {
         const handleClick = () => { setShowContextMenu(false); };
         window.addEventListener("click", handleClick);
@@ -193,7 +200,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
     return (
         <>
             {(showContextMenu == true) &&
-                <ContextMenu x={mousePoint.x} y={mousePoint.y} selectFn={contextMenuSelected} fileIndex={files.findIndex((f) => { if (f == activeFile) { return true; } return false; })} activeFile={activeFile} />
+                <ContextMenu x={mousePoint.x} y={mousePoint.y} selectFn={contextMenuSelected} onClose={handleCloseContextMenu} fileIndex={files.findIndex((f) => { if (f == activeFile) { return true; } return false; })} activeFile={activeFile} />
             }
 
             {/*(showFileVisibility == true && selectedFile != null) &&
@@ -240,7 +247,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                     setShowFileData={setShowFileData}
                 />
             }
-            <div className="filesMainContainer" ref={filesMainContainerRef} onContextMenu={(e) => { openContextMenu(e); }}>
+            <div className="filesMainContainer" ref={filesMainContainerRef} onClick={handleClick} onContextMenu={(e) => { openContextMenu(e); }}>
                 <div className="w-full max-h-full h-auto overflow-hidden flex justify-center gap-2 flex-wrap p-2">
                     {(files.length > 0) &&
                         <AnimatePresence mode="popLayout">
@@ -260,8 +267,9 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                                     activeFile={activeFile}
                                     setShowActions={setShowActions}
                                     showActions={showActions}
+                                    focus={(fileNameToFocus == file.name) ? true : false}
                                 />
-                                )
+                                );
 
                             })}
                         </AnimatePresence>

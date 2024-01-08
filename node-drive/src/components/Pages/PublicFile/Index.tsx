@@ -7,6 +7,7 @@ import { TfiClose, TfiZip } from "react-icons/tfi";
 import { PublicFileInterationContext } from "../../../contexts/PublicFileInteractionContext";
 import { Avatar } from "flowbite-react";
 import PublicFileMenu from "./Menus/PublicFileMenu";
+import { usePublicFileInfo } from "../../../utils/Queries";
 
 type props = {
     userId: number;
@@ -17,6 +18,8 @@ const PublicFile = ({ userId, fileUrl }: props) => {
     const [fileInfo, setFileInfo] = useState<PublicFileInfo | null>(null);
     const [userInfo, setUserInfo] = useState<PublicFileUser | null>(null);
 
+    const publicFileInfo = usePublicFileInfo(userId, fileUrl);
+
     const publicFileContext = useContext(PublicFileInterationContext)!;
 
     const [showData, setShowData] = useState<boolean>(false);
@@ -26,15 +29,20 @@ const PublicFile = ({ userId, fileUrl }: props) => {
     
 
     useEffect(() => {
-        let res = getPublicFileInfo(userId, fileUrl);
+        //let res = getPublicFileInfo(userId, fileUrl);
 
-        res.then((r) => {
-            if(r != null) {
-                setFileInfo(r.fileInfo);
-                setUserInfo(r.userInfo);
-            }
-        });
-    }, []);
+        //res.then((r) => {
+        //    if(r != null) {
+        //        setFileInfo(r.fileInfo);
+        //        setUserInfo(r.userInfo);
+        //    }
+        //});
+
+        if(publicFileInfo != undefined) {
+            setFileInfo(publicFileInfo.data?.fileInfo! ?? null);
+            setUserInfo(publicFileInfo.data?.userInfo ?? null);
+        }
+    }, [publicFileInfo.data]);
 
     return (
         <>

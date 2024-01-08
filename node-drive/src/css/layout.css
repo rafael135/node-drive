@@ -90,6 +90,9 @@
     button.btn-default.btn-success {
         @apply bg-green-500 hover:bg-green-600 active:bg-green-700;
     }
+    button.btn-default.btn-disabled {
+        @apply bg-gray-500/40 text-white;
+    }
 
     input.input-default {
         @apply my-1 w-full text-slate-800 border-l-0 border-t-0 border-r-0 border-b-2 border-b-gray-600/50 focus:ring-0 focus:ring-offset-0 focus:outline-none;
