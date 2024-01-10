@@ -78,7 +78,7 @@
 
 
     input.errored {
-        @apply placeholder:text-red-600;
+        @apply !border-red-600 placeholder:text-red-600;
     }
 
     button.btn-default {

@@ -3,7 +3,6 @@ import AxiosInstance from "../helpers/AxiosInstance"
 import { FileDataType, FileType, PublicFileInfo, PublicFileType, SearchedFileType, downloadCompressedFilesResponse, getPublicFileInfoResponse } from "../types/File";
 import { FolderPath } from "../components/Pages/Home/Index";
 //import { getRealPath } from "../helpers/PathOps";
-//import fileSaver from "file-saver";
 import fileDownload from "js-file-download";
 import { UsedSpaceContextType } from "../contexts/UsedSpaceContext";
 
@@ -139,7 +138,7 @@ export const deleteFile = async (filePath: string) => {
     let res: DeleteFileResponse = req.data;
 
 
-    if (res.status == 200) {
+    if (res.success == true) {
         return true;
     }
 

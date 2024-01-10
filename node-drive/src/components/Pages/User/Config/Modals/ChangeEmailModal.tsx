@@ -31,16 +31,22 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
     const [status, setStatus] = useState<"loading" | "success" | "error" | null>(null);
 
     const handleChangeEmailBtn = async () => {
-        if(newEmail == "" || password == "") {
-            let errors: InputErrorType[] = [
-                { target: "newEmail", msg: "E-mail não preenchido!" },
-                { target: "password", msg: "Senha não preenchida!" }
-            ];
+        let errors: InputErrorType[] = [];
 
+        if(newEmail == "") {
+            errors.push({ target: "newEmail", msg: "E-mail não preenchido!" });
+        }
+
+        if(password == "") {
+            errors.push({ target: "password", msg: "Senha não preenchida!" });
+        }
+
+        if(errors.length > 0) {
             checkInputsErrors([emailRef!, passwordRef!], defaultPlaceholders, errors);
-
             return;
         }
+
+
 
         if(!newEmail.match(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@[*[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+]*/)) {
             let errors: InputErrorType[] = [
@@ -50,6 +56,10 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
             setNewEmail("");
             checkInputsErrors([emailRef], defaultPlaceholders, errors);
 
+            return;
+        }
+
+        if(errors.length > 0) {
             return;
         }
 

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext, useRef, useState } from "react";
 import { Avatar, Dropdown } from "flowbite-react";
 import { UserAuthContext } from "../../../contexts/UserContext";
@@ -20,6 +20,8 @@ const FileNavbar = ({ fileInfo, userId }: props) => {
 
     const authCtx = useContext(UserAuthContext);
     const publicFileContext = useContext(PublicFileInterationContext)!;
+
+    const navigate = useNavigate();
 
     const handleDetailsMenu = () => {
         if(publicFileContext.event == "details") {
@@ -103,18 +105,18 @@ const FileNavbar = ({ fileInfo, userId }: props) => {
                     
                         {(authCtx?.user != null) && 
                             <>
-                                <Dropdown.Item href="/user/config">
+                                <Dropdown.Item onClick={() => navigate("/user/config")}>
                                     Configurações
                                 </Dropdown.Item>
 
-                                <Dropdown.Item href="/logout">
+                                <Dropdown.Item onClick={() => navigate("/logout")}>
                                     Sair
                                 </Dropdown.Item>
                             </>
                         }
 
                         {(authCtx?.user == null) &&
-                            <Dropdown.Item href="/login">
+                            <Dropdown.Item onClick={() => navigate("/login")}>
                                 Entrar
                             </Dropdown.Item>
                         }

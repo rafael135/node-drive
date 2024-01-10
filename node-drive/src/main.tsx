@@ -5,8 +5,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Index from './routes/Index';
 import ErrorPage from './routes/ErrorPage';
 import { UserAuthProvider } from './contexts/UserContext';
-import Login from './routes/Auth/Login';
-import Register from './routes/Auth/Register';
+import Login from './routes/Auth/LoginPage';
+import Register from './routes/Auth/RegisterPage';
 import User from './routes/User/User';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Logout from './routes/Auth/Logout';
@@ -105,7 +105,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 					<UsedSpaceContextProvider>
 						<RouterProvider router={router} />
 
-						<ReactQueryDevtools initialIsOpen={false} position="right" buttonPosition="bottom-right" />
+						<ReactQueryDevtools initialIsOpen={false} position="bottom" buttonPosition="bottom-right" />
 					</UsedSpaceContextProvider>
 				</MouseLocationContextProvider>
 			</UserAuthProvider>

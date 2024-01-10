@@ -5,7 +5,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 const Logout = () => {
     const authCtx = useContext(UserAuthContext);
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
 
     if(authCtx?.token != null) {
         authCtx.setToken(null);

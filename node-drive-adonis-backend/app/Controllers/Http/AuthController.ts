@@ -16,7 +16,7 @@ export default class AuthController {
         let confirmPassword: string | null = request.input("confirmPassword", null);
 
         type errorType = {
-            field: "name" | "email" | "password" | "confirmPassword";
+            target: "name" | "email" | "password" | "confirmPassword";
             msg: string;
         }
 
@@ -24,44 +24,44 @@ export default class AuthController {
 
         if(name == "" || name == null) {
             errors.push({
-                field: "name",
+                target: "name",
                 msg: "Nome não preenchido!"
             });
         }
 
         if(email == "" || email == null) {
             errors.push({
-                field: "email",
+                target: "email",
                 msg: "E-mail não preenchido!"
             });
         } else if (!email.match(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@[*[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+]*/)) {
             errors.push({
-                field: "email",
-                msg: "E-mail não válido!"
+                target: "email",
+                msg: "E-mail inválido!"
             });
         }
 
         if(password == "" || password == null) {
             errors.push({
-                field: "password",
+                target: "password",
                 msg: "Senao não preenchida!"
             });
         } else if (password.length < 8) {
             errors.push({
-                field: "password",
+                target: "password",
                 msg: "Senha deve ter no minimo 8 caracteres!"
             });
         }
 
-        if(errors.find((err) => err.field == "password") == undefined) {
+        if(errors.find((err) => err.target == "password") == undefined) {
             if(confirmPassword == "" || confirmPassword == null) {
                 errors.push({
-                    field: "confirmPassword",
+                    target: "confirmPassword",
                     msg: "Repita a senha!"
                 });
             } else if (confirmPassword != password) {
                 errors.push({
-                    field: "confirmPassword",
+                    target: "confirmPassword",
                     msg: "As senhas devem ser iguais!"
                 });
             }
@@ -136,7 +136,7 @@ export default class AuthController {
         let password: string | null = request.input("password", null);
 
         type errorType = {
-            field: "email" | "password" | "all";
+            target: "email" | "password" | "all";
             msg: string;
         }
 
@@ -144,19 +144,19 @@ export default class AuthController {
 
         if(email == null || email == "") {
             errors.push({
-                field: "email",
+                target: "email",
                 msg: "E-mail não preenchido!"
             });
         } else if(!email.match(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@[*[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+]*/)) {
             errors.push({
-                field: "email",
-                msg: "E-mail não válido!"
+                target: "email",
+                msg: "E-mail inválido!"
             });
         }
 
         if(password == "" || password == null) {
             errors.push({
-                field: "password",
+                target: "password",
                 msg: "Senha não preenchida!"
             });
         }
@@ -164,7 +164,7 @@ export default class AuthController {
         if(password != null) {
             if(password.length < 8) {
                 errors.push({
-                    field: "password",
+                    target: "password",
                     msg: "Senha menor que 8 caracteres!"
                 });
             }
@@ -177,8 +177,8 @@ export default class AuthController {
 
             if(usr == null) {
                 errors.push({
-                    field: "all",
-                    msg: "E-mail e/ou Senha incorreto!"
+                    target: "all",
+                    msg: "E-mail e/ou Senha incorretos!"
                 });
 
                 response.status(406);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useContext, createContext,
 import { FileType } from "../../../types/File";
 import AxiosInstance from "../../../helpers/AxiosInstance";
 
-import { BsPlus, BsArrow90DegLeft, BsDownload, BsArrowBarDown } from "react-icons/bs";
+import { BsPlus, BsArrow90DegLeft, BsDownload, BsArrowBarDown, BsTrashFill } from "react-icons/bs";
 import { RxTriangleDown, RxTriangleUp } from "react-icons/rx";
 import { Dropdown, FileInput, Label, Modal } from "flowbite-react";
 import UploadLabel from "../../Molecules/UploadLabel/Index";
@@ -10,12 +10,14 @@ import FilesContainer from "./FilesContainer";
 import FileUploadToast from "./FileUploadToast";
 import UploadStatusToast from "../../Molecules/UploadStatusToast/Index";
 import { sleep } from "../../../helpers/PathOps";
-import { downloadCompactedFiles, downloadFile, getUserFiles } from "../../../api/Files";
+import { deleteFile, downloadCompactedFiles, downloadFile, getUserFiles } from "../../../api/Files";
 import { UserContextType } from "../../../contexts/UserContext";
 import { UsedSpaceContext } from "../../../contexts/UsedSpaceContext";
 import DownloadBtn from "../../Atoms/DownloadButton/Index";
 import PathLabel from "../../Atoms/PathLabel/Index";
 import { useSearchParams } from "react-router-dom";
+import Button from "../../Atoms/Button/Index";
+import ConfirmationModal from "../../Organisms/ConfirmationModal/Index";
 
 /*
 export type FileUploadStatusContextType = {
@@ -46,13 +48,13 @@ const getPathLabels = (path: string): PathLabelType[] => {
 
     labels.push({ name: "Home", path: homePath });
 
-    if(cpyPath.length == 0) {
+    if (cpyPath.length == 0) {
         return labels;
     }
     //console.log(homePath);
 
     cpyPath.forEach((p, idx) => {
-        if(idx == 0) {
+        if (idx == 0) {
 
         } else {
             labels.push({ name: p, path: `${labels[idx - 1].path}/${p}` });
@@ -75,11 +77,11 @@ const CurrentFolder = ({ userCtx }: props) => {
     let fileNameToFocus: string | null = null;
     let filePathToFocus: string | null = null;
 
-    if(fileToFocus != null) {
+    if (fileToFocus != null) {
         fileToFocus = decodeURI(fileToFocus);
         fileToFocus = fileToFocus.split("\\");
-        
-        if(fileToFocus.length == 1) {
+
+        if (fileToFocus.length == 1) {
             fileNameToFocus = fileToFocus.join();
         } else {
             fileNameToFocus = fileToFocus.pop()!;
@@ -87,9 +89,6 @@ const CurrentFolder = ({ userCtx }: props) => {
         }
         //console.log(fileNameToFocus);
     }
-
-    
-    
 
     //console.log(userFilesPath);
     let fileUploadInput = useRef<HTMLInputElement | null>(null);
@@ -115,6 +114,11 @@ const CurrentFolder = ({ userCtx }: props) => {
     const [showUploadStatus, setShowUploadStatus] = useState<boolean>(false);
 
     const [isFileChecked, setIsFileChecked] = useState<boolean>(false);
+
+    const [confirmModalAction, setConfirmModalAction] = useState<"delete" | null>(null);
+    const [confirmModalMsg, setConfirmModalMsg] = useState<string>("");
+    const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+    const [onYesAction, setOnYesAction] = useState<(() => void) | (() => Promise<void>) | null>(null);
 
 
 
@@ -235,7 +239,7 @@ const CurrentFolder = ({ userCtx }: props) => {
 
 
     const handleBackFolder = () => {
-        if(path == "") {
+        if (path == "") {
             return;
         }
 
@@ -320,6 +324,70 @@ const CurrentFolder = ({ userCtx }: props) => {
 
             getFiles();
         }
+    }
+
+    const handleCloseConfirmModal = () => {
+        setShowConfirmModal(false);
+        setConfirmModalAction(null);
+        setConfirmModalMsg("");
+        setOnYesAction(null);
+    }
+
+    const deleteFiles = async () => {
+        let selectedFiles = files.filter((f) => {
+            if (f.selected == true) {
+                return true;
+            }
+            return false;
+        });
+
+        if (selectedFiles.length == 0) {
+            return;
+        }
+        
+        /*
+        let selectedFilesPath: string[] = [];
+
+        for (let i = 0; i < selectedFiles.length; i++) {
+            let path: string | string[] = selectedFiles[i].location.split('/');
+
+            for (let j = 0; j < 3; j++) {
+                path.shift();
+            }
+
+            path = path.join('');
+
+            selectedFilesPath.push(path);
+        }
+        */
+
+        let filesSuccess: boolean[] = [];
+
+        let deletePromise = new Promise<void>((resolve) => {
+            let i = 0;
+
+            selectedFiles.forEach(async (f) => {
+                i++;
+
+                filesSuccess.push(await deleteFile(f.location));
+                await sleep(150);
+
+                if(i == selectedFiles.length) {
+                    resolve();
+                }
+            });
+        });
+
+        await deletePromise;
+        //console.log(filesSuccess);
+        handleCloseConfirmModal();
+
+        getFiles();
+    }
+
+    const handleDeleteFiles = () => {
+        setConfirmModalMsg("Deletar todos os arquivos selecionados?");
+        setConfirmModalAction("delete");
     }
 
     const filterFiles = (opt: "name" | "type" | "size") => {
@@ -435,13 +503,19 @@ const CurrentFolder = ({ userCtx }: props) => {
     }, [files]);
 
     useEffect(() => {
-        //console.log(usedSpaceCtx.usedSize, userCtx.user);
-    }, [usedSpaceCtx.usedSize, userCtx.user!.maxStorage]);
-
-    useEffect(() => {
         setPathLabels(getPathLabels(path));
         //console.log(pathLabels);
     }, [path]);
+
+    useEffect(() => {
+        switch(confirmModalAction) {
+            case "delete":
+                setOnYesAction(() => deleteFiles);
+                setShowConfirmModal(true);
+                break;
+        }
+
+    }, [showConfirmModal, confirmModalAction]);
 
 
     return (
@@ -467,6 +541,10 @@ const CurrentFolder = ({ userCtx }: props) => {
                         <FileInput ref={fileUploadInput} multiple={true} className="hidden" id="fileUpload" onChange={handleFileUpload} />
                     </Modal.Body>
                 </Modal>
+            }
+
+            {(showConfirmModal == true) &&
+                <ConfirmationModal msg={confirmModalMsg} show={showConfirmModal} setShow={setShowConfirmModal} onYes={onYesAction!} />
             }
 
             <div className="folderToolBar">
@@ -557,7 +635,7 @@ const CurrentFolder = ({ userCtx }: props) => {
 
 
 
-                            {/*
+                        {/*
                         <button
                             className="btn-action group"
                             title="Compactar e realizar Download"
@@ -568,6 +646,11 @@ const CurrentFolder = ({ userCtx }: props) => {
                         </button>
 
                         */}
+
+
+                            <Button title="Deletar" type="error" onClick={handleDeleteFiles} className="!pt-[0.35rem] !pb-[0.35rem]">
+                                <BsTrashFill className="w-5 h-5 fill-gray-100 group-hover:scale-105" />
+                            </Button>
                         </>
                     }
                 </div>

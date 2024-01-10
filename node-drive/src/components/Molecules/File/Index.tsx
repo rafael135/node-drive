@@ -42,6 +42,7 @@ const File = forwardRef(({ key, info, isRenaming, renamingFileIdx, setRenamingFi
         if (info.isFile == false) {
             //console.log(`${folderPath.path}/${info.name}`);
             folderPath.setFolderPath(`${folderPath.path}/${info.name}`);
+            infoToShow(null);
         }
     }
 

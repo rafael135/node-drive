@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { Spinner } from "flowbite-react";
 //import { changeAvatar } from "../../../../api/User";
 import AxiosInstance from "../../../../../helpers/AxiosInstance";
@@ -8,6 +8,7 @@ import { FaCheck } from "react-icons/fa";
 import { BiSolidError } from "react-icons/bi";
 import Modal from "../../../../Molecules/Modal/Index";
 import ModalHeader from "../../../../Molecules/Modal/ModalHeader";
+import Button from "../../../../Atoms/Button/Index";
 
 
 type props = {
@@ -23,10 +24,11 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
     const [status, setStatus] = useState<"loading" | "success" | "error" | null>(null);
     const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
 
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+    const [showConfirmBtn, setShowConfirmBtn] = useState<boolean>(false);
+
     const changeAvatar = async (file: File) => {
-
-        setAvatarBase64((await fileToBase64(file))!.toString());
-
         setStatus("loading");
 
         const fileReader = new FileReader();
@@ -60,18 +62,22 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
 
             authCtx.setUser({ ...usr, avatar: usr.avatar });
 
+            setShowConfirmBtn(false);
             setStatus("success");
         });
     }
 
-    const handleImgSelected = (e: React.ChangeEvent) => {
-        let fileInput = e.target as HTMLInputElement;
-
-        if(fileInput.files!.length == 0) {
+    const handleImgSelected = async () => {
+        if(fileInputRef.current!.files!.length == 0) {
             return;
         }
 
-        changeAvatar(fileInput.files!.item(0)!);
+        setAvatarBase64((await fileToBase64(fileInputRef.current!.files!.item(0)!))!.toString());
+        setShowConfirmBtn(true);
+    }
+
+    const handleBtnChangeAvatar = () => {
+        changeAvatar(fileInputRef.current!.files!.item(0)!);
     }
 
 
@@ -93,12 +99,13 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
                         <>
                             <BiSolidError className="w-10 h-10 fill-red-600" />
                             <h4 className="text-red-600 font-semibold text-lg">Ocorreu um erro!</h4>
-                            <button
-                                className="mt-1 px-4 py-1 text-white bg-red-500 rounded-md hover:bg-red-600 active:bg-red-700"
+                            <Button
+                                type="error"
+                                className="mt-1 px-4 py-1"
                                 onClick={() => { setStatus(null); }}
                             >
                                 Ok
-                            </button>
+                            </Button>
                         </>
                     }
 
@@ -106,12 +113,13 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
                         <>
                             <FaCheck className="w-10 h-10 fill-green-600" />
                             <h4 className="text-green-600 font-semibold text-lg">Sucesso!</h4>
-                            <button
-                                className="mt-1 px-4 py-1 text-white bg-green-500 rounded-md hover:bg-green-600 active:bg-green-700"
+                            <Button
+                                type="success"
+                                className="mt-1 px-4 py-1"
                                 onClick={() => { setStatus(null); }}
                             >
                                 Ok
-                            </button>
+                            </Button>
                         </>
                     }
                 </div>
@@ -125,6 +133,7 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
                 <form onSubmit={(e) => { e.preventDefault(); }}>
                     <input
                         type="file"
+                        ref={fileInputRef}
                         multiple={false}
                         hidden={true}
                         accept="image/*"
@@ -142,6 +151,16 @@ const ChangeAvatarModal = ({ showAvatarModal, setShowAvatarModal }: props) => {
                         
                     </label>
                 </form>
+
+                {(showConfirmBtn == true) &&
+                    <Button
+                        type="success"
+                        className="w-full mt-2 px-4 py-1.5"
+                        onClick={handleBtnChangeAvatar}
+                    >
+                        Alterar Avatar
+                    </Button>
+                }
             </div>
         </Modal>
     );

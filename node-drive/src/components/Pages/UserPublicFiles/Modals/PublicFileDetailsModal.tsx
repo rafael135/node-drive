@@ -25,8 +25,6 @@ type props = {
 
 const PublicFileDetailsModal = ({ setConfirmModalAction, publicFilesQuery, files, setFiles, selectedFile, setSelectedFile }: props) => {
 
-    console.log(selectedFile!.location);
-
     const pathInfo: FolderPath = { path: "", setFolderPath: (v) => { } }
 
     const [show, setShow] = useState<boolean>(selectedFile != null);

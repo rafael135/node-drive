@@ -641,6 +641,8 @@ export default class FilesController {
         let filePath: string | null = request.input("filePath", null);
         let token = request.header("Authorization")!.split(" ")[1];
 
+        //console.log(filePath);
+
         if (filePath == null) {
             response.status(400);
             return response.send({
@@ -661,26 +663,61 @@ export default class FilesController {
                 status: 401
             });
         }
+        
+        // 
+        let publicFile = await PublicFile.query().where("user_id", "=", decoded.id).andWhere("file_path", "=", filePath).first();
 
-
-        //let path = `user/${decoded.id}/files/${filePath}`;
         //console.log(path);
 
         let stats = await Drive.use("local").getStats(filePath!);
         //console.log(stats);
 
+        let success = true;
+
         // Verifico se é uma pasta
         if (stats.isFile == true) {
             try {
                 await Drive.use("local").delete(`${filePath}`);
+                await publicFile?.delete();
             } catch (err) {
-
+                success = false;
             }
         } else {
             try {
+                let filesInFolder = fsReadAll(
+                    `${Drive.application.appRoot}/storage/${filePath}`,
+                    () => {
+                        return true;
+                    }
+                );
+                
+                if(filesInFolder.length > 0) {
+                    let filesPromise = new Promise<void>((resolve) => {
+                        let counter = 0;
+    
+                        filesInFolder.forEach(async (file) => {
+                            counter++;
+                            let path = `${filePath}/${file}`;
+    
+                            let publicFileInFolder = await PublicFile.query().where("user_id", "=", decoded.id).andWhere("file_path", "=", path).first();
+    
+                            if(publicFileInFolder != null) {
+                                await publicFileInFolder.delete();
+                            }
+    
+                            if(counter == filesInFolder.length) {
+                                resolve();
+                            }
+                        });
+                    });
+                    
+                    await filesPromise;
+                }
+                
+
                 await fs.rm(`${Drive.application.appRoot}/storage/${filePath}`, { recursive: true, force: true });
             } catch (err) {
-
+                success = false;
             }
         }
 
@@ -688,7 +725,7 @@ export default class FilesController {
 
         response.status(200);
         return response.send({
-            success: true,
+            success: success,
             status: 200
         });
 

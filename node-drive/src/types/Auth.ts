@@ -10,6 +10,6 @@ export type User = {
 }
 
 export type AuthError = {
-    field: "name" | "email" | "password" | "confirmPassword";
+    target: string;
     msg: string;
 }

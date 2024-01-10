@@ -1,4 +1,4 @@
-import { Form, Link, Route, useParams, useSearchParams } from "react-router-dom";
+import { Form, Link, Route, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useContext, useLayoutEffect, useRef, useState } from "react";
 import { Avatar, Dropdown } from "flowbite-react";
 import { UserAuthContext } from "../../../contexts/UserContext";
@@ -11,6 +11,7 @@ import Select from "../../Atoms/Select/Index";
 const Navbar = () => {
 
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
 
     const authCtx = useContext(UserAuthContext);
 
@@ -156,18 +157,18 @@ const Navbar = () => {
 
                             {(authCtx?.user != null) &&
                                 <>
-                                    <Dropdown.Item href="/user/config">
+                                    <Dropdown.Item onClick={() => navigate("/user/config")}>
                                         Configurações
                                     </Dropdown.Item>
 
-                                    <Dropdown.Item href="/logout">
+                                    <Dropdown.Item onClick={() => navigate("/logout")}>
                                         Sair
                                     </Dropdown.Item>
                                 </>
                             }
 
                             {(authCtx?.user == null) &&
-                                <Dropdown.Item href="/login">
+                                <Dropdown.Item onClick={() => navigate("/login")}>
                                     Entrar
                                 </Dropdown.Item>
                             }

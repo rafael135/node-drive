@@ -8,10 +8,7 @@ const ProtectedRoute = () => {
     const navigate = useNavigate();
 
     if(authCtx == null) {
-        //return <Navigate to={"/login"} />;
-        navigate("/login", {
-            replace: true
-        });
+        return <Navigate to={"/login"} />;
     }
 
     
@@ -19,10 +16,10 @@ const ProtectedRoute = () => {
     if(authCtx!.token == null) {
         authCtx!.setUser(null);
 
-        //return <Navigate to={"/login"} />;
-        navigate("/login", {
-            replace: true
-        });
+        return <Navigate to={"/login"} />;
+        //navigate("/login", {
+        //    replace: true
+        //});
     }
 
     const checkAuth = async () => {

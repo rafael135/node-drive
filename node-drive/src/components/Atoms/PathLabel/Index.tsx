@@ -26,7 +26,8 @@ const PathLabel = ({ name, path, setValue }: props) => {
     return (
         <StyledPathLabel
             className="hover:bg-black/10"
-            onClick={() => { setValue(path); }}>
+            onClick={() => { setValue(path); }}
+        >
             { name }
         </StyledPathLabel>
     )

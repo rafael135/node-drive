@@ -35,7 +35,7 @@ const StoragePlansTitle = styled.h1({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    fontSize: "18px",
+    fontSize: "28px",
     fontWeight: "bold",
     borderStyle: "solid",
     borderWidth: "1px",
@@ -58,6 +58,13 @@ const Config = () => {
     const [showNameModal, setShowNameModal] = useState<boolean>(false);
     const [showEmailModal, setShowEmailModal] = useState<boolean>(false);
 
+    /*
+    const [confirmModalAction, setConfirmModalAction] = useState<"changeAvatar" | "changeName" | "changeEmail" | null>(null);
+    const [confirmModalMsg, setConfirmModalMsg] = useState<string>("");
+    const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+    const [onYesAction, setOnYesAction] = useState<(() => void) | null>(null);
+    */
+
     const storageTypes = useStorageTypes();
 
     
@@ -71,11 +78,11 @@ const Config = () => {
         changeAvatarRef.current!.classList.remove("show");
     }
 
-    const handleChangeAvatar = () => {
+    const handleShowChangeAvatar = () => {
         setShowAvatarModal(true);
     }
 
-    const handleChangeName = () => {
+    const handleShowChangeName = () => {
         setShowNameModal(true);
     }
 
@@ -83,10 +90,40 @@ const Config = () => {
         setShowEmailModal(true);
     }
 
+    const handleChangeName = (newName: string) => {
+
+    }
+
     const handleChangeEmail = (newEmail: string, password: string) => {
 
     }
 
+    const handleChangeAvatar = () => {
+
+    }
+
+    /*
+    useEffect(() => {
+
+        if(showConfirmModal == false) {
+            setConfirmModalAction(null);
+        }
+
+        switch(confirmModalAction) {
+            case "changeAvatar":
+
+                break;
+            case "changeEmail":
+
+                break;
+            case "changeName":
+
+                break;
+        }
+
+    }, [showConfirmModal, confirmModalAction]);
+    */
+    
 
     return (
         <>
@@ -105,7 +142,7 @@ const Config = () => {
 
             <div className="p-4">
                 <StoragePlansTitle>
-                    Teste
+                    Planos de Armazenamento
                 </StoragePlansTitle>
                 <StoragePlansContainer>
                     {(storageTypes.isSuccess == true) &&
@@ -134,7 +171,7 @@ const Config = () => {
                             <div
                                 className={`changeAvatar transition-all ease-in-out duration-150`}
                                 ref={changeAvatarRef}
-                                onClick={handleChangeAvatar}
+                                onClick={handleShowChangeAvatar}
                                 title="Mudar Avatar"
                             >
                                 <RiFileUserFill className="w-6 h-6 fill-white/80" />
@@ -155,7 +192,7 @@ const Config = () => {
                                 <h2 className="text-2xl font-semibold text-slate-800">{userCtx.user!.name}</h2>
                                 <span
                                     className="py-0.5 px-1 text-xs font-normal text-blue-600 underline rounded-md cursor-pointer transition-all ease-in-out duration-150 hover:bg-black/10 active:text-blue-700 active:bg-black/20"
-                                    onClick={handleChangeName}
+                                    onClick={handleShowChangeName}
                                 >
                                     Mudar Nome
                                 </span>

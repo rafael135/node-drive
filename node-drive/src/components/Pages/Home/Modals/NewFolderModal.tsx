@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import { Button, Label } from "flowbite-react";
+import { Label } from "flowbite-react";
 import { createNewFolder } from "../../../../api/Files";
 import { FolderPath } from "../Index";
 import Modal from "../../../Molecules/Modal/Index";
 import TextInput from "../../../Atoms/TextInput/Index";
+import Button from "../../../Atoms/Button/Index";
 
 type props = {
     getFiles: () => Promise<void>;
@@ -24,6 +25,10 @@ const NewFolderModal = ({ getFiles, pathInfo, setToastMsgType, setToastMsg, setS
 
 
     const handleNewFolder = async () => {
+        if(newFolderName == "") {
+            return;
+        }
+
         let result = await createNewFolder(pathInfo.path, newFolderName);
 
         if(result == true) {
@@ -67,6 +72,7 @@ const NewFolderModal = ({ getFiles, pathInfo, setToastMsgType, setToastMsg, setS
                     />
                     <Button
                         onClick={handleNewFolder}
+                        className="!px-3 !py-2"
                     >
                         Criar
                     </Button>

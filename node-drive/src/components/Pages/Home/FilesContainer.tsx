@@ -11,6 +11,7 @@ import FileActionsModal from "./Modals/FileActionsModal";
 import ShowFileDataModal from "./Modals/ShowFileDataModal";
 import NewFolderModal from "./Modals/NewFolderModal";
 import { AnimatePresence } from "framer-motion";
+import ConfirmationModal from "../../Organisms/ConfirmationModal/Index";
 
 
 type props = {
@@ -51,7 +52,10 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
     const [showFileVisibility, setShowFileVisibility] = useState<boolean>(false);
     const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
 
-
+    const [confirmModalAction, setConfirmModalAction] = useState<"delete" | null>(null);
+    const [confirmModalMsg, setConfirmModalMsg] = useState("");
+    const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+    const [onYesAction, setOnYesAction] = useState<(() => void) | null>(null);
 
     const openContextMenu = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -92,6 +96,12 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         setActiveFile(null);
     }
 
+    const handleDeleteFolder = async () => {
+        await deleteFile(activeFile!.location);
+        getFiles();
+    }
+
+    
     const contextMenuSelected = (fnNumber: number, fileIdx?: number) => {
         if (fnNumber == 1) {
             setShowAddModal(true);
@@ -107,6 +117,8 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
             //console.log(files[fileIdx!].name!);
             setRenamingFilesIdx(fileIdx!);
             setFileDefaultName(files[fileIdx!].name);
+        } else if (fnNumber == 6) {
+            handleDeleteFolder();
         }
     }
 
@@ -114,6 +126,16 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         if (activeFile != null) {
             downloadFile(pathInfo, activeFile);
         }
+    }
+
+    const resetConfirmationModal = () => {
+        setConfirmModalAction(null);
+        setShowConfirmModal(false);
+    }
+
+    const handleFileDelete = () => {
+        setConfirmModalMsg(`Deseja deletar o arquivo "${activeFile!.name}"?`)
+        setConfirmModalAction("delete");
     }
 
     const handleDelete = async () => {
@@ -143,6 +165,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         //getFiles();
         setFiles(updatedFiles);
         setShowToast(true);
+        resetConfirmationModal();
     }
 
     const handleFileCheckBtn = (idx: number, currentValue: boolean) => {
@@ -195,7 +218,18 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
         return () => { window.removeEventListener("click", handleClick); };
     }, [showContextMenu]);
 
+    useEffect(() => {
+        if(showConfirmModal == false) {
+            setConfirmModalAction(null);
+        }
 
+        switch(confirmModalAction) {
+            case "delete":
+                setOnYesAction(() => handleDelete);
+                setShowConfirmModal(true);
+                break;
+        }
+    }, [confirmModalAction, showConfirmModal])
 
     return (
         <>
@@ -219,7 +253,7 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                     pathInfo={pathInfo}
                     handleDownload={handleDownload}
                     handleVisualize={handleVisualize}
-                    handleDelete={handleDelete}
+                    handleDelete={handleFileDelete}
                 />
             }
 
@@ -247,6 +281,11 @@ const FilesContainer = ({ files, setFiles, pathInfo, setShowAddModal, activeFile
                     setShowFileData={setShowFileData}
                 />
             }
+
+            {(showConfirmModal == true) &&
+                <ConfirmationModal msg={confirmModalMsg} show={showConfirmModal} setShow={setShowConfirmModal} onYes={onYesAction!} />
+            }
+
             <div className="filesMainContainer" ref={filesMainContainerRef} onClick={handleClick} onContextMenu={(e) => { openContextMenu(e); }}>
                 <div className="w-full max-h-full h-auto overflow-hidden flex justify-center gap-2 flex-wrap p-2">
                     {(files.length > 0) &&
