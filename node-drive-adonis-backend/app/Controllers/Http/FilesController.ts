@@ -66,9 +66,11 @@ export default class FilesController {
     private convertBytesToMb(bytes: number) {
         let fileSize: string;
 
-        if (bytes > 1000000) {
+        if(bytes >= 1000000000) {
+            fileSize = `${(bytes / 1000000000).toFixed(2)} Gb`;
+        } else if (bytes >= 1000000) {
             fileSize = `${(bytes / 1000000).toFixed(2)} Mb`;
-        } else if (bytes > 1000) {
+        } else if (bytes >= 1000) {
             fileSize = `${(bytes / 1000).toFixed(2)} Kb`;
         } else {
             fileSize = `${bytes} Bytes`;
@@ -162,6 +164,25 @@ export default class FilesController {
 
         let totalFilesSize = 0.0;
 
+        let allUserFiles = fsReadAll(`${Drive.application.appRoot}/storage/user/${decoded.id}/files`, (file) => {
+            return true;
+        });
+
+        let allFilesPromise = new Promise<void>((resolve) => {
+            allUserFiles.forEach(async (file, idx) => {
+                let stat = await fs.stat(`${Drive.application.appRoot}/storage/user/${decoded.id}/files/${file}`);
+    
+                totalFilesSize += stat.size;
+
+                if((idx+1) == allUserFiles.length) {
+                    resolve();
+                }
+            });
+        });
+
+        await allFilesPromise;
+        
+
         let publicFiles = await PublicFile.query().select("file_path").where("user_id", "=", decoded.id);
 
         path = `user/${decoded.id}/files${(path != "") ? `/${path}` : ''}`;
@@ -183,7 +204,7 @@ export default class FilesController {
 
             let fileSize: string = this.convertBytesToMb(fileInfo.size);
 
-            totalFilesSize += fileInfo.size;
+            //totalFilesSize += fileInfo.size;
 
             let fileType = mime.getType(`${Application.appRoot}/storage/${file.location}`);
 
@@ -555,17 +576,25 @@ export default class FilesController {
 
     async viewFile({ request, response }: HttpContextContract) {
         let token = request.header("Authorization")!.split(" ")[1];
-        let { filePath } = request.qs();
+        let { filePath } = request.qs() as { filePath: string | null };
 
         //console.log(filePath);
 
-        if (token[1] == null || filePath == null) {
+        if (token == null || filePath == null) {
             response.status(400);
             return response.send({
                 data: null,
                 status: 400
             });
         }
+
+        //while(filePath.includes("%_")) {
+        //    filePath = filePath.replace("%_", '/');
+        //}
+
+        //console.log(filePath);
+
+        
 
         let decoded = UserController.getUserDecodedToken(token)!;
 
@@ -617,11 +646,16 @@ export default class FilesController {
                 status: 200
             });
         } else if (resType.isVideo) {
+
+            while(filePath.includes("/")) {
+                filePath = filePath!.replace("/", "25%");
+            }
+
             return response.send({
                 type: fileType,
                 mimeType: mime.getType(`${Application.appRoot}/storage/${path}`)!,
                 extension: extension,
-                url: `http://localhost:3333/api/user/${decoded.id}/video/${filePath}`,
+                url: `http://localhost:3333/api/user/${decoded.id}/video?filePath=${filePath}`,
                 status: 200
 
             });
@@ -1143,7 +1177,7 @@ export default class FilesController {
             extension: extension,
             type: resType.fileType,
             mimeType: resType.mimeType,
-            url: (resType.isVideo) ? `http://localhost:3333/api/user/${userId}/video/${realPath.join('/')}` : undefined,
+            url: (resType.isVideo) ? `http://localhost:3333/api/user/${userId}/video?filePath=${realPath.join('/')}` : undefined,
             size: this.convertBytesToMb(fileStats.size),
             data: data,
             filePath: publicFile.filePath,

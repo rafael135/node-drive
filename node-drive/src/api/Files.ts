@@ -164,6 +164,10 @@ interface FileDataTypeResponse extends FileDataType {
 export const getFileData = async (filePath: string): Promise<FileDataType | null> => {
     //const queryClient = useQueryClient();
 
+    //while(filePath.includes("/")) {
+    //    filePath = filePath.replace('/', '%_');
+    //}
+
     let req = await AxiosInstance.get(`/user/files/view`, {
         params: {
             filePath: filePath

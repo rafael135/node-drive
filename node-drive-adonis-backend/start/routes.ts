@@ -62,7 +62,7 @@ Route.group(() => {
 
 		Route.get("/:userId/files/public/download", "FilesController.downloadPublicFile");
 
-		Route.get("/:userId/video/:filePath", "VideosController.streamVideo");
+		Route.get("/:userId/video", "VideosController.streamVideo");
 
 
 		Route.group(() => {

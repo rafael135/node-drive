@@ -65,14 +65,14 @@ const PublicFile = ({ userId, fileUrl }: props) => {
                         {(fileInfo?.type == "image") &&
                             <img
                                 src={`data:image/${fileInfo!.extension};base64,${fileInfo!.data}`}
-                                className="px-6 max-h-[75vh] transition-all ease-in-out duration-150"
+                                className="px-6 max-h-[65vh] transition-all ease-in-out duration-150"
                             />
                         }
 
                         {(fileInfo?.type == "video") &&
                             <video
                                 controls={true}
-                                className="w-auto h-auto"
+                                className="max-h-[65vh] w-auto"
                             >
                                 <source src={fileInfo.url!} type={fileInfo.mimeType!}></source>
                             </video>

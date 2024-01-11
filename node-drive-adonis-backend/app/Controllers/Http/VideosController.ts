@@ -9,7 +9,8 @@ export default class VideosController {
 
     async streamVideo({ request, response, params }: HttpContextContract) {
         const userId: string | null = params.userId;
-        const filePath: string | null = params.filePath;
+        //const filePath: string | null = params.filePath;
+        let { filePath } = request.qs() as { filePath: string | null }
 
         //const token = request.header("Authorization")!.split[1];
 
@@ -21,6 +22,12 @@ export default class VideosController {
                 status: 404
             });
         }
+
+        while(filePath.includes("25%")) {
+            filePath = filePath!.replace("25%", '/');
+        }
+
+        //console.log(filePath);
 
         let range = request.header("range");
 
