@@ -18,6 +18,7 @@ import PathLabel from "../../Atoms/PathLabel/Index";
 import { useSearchParams } from "react-router-dom";
 import Button from "../../Atoms/Button/Index";
 import ConfirmationModal from "../../Organisms/ConfirmationModal/Index";
+import { convertFileSizeToBytes } from "../../../helpers/File";
 
 /*
 export type FileUploadStatusContextType = {
@@ -99,6 +100,7 @@ const CurrentFolder = ({ userCtx }: props) => {
     const [pathLabels, setPathLabels] = useState<PathLabelType[]>(getPathLabels(path));
 
     const [files, setFiles] = useState<FileType[]>([]);
+    const [filesLoading, setFilesLoading] = useState<boolean>(true);
 
     const [showAddModal, setShowAddModal] = useState<boolean>(false);
     const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
@@ -145,34 +147,14 @@ const CurrentFolder = ({ userCtx }: props) => {
 
         //let res = await getUserFiles(userCtx.user!.id, path);
 
-        AxiosInstance.get("/user/files", { params: { userId: userCtx.user!.id, path: path } }).then((res) => {
-            let response: FileResponse = res.data;
+        setFilesLoading(true);
 
-            if (response.status != 200) {
-                return;
-            }
+        let res = await getUserFiles(userCtx.user!.id, path);
 
-            let files = response.files;
+        setFiles(res.files);
+        usedSpaceCtx.setUsedSize(res.occupiedSpace);
 
-            usedSpaceCtx.setUsedSize(response.occupiedSpace);
-
-            files = files.filter((f) => {
-                if (f.name != "ignore" && f.name != "downloadZip.zip") {
-                    return true;
-                }
-
-                return false;
-            });
-
-            setFiles([...files.map((file) => {
-                file.selected = false;
-                return file;
-            })]);
-
-            //console.log(files);
-        }).catch((err) => {
-
-        });
+        setFilesLoading(false);
     }
 
     const handleAddFile = () => {
@@ -394,15 +376,15 @@ const CurrentFolder = ({ userCtx }: props) => {
         //console.log(files);
 
         if (opt == "name") {
-            setFiles(files.sort((a, b) => {
+            setFiles([...files.sort((a, b) => {
                 if (a.name.localeCompare(b.name) == 0) {
                     return 0;
                 }
                 return (a.name.localeCompare(b.name) == 1) ? 1 : -1;
-            }));
+            })]);
             //console.log(files);
         } else if (opt == "type") {
-            setFiles(files.sort((a, b) => {
+            setFiles([...files.sort((a, b) => {
                 if (a.isFile == true && b.isFile == false) {
                     return 1;
                 } else if (a.isFile == false && b.isFile == true) {
@@ -410,30 +392,11 @@ const CurrentFolder = ({ userCtx }: props) => {
                 } else {
                     return 0;
                 }
-            }));
+            })]);
         } else if (opt == "size") {
-            setFiles(files.sort((a, b) => {
-                let sizeAMed = a.size.split(' ')[1];
-                let sizeBMed = b.size.split(' ')[1];
-
-                let sizeA = parseFloat(a.size.split(' ')[0]);
-                let sizeB = parseFloat(b.size.split(' ')[0]);
-
-                if (sizeAMed == "Bytes") {
-
-                } else if (sizeAMed == "Kb") {
-                    sizeA = sizeA * 1000;
-                } else {
-                    sizeA = sizeA * 1000000;
-                }
-
-                if (sizeBMed == "Bytes") {
-
-                } else if (sizeBMed == "Kb") {
-                    sizeB = sizeB * 1000;
-                } else {
-                    sizeB = sizeB * 1000000;
-                }
+            setFiles([...files.sort((a, b) => {
+                let sizeA = convertFileSizeToBytes(a.size);
+                let sizeB = convertFileSizeToBytes(b.size);
 
                 if (sizeA > sizeB) {
                     return 1;
@@ -442,10 +405,8 @@ const CurrentFolder = ({ userCtx }: props) => {
                 } else {
                     return 0;
                 }
-            }));
+            })]);
         }
-
-        setFiles([...files.reverse().reverse()]);
     }
 
     const handleFilter = () => {
@@ -508,6 +469,10 @@ const CurrentFolder = ({ userCtx }: props) => {
     }, [path]);
 
     useEffect(() => {
+        if(showConfirmModal == false) {
+            setConfirmModalAction(null);
+        }
+
         switch(confirmModalAction) {
             case "delete":
                 setOnYesAction(() => deleteFiles);
@@ -547,20 +512,20 @@ const CurrentFolder = ({ userCtx }: props) => {
                 <ConfirmationModal msg={confirmModalMsg} show={showConfirmModal} setShow={setShowConfirmModal} onYes={onYesAction!} />
             }
 
-            <div className="folderToolBar">
-                <div className="w-full py-0.5 px-2 flex flex-row gap-1 border-solid border-b border-b-gray-200">
+            <div className="folderToolBar" key={"toolbar"}>
+                <div key={"pathLabels"} className="w-full py-0.5 px-2 flex flex-row gap-1 border-solid border-b border-b-gray-200">
                     {pathLabels.map((p, idx) => {
                         return (
                             <>
                                 <PathLabel
-                                    key={idx + p.name.length}
+                                    key={p.name}
                                     name={p.name}
                                     path={p.path}
                                     setValue={setPath}
                                 />
 
                                 {(idx + 1 < pathLabels.length) &&
-                                    <span key={Math.random() * 99999999} className="text-slate-800">
+                                    <span key={p.name + idx} className="text-slate-800">
                                         /
                                     </span>
                                 }
@@ -569,7 +534,7 @@ const CurrentFolder = ({ userCtx }: props) => {
                     })}
                 </div>
 
-                <div className="flex-1 flex flex-row gap-2 items-center">
+                <div key={"toolbarOpts"} className="flex-1 flex flex-row gap-2 items-center">
                     <button
                         className="btn-back group"
                         title="Voltar"
@@ -589,6 +554,7 @@ const CurrentFolder = ({ userCtx }: props) => {
 
                     <select
                         className="select-filter"
+                        disabled={(filesLoading == true || files.length == 0) ? true : false}
                         ref={selectFilterInput}
                         onChange={handleFilter}
                         title="Filtrar por Tipo"
@@ -657,7 +623,9 @@ const CurrentFolder = ({ userCtx }: props) => {
             </div>
 
             <FilesContainer
+                key={"filesContainer"}
                 files={files}
+                isFilesLoading={filesLoading}
                 setFiles={setFiles}
                 pathInfo={_folderPath}
                 setShowAddModal={setShowAddModal}

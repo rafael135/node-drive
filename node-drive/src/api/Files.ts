@@ -4,7 +4,7 @@ import { FileDataType, FileType, PublicFileInfo, PublicFileType, SearchedFileTyp
 import { FolderPath } from "../components/Pages/Home/Index";
 //import { getRealPath } from "../helpers/PathOps";
 import fileDownload from "js-file-download";
-import { UsedSpaceContextType } from "../contexts/UsedSpaceContext";
+//import { UsedSpaceContextType } from "../contexts/UsedSpaceContext";
 
 type getUserFilesResponse = {
 
@@ -19,7 +19,10 @@ export const getUserFiles = async (userId: number, path: string) => {
     let response = req.data as getUserFilesResponse;
 
     if (response.status != 200) {
-        return [];
+        return {
+            files: [],
+            occupiedSpace: 0
+        };
     }
 
     let files = response.files;
@@ -37,7 +40,10 @@ export const getUserFiles = async (userId: number, path: string) => {
         return file;
     });
 
-    return files;
+    return {
+        files: files,
+        occupiedSpace: response.occupiedSpace
+    };
 }
 
 type getUserPublicFilesResponse = {
@@ -75,8 +81,14 @@ export const downloadFile = async (pathInfo: FolderPath, activeFile: FileType) =
         path = encodeURI(path);
         let fileName = encodeURI(activeFile.name);
 
-        AxiosInstance.get(`/user/files/download/${path}${fileName}`, {
-            responseType: "blob"
+        AxiosInstance.get(`/user/files/download`, {
+            params: {
+                filePath: `${path}/${fileName}`
+            },
+            responseType: "blob",
+            headers: {
+                Accept: `${activeFile.fileType}`
+            }
         })
             .then((res) => {
 
@@ -152,7 +164,11 @@ interface FileDataTypeResponse extends FileDataType {
 export const getFileData = async (filePath: string): Promise<FileDataType | null> => {
     //const queryClient = useQueryClient();
 
-    let req = await AxiosInstance.get(`/user/files/view?filePath=${filePath}`);
+    let req = await AxiosInstance.get(`/user/files/view`, {
+        params: {
+            filePath: filePath
+        }
+    });
     let res: FileDataTypeResponse = req.data;
 
     if (res.status == 400) {
@@ -277,7 +293,7 @@ export const getPublicFileInfo = async (userId: number, fileUrl: string) => {
         return res;
     }
 
-    return null;
+    return false;
 }
 
 export const downloadPublicFile = async (userId: number, fileInfo: PublicFileInfo) => {

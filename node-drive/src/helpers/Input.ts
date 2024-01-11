@@ -33,7 +33,11 @@ export const checkInputsErrors = (inputsRefs: RefObject<HTMLInputElement>[], def
         return;
     }
 
-    
+    if(errors[errors.length-1].target == "all") {
+        showError(inputsRefs[errors.length], defaultPlaceholders[defaultPlaceholders.length-1], errors[errors.length-1].msg);
+    }
+
+    /*
     let form = inputsRefs[0].current!.parentElement;
 
     while(form != null && form.tagName != "FORM") {
@@ -54,4 +58,5 @@ export const checkInputsErrors = (inputsRefs: RefObject<HTMLInputElement>[], def
         form.appendChild(errorSpan);
         form.addEventListener("focusin", event);
     }
+    */
 }

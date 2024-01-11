@@ -13,7 +13,6 @@ import { fsReadAll } from '@ioc:Adonis/Core/Helpers'
 
 //import Hash from '@ioc:Adonis/Core/Hash';
 
-import JWT from "jsonwebtoken";
 import PublicFile from 'App/Models/PublicFile';
 import User from 'App/Models/User';
 import mime from "mime";
@@ -151,7 +150,7 @@ export default class FilesController {
             });
         }
 
-        let decoded = JWT.decode(token) as decodedToken;
+        let decoded = UserController.getUserDecodedToken(token)!;
 
         if (decoded.id != userId || userId == null) {
             response.status(403);
@@ -440,7 +439,7 @@ export default class FilesController {
 
 
     async downloadFile({ request, response, params }: HttpContextContract) {
-        let filePath: string | null = params.filePath;
+        let { filePath } = request.qs() as { filePath: string | null };
         let token = request.header("Authorization")!.split(' ')[1];
 
         if (filePath == null) {
@@ -472,7 +471,7 @@ export default class FilesController {
 
             response.status(200);
             try {
-                await response.download(url);
+                return response.download(url);
             } catch (err) {
 
             }
@@ -555,7 +554,7 @@ export default class FilesController {
     }
 
     async viewFile({ request, response }: HttpContextContract) {
-        let token = request.header("Authorization")!.split(" ");
+        let token = request.header("Authorization")!.split(" ")[1];
         let { filePath } = request.qs();
 
         //console.log(filePath);
@@ -568,7 +567,7 @@ export default class FilesController {
             });
         }
 
-        let decoded = JWT.decode(token[1]) as decodedToken;
+        let decoded = UserController.getUserDecodedToken(token)!;
 
         let path = `user/${decoded.id}/files/${filePath}`;
         let realFilePath = `${Application.appRoot}/storage/${path}`;
@@ -830,7 +829,7 @@ export default class FilesController {
         //let drivePath = await Drive.use("local").getUrl(`${path}`);
 
         // Crio o pasta no diretorio do usuario
-        await fs.mkdir(`${drivePath}/${folderName}`);
+        await fs.mkdir(`${drivePath}/${folderName}`, { recursive: true });
 
         response.status(201);
         return response.send({
@@ -845,7 +844,7 @@ export default class FilesController {
         let filePath: string | null = request.input("filePath", null);
         let newName: string | null = request.input("newName", null);
         let isFile: boolean | null = request.input("isFile", null);
-        let token = request.header("Authorization")!.split(' ');
+        let token = request.header("Authorization")!.split(' ')[1]!;
 
         //console.log(newName);
 
@@ -859,7 +858,7 @@ export default class FilesController {
 
 
 
-        let decoded = JWT.decode(token[1]) as decodedToken;
+        let decoded = UserController.getUserDecodedToken(token)!;
 
         let path = `user/${decoded.id}/files${filePath}`;
         //let newPath = `user/${decoded.id}/files/${path.split('/')
@@ -1040,10 +1039,6 @@ export default class FilesController {
             url: url,
             status: 200
         });
-
-        //let decoded = JWT.decode(token) as decodedToken;
-
-
     }
 
 

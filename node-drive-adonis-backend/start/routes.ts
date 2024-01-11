@@ -31,7 +31,7 @@ Route.group(() => {
 		Route.get("/files", "FilesController.getFoldersAndFilesForUser").middleware(["auth"]);
 
 		Route.group(() => {
-			Route.get("/download/:filePath", "FilesController.downloadFile").middleware(["auth"]).where("filePath", { cast: (path) => String(path) });
+			Route.get("/download", "FilesController.downloadFile").middleware(["auth"]);
 
 			Route.get("/multiple/download", "FilesController.downloadFilesCompacted").middleware(["auth"]).where("files", { cast: (file) => Array.of(file) });
 

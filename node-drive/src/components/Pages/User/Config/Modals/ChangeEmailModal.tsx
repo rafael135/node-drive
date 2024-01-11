@@ -145,6 +145,7 @@ const ChangeEmailModal = ({ showEmailModal, setShowEmailModal }: props) => {
                         id="password"
                         name="password"
                         value={password} setValue={setPassword}
+                        autoComplete="current-password"
                         inputRef={passwordRef}
                         placeholder="Confirme sua senha"
                     />

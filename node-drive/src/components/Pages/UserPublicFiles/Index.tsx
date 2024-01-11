@@ -10,6 +10,7 @@ import PublicFileDetailsModal from "./Modals/PublicFileDetailsModal";
 import { sleep } from "../../../helpers/PathOps";
 import { makeFilePublic } from "../../../api/Files";
 import ConfirmationModal from "../../Organisms/ConfirmationModal/Index";
+import { convertFileSizeToBytes } from "../../../helpers/File";
 
 const PublicFilesSection = styled.section({
     width: "100%",
@@ -27,8 +28,6 @@ const PublicFilesTitle = styled.h1({
     fontSize: "18px",
     fontWeight: "bold",
     borderStyle: "solid",
-    borderTopWidth: "1px",
-    borderTopColor: "rgb(75 85 99 / 0.2)",
     backgroundColor: "rgb(249 250 251)",
     padding: "0.8rem",
     color: "rgb(30 41 59)"
@@ -97,6 +96,29 @@ const UserPublicFiles = ({ userCtx }: props) => {
         publicFiles.refetch();
     }
 
+    const handleFilterFiles = (filterId: number) => {
+        switch(filterId) {
+            case 1:
+                setFiles([...files.sort((a, b) => a.name.localeCompare(b.name))]);
+                break;
+
+            case 2:
+                setFiles([...files.sort((a, b) => {
+                    let sizeA = convertFileSizeToBytes(a.size);
+                    let sizeB = convertFileSizeToBytes(b.size);
+
+                    if (sizeA > sizeB) {
+                        return 1;
+                    } else if (sizeA < sizeB) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                })]);
+                break;
+        }
+    }
+
     useEffect(() => {
         if(publicFiles.data != undefined) {
             setFiles(publicFiles.data.files ?? []);
@@ -138,7 +160,7 @@ const UserPublicFiles = ({ userCtx }: props) => {
                     Arquivos Compartilhados
                 </PublicFilesTitle>
 
-                <UserPublicFilesToolbar publicFilesQuery={publicFiles} maxSharedFilesQuery={maxSharedFiles} reloadFiles={handleBtnReloadFiles} sharedFiles={sharedFiles} maxSharedFiles={maxFiles} />
+                <UserPublicFilesToolbar publicFilesQuery={publicFiles} maxSharedFilesQuery={maxSharedFiles} reloadFiles={handleBtnReloadFiles} sharedFiles={sharedFiles} maxSharedFiles={maxFiles} setFilter={handleFilterFiles} />
 
                 <PublicFilesContainer className={`${(files.length == 0) ? "justify-center items-center" : ""}`}>
                     {(publicFiles.isLoading == true) &&

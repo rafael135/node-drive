@@ -9,13 +9,12 @@ import { motion } from "framer-motion";
 import { GrDocumentWord } from "react-icons/gr";
 
 type props = {
-    key: number;
     info: FileType;
     isRenaming: boolean;
     renamingFileIdx: number | null;
     setRenamingFilesIdx: React.Dispatch<React.SetStateAction<number | null>>;
-
-    doneRenamingFile: (newName: string) => Promise<void>;
+    doneRenamingFile: () => Promise<void>;
+    changeFileName: (idx: number, newName: string) => void;
     fileIndex: number;
     setFileChecked: (idx: number, currentValue: boolean) => void;
     folderPath: {
@@ -29,11 +28,10 @@ type props = {
     focus: boolean;
 }
 
-const File = forwardRef(({ key, info, isRenaming, renamingFileIdx, setRenamingFilesIdx, doneRenamingFile, fileIndex, setFileChecked, folderPath, infoToShow, setShowActions, showActions, focus }: props, ref) => {
+const File = forwardRef(({ info, isRenaming, renamingFileIdx, setRenamingFilesIdx, doneRenamingFile, changeFileName, fileIndex, setFileChecked, folderPath, infoToShow, setShowActions, showActions, focus }: props, ref) => {
     const [activeFile, setActiveFile] = useState<string | null>(null);
 
-    const fileNameRef = useRef<HTMLSpanElement | null>(null);
-    const [newFileName, setNewFileName] = useState<string>(info.name);
+    const fileNameRef = useRef<HTMLInputElement | null>(null);
 
     const [_focus, _setFocus] = useState<boolean>(focus);
 
@@ -65,32 +63,44 @@ const File = forwardRef(({ key, info, isRenaming, renamingFileIdx, setRenamingFi
         setFileChecked(fileIndex, info.selected!);
     }
 
-    const handleDoneRenaming = async (e: React.KeyboardEvent) => {
-        if (e.key == "ArrowDown" || e.key == "ArrowLeft" || e.key == "ArrowRight" || e.key == "ArrowUp" || e.key == "End" || e.key == "Home" || e.key == "PageDown" || e.key == "PageUp") {
-            return;
-        }
+    const handleRenaming = (e: React.ChangeEvent) => {
+        changeFileName(fileIndex, (e.target as HTMLInputElement).value!.trim());
+    }
 
-        if (e.key == "Enter") {
-            e.preventDefault();
-            doneRenamingFile(newFileName);
-            //doneRenamingFile(fileIndex);
-            setRenamingFilesIdx(null);
-            return;
-        }
+    const handleDoneRenaming = async () => {
+        //if (e.key == "ArrowDown" || e.key == "ArrowLeft" || e.key == "ArrowRight" || e.key == "ArrowUp" || e.key == "End" || e.key == "Home" || e.key == "PageDown" || e.key == "PageUp") {
+        //    return;
+        //}
 
-        setNewFileName((e.target as HTMLSpanElement).innerText!.trim());
+        //if (e?.key == "Enter") {
+        //e.preventDefault();
+        //(e.target as HTMLSpanElement).innerHTML = (e.target as HTMLSpanElement).innerHTML.replace("<br>", '');
+
+
+        await doneRenamingFile();
+        //(fileNameRef.current as HTMLInputElement).blur();
+        //setNewFileName("");
+        //doneRenamingFile(fileIndex);
+        //setRenamingFilesIdx(null);
+        //return;
+        //}
+
+        //(e.target as HTMLSpanElement).innerText.sel
+
+        //setNewFileName((e.target as HTMLSpanElement).innerText!.trim());
 
         //renameFile(fileIndex, (e.target as HTMLSpanElement).innerText!);
     }
 
     useEffect(() => {
         if (renamingFileIdx != null) {
-            const doneRenaming = () => { setRenamingFilesIdx(null); }
+            const doneRenaming = () => { handleDoneRenaming(); }
             if (renamingFileIdx == fileIndex) {
                 fileNameRef.current!.focus();
                 //fileNameRef.current!.inputMode = "text";
 
                 fileNameRef.current!.addEventListener("focusout", doneRenaming);
+
             }
 
             return () => { fileNameRef.current!.removeEventListener("focusout", doneRenaming); };
@@ -99,7 +109,6 @@ const File = forwardRef(({ key, info, isRenaming, renamingFileIdx, setRenamingFi
 
     return (
         <motion.div
-            key={key}
             className={`file-card ${(_focus == true) ? "animate-fast-pulse" : ""}`}
             transition={{ type: "spring", duration: 0.5 }}
             initial={{ opacity: 1, y: 800 }}
@@ -151,21 +160,16 @@ const File = forwardRef(({ key, info, isRenaming, renamingFileIdx, setRenamingFi
                 }
 
 
-                <span
-                    className="fileName"
+                <input
+                    className={`fileName bg-transparent ${(renamingFileIdx == fileIndex) ? "!cursor-text" : ""}`}
                     ref={fileNameRef}
-                    contentEditable={(renamingFileIdx != null) ? true : false}
-                    onKeyUp={(e) => { handleDoneRenaming(e); }}
-                    suppressContentEditableWarning={true}
-                >
-                    {(isRenaming == true && fileIndex == renamingFileIdx) &&
-                        newFileName
-                    }
-
-                    {(fileIndex != renamingFileIdx) &&
-                        info.name
-                    }
-                </span>
+                    //contentEditable={(renamingFileIdx == fileIndex) ? true : false}
+                    readOnly={(renamingFileIdx == fileIndex) ? false : true}
+                    onChange={handleRenaming}
+                    onKeyUp={(e) => { if (e.key == "Enter") { handleDoneRenaming(); } }}
+                    //suppressContentEditableWarning={true}
+                    value={info.name}
+                />
             </div>
 
 

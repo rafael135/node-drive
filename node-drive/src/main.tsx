@@ -105,7 +105,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 					<UsedSpaceContextProvider>
 						<RouterProvider router={router} />
 
-						<ReactQueryDevtools initialIsOpen={false} position="bottom" buttonPosition="bottom-right" />
+						<ReactQueryDevtools initialIsOpen={false} position="right" buttonPosition="bottom-left" />
 					</UsedSpaceContextProvider>
 				</MouseLocationContextProvider>
 			</UserAuthProvider>

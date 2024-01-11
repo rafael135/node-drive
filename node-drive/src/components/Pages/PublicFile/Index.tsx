@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from "react";
-import { getPublicFileInfo } from "../../../api/Files";
+//import { getPublicFileInfo } from "../../../api/Files";
 import { BsFileArrowDownFill, BsFilePdfFill } from "react-icons/bs";
 import { PublicFileInfo, PublicFileUser } from "../../../types/File";
 import Layout from "./Layout";
 import { TfiClose, TfiZip } from "react-icons/tfi";
 import { PublicFileInterationContext } from "../../../contexts/PublicFileInteractionContext";
-import { Avatar } from "flowbite-react";
+//import { Avatar } from "flowbite-react";
 import PublicFileMenu from "./Menus/PublicFileMenu";
 import { usePublicFileInfo } from "../../../utils/Queries";
+import { useNavigate } from "react-router-dom";
 
 type props = {
     userId: number;
@@ -15,6 +16,8 @@ type props = {
 };
 
 const PublicFile = ({ userId, fileUrl }: props) => {
+    const navigate = useNavigate();
+
     const [fileInfo, setFileInfo] = useState<PublicFileInfo | null>(null);
     const [userInfo, setUserInfo] = useState<PublicFileUser | null>(null);
 
@@ -22,9 +25,9 @@ const PublicFile = ({ userId, fileUrl }: props) => {
 
     const publicFileContext = useContext(PublicFileInterationContext)!;
 
-    const [showData, setShowData] = useState<boolean>(false);
+    //const [showData, setShowData] = useState<boolean>(false);
 
-    let dateNow = new Date(Date.now());
+    //let dateNow = new Date(Date.now());
 
     
 
@@ -38,9 +41,11 @@ const PublicFile = ({ userId, fileUrl }: props) => {
         //    }
         //});
 
-        if(publicFileInfo != undefined) {
-            setFileInfo(publicFileInfo.data?.fileInfo! ?? null);
-            setUserInfo(publicFileInfo.data?.userInfo ?? null);
+        if(publicFileInfo.data != undefined && publicFileInfo.data != false) {
+            setFileInfo(publicFileInfo.data!.fileInfo ?? null);
+            setUserInfo(publicFileInfo.data!.userInfo ?? null);
+        } else if(publicFileInfo.data == false) {
+            return navigate("/");
         }
     }, [publicFileInfo.data]);
 
@@ -60,7 +65,7 @@ const PublicFile = ({ userId, fileUrl }: props) => {
                         {(fileInfo?.type == "image") &&
                             <img
                                 src={`data:image/${fileInfo!.extension};base64,${fileInfo!.data}`}
-                                className="px-6 transition-all ease-in-out duration-150"
+                                className="px-6 max-h-[75vh] transition-all ease-in-out duration-150"
                             />
                         }
 

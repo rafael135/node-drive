@@ -4,9 +4,10 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { AuthError } from "../../../../types/Auth";
 import { login } from "../../../../api/Auth";
 import { checkInputsErrors } from "../../../../helpers/Input";
+import { Link } from "react-router-dom";
 
 const Login = () => {
-    //let navigate = useNavigate();
+    let navigate = useNavigate();
     const authCtx = useContext(UserAuthContext)!;
 
     if (authCtx.token != null && authCtx.user != null) {
@@ -81,6 +82,10 @@ const Login = () => {
                         id="password"
                     />
                 </div>
+
+                <span className="text-sm text-slate-800 px-4 mb-2.5">
+                    Ainda não possui uma conta? <Link className="text-blue-500 px-1 rounded-md hover:text-blue-600 hover:bg-black/5 active:text-blue-700" to={"/register"}>Clique aqui</Link>
+                </span>
 
                 <button
                     onClick={handleLogin}

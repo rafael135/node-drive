@@ -12,10 +12,10 @@ const FileUploadToast = ({ msg, msgType, setShowToast }: props) => {
 
     setTimeout(() => {
         setShowToast(false);
-    }, 2500);
+    }, 4500);
 
     return (
-        <Toast className={`absolute bottom-1.5 right-1.5 cursor-default bg-gray-100 border border-solid border-gray-700/80 shadow-lg`} duration={200} hidden={false}>
+        <Toast className={`absolute bottom-1.5 right-1.5 md:!w-96 cursor-default bg-gray-100 border border-solid border-gray-700/80 shadow-lg`} duration={200} hidden={false}>
             <div className={`w-full max-w-full flex flex-row gap-1 items-center justify-around` + 
                 (msgType == "error" ? "text-red-600 hover:text-red-700" : "") +
                 (msgType == "info" ? "text-slate-700 hover:text-slate-800" : "") +

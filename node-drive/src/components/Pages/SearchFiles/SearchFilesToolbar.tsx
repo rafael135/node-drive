@@ -10,8 +10,6 @@ const StyledSearchFilesToolbar = styled.div({
     height: "auto",
     padding: "0.6rem",
     borderStyle: "solid",
-    borderTopWidth: "1px",
-    borderTopColor: "rgb(75 85 99 / 0.2)",
     borderBottomWidth: "1px",
     borderBottomColor: "rgb(75 85 99 / 0.2)",
     backgroundColor: "rgb(249 250 251)"

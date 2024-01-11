@@ -5,11 +5,10 @@ import { FcVideoFile } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 
 type props = {
-    key: number;
     file: FileType;
 };
 
-const SearchedFile = ({ key, file }: props) => {
+const SearchedFile = ({ file }: props) => {
 
     const navigate = useNavigate();
 
@@ -19,7 +18,6 @@ const SearchedFile = ({ key, file }: props) => {
 
     return (
         <motion.div
-            key={key}
             className="file-card"
             transition={{ type: "spring", duration: 0.5 }}
             initial={{ opacity: 1, y: 800 }}

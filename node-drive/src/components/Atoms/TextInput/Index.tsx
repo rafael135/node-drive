@@ -9,9 +9,10 @@ type props = {
     className?: string;
     onKeyUp?: (e: React.KeyboardEvent) => void;
     inputRef?: React.MutableRefObject<HTMLInputElement | null>;
+    autoComplete?: string;
 };
 
-const TextInput = ({ type, value, setValue, placeholder, id, name, className, onKeyUp, inputRef }: props) => {
+const TextInput = ({ type, value, setValue, placeholder, id, name, className, autoComplete, onKeyUp, inputRef }: props) => {
 
 
     return (
@@ -23,7 +24,7 @@ const TextInput = ({ type, value, setValue, placeholder, id, name, className, on
             id={id}
             name={name}
             ref={inputRef}
-
+            autoComplete={autoComplete}
             onChange={(e) => setValue(e.target.value)}
             onKeyUp={(onKeyUp == undefined) ? () => {} : onKeyUp}
 

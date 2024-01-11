@@ -1,9 +1,10 @@
-import { AuthResponseType, UserAuthContext } from "../../../../contexts/UserContext";
-import { useState, useContext, useRef, MutableRefObject, useEffect } from "react";
+import { UserAuthContext } from "../../../../contexts/UserContext";
+import { useState, useContext, useRef, useEffect } from "react";
 import { AuthError } from "../../../../types/Auth";
 import { Navigate, useNavigate } from "react-router-dom";
 import { register } from "../../../../api/Auth";
 import { checkInputsErrors } from "../../../../helpers/Input";
+import { Link } from "react-router-dom";
 
 
 const Register = () => {
@@ -28,7 +29,7 @@ const Register = () => {
     let placeholders = ["Nome", "E-mail", "Senha", "Repita a Senha"];
 
     const handleRegister = async () => {
-        if (name != "" && email != "" && password != "" && confirmPassword != "") {
+        if ((name != "" && email != "" && password != "" && confirmPassword != "") && password == confirmPassword) {
 
             let res = await register(name, email, password, confirmPassword);
 
@@ -68,15 +69,10 @@ const Register = () => {
 
         if(confirmPassword == "") { errors.push({ target: "confirmPassword", msg: "Senha não preenchida!" }); }
 
+        if(confirmPassword != password) { errors.push({ target: "confirmPassword", msg: "A senha é diferente!" }); }
+
         checkInputsErrors([nameInput, emailInput, passwordInput, confirmPasswordInput], placeholders, errors);
     }
-
-    useEffect(() => {
-        if (authCtx.token != null && authCtx.user != null) {
-            navigate("/");
-            //return <Navigate to={"/"} />;
-        }
-    }, [authCtx]);
 
     return (
         <div className="auth-screen">
@@ -123,6 +119,10 @@ const Register = () => {
                         ref={confirmPasswordInput}
                         id="confirmPassword"
                     />
+
+                    <span className="text-sm text-slate-800 px-1">
+                        Já possui uma conta? <Link className="text-blue-500 px-1 rounded-md hover:text-blue-600 hover:bg-black/5 active:text-blue-700" to={"/login"}>Clique aqui</Link>
+                    </span>
 
                     <button
                         onClick={handleRegister}
